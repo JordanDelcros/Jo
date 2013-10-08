@@ -1,7 +1,5 @@
 (function( window, undefined ){
 
-	var regexp = /(\w+\s*\w*[^,])+/ig;
-
 	var Jo = function( selector, context ){
 		return new Jo.fn.init(selector, context);
 	};
@@ -17,11 +15,27 @@
 
 			if( typeof selector === "string" ){
 
-				console.log( selector.split(/\s*,\s*/ig) );
+				found = Jo.fn.parseSelector(selector);
 			
 			};
 
 			return this;
+
+		},
+		parseSelector: function( selector ){
+
+			var replacements = {
+			};
+
+			selector = selector.split(/\s*,\s*/ig);
+
+			for( var key in selector ){
+
+				var target = selector[key].split(/\s+/ig);
+
+				console.log(target);
+
+			};
 
 		},
 		each: function( data ){
@@ -38,3 +52,5 @@
 	if( typeof window === "object" && typeof window.document === "object" ) window.Jo = window.$ = Jo;
 
 })( window );
+
+// header h1, header h1 span, section, p 
