@@ -24,8 +24,7 @@
 		},
 		parseSelector: function( selector ){
 
-			var replacements = {
-			};
+			selector = selector.replace(/\s*([<>:])\s*/ig, "$1");
 
 			selector = selector.split(/\s*,\s*/ig);
 
