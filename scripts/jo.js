@@ -27,7 +27,7 @@
 			var returned = new Array();
 
 			// REMOVE UNEXPECTED SPACE ON SPECIAL SYMBOLS
-			selector = selector.replace(/\s*([<>:\[\]])\s*/ig, "$1").split(/\s*,\s*/ig);
+			selector = selector.replace(/\s*([<>:])\s*/ig, "$1").split(/\s*,\s*/ig);
 
 			// SPLIT SPACE FOREACH SELECTOR
 			for( var key in selector ) selector[key] = selector[key].split(/\s+/ig);
@@ -42,10 +42,69 @@
 					object.string = selector[key][subkey];
 
 					// IF CONTAIN ID
-					if( object.string.match(/#/) ) object.id = /#([\w]+)/ig.exec( object.string )[1];
+					if( object.string.match(/#/ig) ){
+
+						if( !object.attributes ) object.attributes = new Array();
+
+						object.attributes.push({
+							name: "id",
+							estate: "=",
+							value: /#(\w+)/ig.exec( object.string )[1]
+						});
+
+					};
+
 					// IF CONTAIN CLASS
-					if( object.string.match(/\./) ) object.class = /\.([\w]+)/ig.exec( object.string )[1];
-					// IF CONTAIN 
+					if( object.string.match(/\./ig) ){
+
+						if( !object.attributes ) object.attributes = new Array();
+
+						object.attributes.push({
+							name: "class",
+							estate: "=",
+							value: /\.(\w+)/ig.exec( object.string )[1]
+						});
+
+					};
+
+					// IF CONTAIN OTHER ATTRIBUTS
+					if( object.string.match(/\[/ig) ){
+
+						if( !object.attributes ) object.attributes = new Array();
+
+						var attributes = object.string.match(/\[[\w-]+\W+[^\]]*\]/ig);
+
+						for( var attribute in attributes ){
+
+							var datas = /\[([\w-]+)(\W+)([^\]]*)/ig.exec(attributes[attribute]);
+
+							object.attributes.push({
+								name: datas[1],
+								estate: datas[2],
+								value: datas[3]
+							});
+
+						};
+					
+					};
+
+					// IF CONTAIN PSEUDO
+					if( object.string.match(/:/ig) ){
+
+						if( !object.pseudos ) object.pseudos = new Object();
+
+						var pseudos = object.string.match(/:([\w-]+)(\(([^\)]+)\))?/ig);
+
+						for( pseudo in pseudos ){
+
+							var datas = /:([\w-]+)(\(([^\)]+)\))?/ig.exec(pseudos[pseudo]);
+
+							object.pseudos[datas[1]] = datas[3] ? datas[3] : null;
+	
+						};
+
+
+					};
 
 					selector[key][subkey] = object;
 
