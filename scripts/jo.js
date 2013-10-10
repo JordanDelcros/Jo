@@ -130,12 +130,50 @@
 
 					};
 
+					var DOMelements = new Array();
+
 					// GETTING DOM ELEMENTS
 					if( object.tag ){
 
-						console.log( object.tag );
+						if( typeof object.tag === "object" ){
+
+							element = document.getElementsByTagName(object.tag[0]);
+
+							for( var subElement in element ){
+
+								var childs = element[subElement].childNodes;
+								var toDOMelements = new Array();
+
+								if( !childs ) continue;
+
+								for( var child = 0; child < childs.length; child++ ){
+
+									if( childs[child].nodeType === 1 ) parseChilds(childs[child], toDOMelements);
+
+									DOMelements.push(toDOMelements[toDOMelements.length - 1]);
+
+									toDOMelements = [];
+
+								};
+
+							};							
+
+						}
+						else {
+
+							element = document.getElementsByTagName(object.tag);
+
+							for( var subElement in element ){
+
+								DOMelements.push(element[subElement]);
+
+							};
+
+						};
 
 					};
+
+					console.log("dom", DOMelements )
 
 					selector[key][subkey] = object;
 
@@ -155,6 +193,21 @@
 			return this;
 
 		}
+	};
+
+	// PARSE CHILDS RECURSIVELY
+	function parseChilds( element, descendants ){
+
+		descendants.push(element);
+
+		var children = element.childNodes;
+		
+		for( var i = 0; i < children.length; i++ ){
+			
+			if (children[i].nodeType == 1) parseChilds(children[i], descendants);
+		
+		};
+
 	};
 
 	Jo.infos = function(){
