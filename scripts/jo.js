@@ -32,7 +32,7 @@
 			// SPLIT SPACE FOREACH SELECTOR
 			for( var key in selector ) selector[key] = selector[key].split(/\s+/ig);
 
-			// TRANSFORM SELECTOR STRING DETAILED TO OBJECT
+			// TRANSFORM SELECTOR STRING TO DETAILED OBJECT
 			for( var key in selector ){
 
 				for( subkey in selector[key] ){
@@ -40,6 +40,30 @@
 					var object = new Object();
 
 					object.string = selector[key][subkey];
+
+					// IF CONTAIN TAG
+					if( object.string.match(/^\w+/ig) ){
+
+						if( object.string.match(/\>/ig) ){
+
+							object.tag = new Array();
+
+							var tags = object.string.split(/>/ig);
+
+							for( var tagKey in tags ){
+
+								object.tag[tagKey] = tags[tagKey].match(/^\w+/ig)[0];
+
+							};
+
+						}
+						else {
+						
+							object.tag = object.string.match(/^\w+/ig)[0];
+
+						};
+
+					};
 
 					// IF CONTAIN ID
 					if( object.string.match(/#/ig) ){
@@ -106,6 +130,13 @@
 
 					};
 
+					// GETTING DOM ELEMENTS
+					if( object.tag ){
+
+						console.log( object.tag );
+
+					};
+
 					selector[key][subkey] = object;
 
 				};
@@ -124,6 +155,17 @@
 			return this;
 
 		}
+	};
+
+	Jo.infos = function(){
+
+		console.log({
+			Jo: "0.1",
+			author: "Jordan Delcros",
+			author_github: "JordanDelcros",
+			author_website: "http://www.jordan-delcros.com"
+		});
+
 	};
 
 	Jo.fn.init.prototype = Jo.fn;
