@@ -142,17 +142,12 @@
 							for( var subElement in element ){
 
 								var childs = element[subElement].childNodes;
-								var toDOMelements = new Array();
 
 								if( !childs ) continue;
 
 								for( var child = 0; child < childs.length; child++ ){
 
-									if( childs[child].nodeType === 1 ) parseChilds(childs[child], toDOMelements);
-
-									DOMelements.push(toDOMelements[toDOMelements.length - 1]);
-
-									toDOMelements = [];
+									if( childs[child].nodeType === 1 ) console.log("domA", parseChilds(childs[child], object, DOMelements, 1) );
 
 								};
 
@@ -173,7 +168,7 @@
 
 					};
 
-					console.log("dom", DOMelements )
+					console.log("domB", DOMelements );
 
 					selector[key][subkey] = object;
 
@@ -181,22 +176,19 @@
 
 			};
 
-			console.log( selector );
+			// console.log( selector );
 
 			return returned;
 
 		},
 		each: function( data ){
-			
-			console.log(data);
-
-			return this;
-
 		}
 	};
 
 	// PARSE CHILDS RECURSIVELY
-	function parseChilds( element, descendants ){
+	function parseChilds( element, desired, descendants, counter ){
+
+		if( !isNumber(counter) ) var counter = 0;
 
 		descendants.push(element);
 
@@ -204,8 +196,40 @@
 		
 		for( var i = 0; i < children.length; i++ ){
 			
-			if (children[i].nodeType == 1) parseChilds(children[i], descendants);
+			if( children[i].nodeType === 1 ){
+
+				console.log( element.tagName.toLowerCase(), desired.tag[counter], counter, desired );
+
+				if( !element.tagName === desired.tag[counter] ) continue;
+
+				counter++;
+
+				parseChilds(children[i], desired, descendants, counter);
+
+			};
 		
+		};
+
+	};
+
+	function isEmpty( source ){
+
+		if( source === undefined || source === null || source === "" ){
+			return true;
+		}
+		else {
+			return false;
+		};
+
+	};
+
+	function isNumber( source ){
+
+		if( !isEmpty(source) && typeof source === "number" ){
+			return true;
+		}
+		else {
+			return false;
 		};
 
 	};
