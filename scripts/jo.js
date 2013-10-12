@@ -15,163 +15,11 @@
 
 			if( typeof selector === "string" ){
 
-				found = Jo.fn.parseSelector(selector);
+				found = parseSelector(selector);
 			
 			};
 
 			return this;
-
-		},
-		parseSelector: function( selector ){
-
-			var returned = new Array();
-
-			// REMOVE UNEXPECTED SPACE ON SPECIAL SYMBOLS
-			selector = selector.replace(/\s*([<>:])\s*/ig, "$1").split(/\s*,\s*/ig);
-
-			// SPLIT SPACE FOREACH SELECTOR
-			for( var key in selector ) selector[key] = selector[key].split(/\s+/ig);
-
-			// TRANSFORM SELECTOR STRING TO DETAILED OBJECT
-			for( var key in selector ){
-
-				for( subkey in selector[key] ){
-
-					var object = new Object();
-
-					object.string = selector[key][subkey];
-
-					// IF CONTAIN TAG
-					if( object.string.match(/^\w+/ig) ){
-
-						if( object.string.match(/\>/ig) ){
-
-							object.tag = new Array();
-
-							var tags = object.string.split(/>/ig);
-
-							for( var tagKey in tags ){
-
-								object.tag[tagKey] = tags[tagKey].match(/^\w+/ig)[0];
-
-							};
-
-						}
-						else {
-						
-							object.tag = object.string.match(/^\w+/ig)[0];
-
-						};
-
-					};
-
-					// IF CONTAIN ID
-					if( object.string.match(/#/ig) ){
-
-						if( !object.attributes ) object.attributes = new Array();
-
-						object.attributes.push({
-							name: "id",
-							estate: "=",
-							value: /#(\w+)/ig.exec( object.string )[1]
-						});
-
-					};
-
-					// IF CONTAIN CLASS
-					if( object.string.match(/\./ig) ){
-
-						if( !object.attributes ) object.attributes = new Array();
-
-						object.attributes.push({
-							name: "class",
-							estate: "=",
-							value: /\.(\w+)/ig.exec( object.string )[1]
-						});
-
-					};
-
-					// IF CONTAIN OTHER ATTRIBUTS
-					if( object.string.match(/\[/ig) ){
-
-						if( !object.attributes ) object.attributes = new Array();
-
-						var attributes = object.string.match(/\[[\w-]+\W+[^\]]*\]/ig);
-
-						for( var attribute in attributes ){
-
-							var datas = /\[([\w-]+)(\W+)([^\]]*)/ig.exec(attributes[attribute]);
-
-							object.attributes.push({
-								name: datas[1],
-								estate: datas[2],
-								value: datas[3]
-							});
-
-						};
-					
-					};
-
-					// IF CONTAIN PSEUDO
-					if( object.string.match(/:/ig) ){
-
-						if( !object.pseudos ) object.pseudos = new Object();
-
-						var pseudos = object.string.match(/:([\w-]+)(\(([^\)]+)\))?/ig);
-
-						for( pseudo in pseudos ){
-
-							var datas = /:([\w-]+)(\(([^\)]+)\))?/ig.exec(pseudos[pseudo]);
-
-							object.pseudos[datas[1]] = datas[3] ? datas[3] : null;
-	
-						};
-
-
-					};
-
-					var elements;
-					var returned = new Array();
-
-					// GETTING DOM ELEMENTS
-					if( object.tag ){
-
-						if( typeof object.tag === "object" ){
-
-							elements = document.getElementsByTagName(object.tag[0]);
-
-							if( !isEmpty(elements) ){
-
-								parseChilds(elements, object, returned);
-
-							};
-
-						}
-						else {
-
-							elements = document.getElementsByTagName(object.tag);
-
-							for( var subElement in elements ){
-
-								returned.push(elements[subElement]);
-
-							};
-
-						};
-
-					};
-
-					console.log("domB", returned );
-
-					selector[key][subkey] = object;
-
-				};
-
-			};
-
-			// console.log( selector );
-
-			return returned;
 
 		},
 		each: function( data ){
@@ -180,7 +28,18 @@
 
 	function isEmpty( source ){
 
-		if( source === undefined || source === null || source === "" || source.length <= 0 ){
+		if( typeof source === undefined || typeof source === null || source === false || source === "" ){
+			return true;
+		}
+		else {
+			return false;
+		};
+
+	};
+
+	function isBool( source ){
+
+		if( typeof source === "boolean" ){
 			return true;
 		}
 		else {
@@ -211,7 +70,7 @@
 
 	};
 
-	function isArray( source ){
+	function isArray( source, strict ){
 
 		if( !isEmpty(source) && (typeof source === "array" || source instanceof Array) ){
 			return true;
@@ -269,11 +128,179 @@
 
 	};
 
+	function clone( variable ){
+
+		if( !isObject(variable) || isEmpty(variable) ) return variable;
+
+		var newInstance = variable.constructor();
+
+		for( var key in variable ){
+			newInstance[key] = clone(variable[key]);
+		};
+
+		return newInstance;
+
+	};
+
+	// PARSE CSS SELECTORS
+	function parseSelector( selector ){
+
+		var returned = new Array();
+
+		// REMOVE UNEXPECTED SPACE ON SPECIAL SYMBOLS
+		selector = selector.replace(/\s*([<>:])\s*/ig, "$1").split(/\s*,\s*/ig);
+
+		// SPLIT SPACE FOREACH SELECTOR
+		for( var key in selector ) selector[key] = selector[key].split(/\s+/ig);
+
+		// TRANSFORM SELECTOR STRING TO DETAILED OBJECT
+		for( var key in selector ){
+
+			for( subkey in selector[key] ){
+
+				var object = new Object();
+
+				object.string = selector[key][subkey];
+
+				// IF CONTAIN TAG
+				if( object.string.match(/^\w+/ig) ){
+
+					if( object.string.match(/\>/ig) ){
+
+						object.tag = new Array();
+
+						var tags = object.string.split(/>/ig);
+
+						for( var tagKey in tags ){
+
+							object.tag[tagKey] = tags[tagKey].match(/^\w+/ig)[0];
+
+						};
+
+					}
+					else {
+					
+						object.tag = object.string.match(/^\w+/ig)[0];
+
+					};
+
+				};
+
+				// IF CONTAIN ID
+				if( object.string.match(/#/ig) ){
+
+					if( !object.attributes ) object.attributes = new Array();
+
+					object.attributes.push({
+						name: "id",
+						estate: "=",
+						value: /#(\w+)/ig.exec( object.string )[1]
+					});
+
+				};
+
+				// IF CONTAIN CLASS
+				if( object.string.match(/\./ig) ){
+
+					if( !object.attributes ) object.attributes = new Array();
+
+					object.attributes.push({
+						name: "class",
+						estate: "=",
+						value: /\.(\w+)/ig.exec( object.string )[1]
+					});
+
+				};
+
+				// IF CONTAIN OTHER ATTRIBUTS
+				if( object.string.match(/\[/ig) ){
+
+					if( !object.attributes ) object.attributes = new Array();
+
+					var attributes = object.string.match(/\[[\w-]+\W+[^\]]*\]/ig);
+
+					for( var attribute in attributes ){
+
+						var datas = /\[([\w-]+)(\W+)([^\]]*)/ig.exec(attributes[attribute]);
+
+						object.attributes.push({
+							name: datas[1],
+							estate: datas[2],
+							value: datas[3]
+						});
+
+					};
+				
+				};
+
+				// IF CONTAIN PSEUDO
+				if( object.string.match(/:/ig) ){
+
+					if( !object.pseudos ) object.pseudos = new Object();
+
+					var pseudos = object.string.match(/:([\w-]+)(\(([^\)]+)\))?/ig);
+
+					for( pseudo in pseudos ){
+
+						var datas = /:([\w-]+)(\(([^\)]+)\))?/ig.exec(pseudos[pseudo]);
+
+						object.pseudos[datas[1]] = datas[3] ? datas[3] : null;
+
+					};
+
+
+				};
+
+				var elements;
+				var returned = new Array();
+
+				// GETTING DOM ELEMENTS
+				if( object.tag ){
+
+					if( isArray(object.tag) ){
+
+						elements = document.getElementsByTagName(object.tag[0]);
+
+						if( !isEmpty(elements) ){
+
+							parseDirectChilds(elements, object, returned);
+
+						};
+
+					}
+					else {
+
+						elements = document.getElementsByTagName(object.tag);
+
+						for( var subElement in elements ){
+
+							returned.push(elements[subElement]);
+
+						};
+
+					};
+
+				};
+
+				console.log(object);
+
+				console.log("domB", returned );
+
+				selector[key][subkey] = object;
+
+			};
+
+		};
+
+		console.log( selector );
+
+		return returned;
+
+	};
+
 	// PARSE CHILDS RECURSIVELY
-	function parseChilds( elements, desired, descendants ){
+	function parseDirectChilds( elements, desired, array ){
 
-
-		// PUT ELEMENTS INTO ARRAY CONTAING ITSELF
 		if( !isArray(elements) ){
 
 			if( elements instanceof NodeList ){
@@ -289,28 +316,28 @@
 
 		};
 
-		for( var element = 0; element < elements.length; element++ ){
+		for( var el = 0; el < elements.length; el++ ){
 
-			console.log( elements[element] );
+			if( desired.tag.length === 1 && elements[el].tagName.toLowerCase() === desired.tag[0] ){
 
-			if( elements[element].tagName.toLowerCase() === desired.tag[0] && desired.tag.length === 1 ){
-
-				descendants.push(elements[element]);
+				array.push(elements[el]);
 			
 			};
 
+			if( elements[el].nodeType === 1 ){
 
-			if( elements[element].nodeType === 1 ){
+				var childrens = elements[el].children;
 
-				var childrens = elements[element].childNodes;
+				if( childrens.length > 0 && desired.tag.length > 1 ){
 
-				if( childrens.length > 0 ){
-
+					var desiredClone = clone(desired);
+					desiredClone.tag.shift();
+					
 					for( var child = 0; child < childrens.length; child++  ){
 
 						if( childrens[child].nodeType === 1 ){
 
-							parseChilds(childrens[child], desired, descendants);
+							parseDirectChilds(childrens[child], desiredClone, array);
 
 						};
 
@@ -322,76 +349,7 @@
 
 		};
 
-		// !!!! v2
-		// !!!!
-		// !!!!
-		// !!!!
-
-		// console.log( "el", elements );
-
-		// if( desired.tag.length === 1 ){
-
-		// 	if( elements.tagName.toLowerCase() === desired.tag[0] ){
-
-		// 		descendants.push(elements);
-
-		// 	};
-
-		// };
-		
-		// var childrens = elements.childNodes;
-		// console.log( "ch",childrens );
-
-		// desired.tag = arrayRemoveFirst(desired.tag);
-
-		// if( childrens.length > 0 ){
-
-		// 	for( var key in childrens.length ){
-
-		// 		if( childrens[key].nodeType === 1 ){
-
-		// 			parseChilds(childrens[key], desired, descendants);
-
-		// 		};
-
-		// 	};
-
-		// };
-
-		// !!!! v1
-		// !!!!
-		// !!!!
-		// !!!!
-
-		// if( !isNumber(counter) ) var counter = 0;
-
-		// var children = element.childNodes;
-
-		// console.log( "so: ", element.tagName.toLowerCase(), desired.tag[counter], counter, desired.tag.length );
-
-		// if( element.tagName.toLowerCase() === desired.tag[counter - 1] && counter === desired.tag.length ){
-		
-		// 	descendants.push(element);
-
-		// 	return descendants;
-		
-		// };
-		
-		// for( var i = 0; i < children.length; i++ ){
-			
-		// 	if( children[i].nodeType === 1 ){
-
-		// 		if( !element.tagName === desired.tag[counter] ) continue;
-
-		// 		counter++;
-
-		// 		parseChilds(children[i], desired, descendants, counter);
-
-		// 	};
-		
-		// };
-
-		// return descendants;
+		return array;
 
 	};
 
@@ -408,8 +366,6 @@
 
 	Jo.fn.init.prototype = Jo.fn;
 
-	if( typeof window === "object" && typeof window.document === "object" ) window.Jo = window.$ = Jo;
+	if( isObject(window) && isObject(window.document) ) window.Jo = window.$ = Jo;
 
 })( window );
-
-// header#first75_2:hello.class h1.title > span, header>h1 > span , section p
