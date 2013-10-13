@@ -24,34 +24,42 @@
 </head>
 <body>
 	<div id="outter">
-		<div id="inner"></div>
-		<div id="next">
-			<div id="in2">
-				<p></p>
+		<div id="inner">
+			<div id="alone">
+				<span>
+					<span></span>
+				</span>
 			</div>
 		</div>
-		<p></p>
-	</div>
 	<script>
 
 		var $element = $("#outter");
 
 		$element
-			.find("#inner")
+			.attr("class", "checked")
+			.attr("class", "unchecked");
+
+		$element
 			.on("mouseenter", function( event ){
 
-				$(this).css({
-					backgroundColor: "green"
-				});
+				console.log("over")
+
+				$(this).css("background-color", "purple");
 
 			})
 			.on("mouseleave", function(){
 	
+				console.log("out");
+
 				$(this).css({
 					backgroundColor: "red"
 				})
 	
 			});
+
+		var $subElements = $element.find("span");
+
+		console.log($subElements);
 
 	</script>
 </body>

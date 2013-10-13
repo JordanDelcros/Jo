@@ -15,7 +15,7 @@
 
 			if( isString(selector) ){
 
-				var nodes = document.querySelector(selector);
+				var nodes = document.querySelectorAll(selector);
 
 				for( var node = 0; node < nodes.length; node++ ){
 					this.nodes.push(nodes[node]);
@@ -33,34 +33,25 @@
 		},
 		find: function( selector ){
 
-			// this.each(function(){
+			var newNodes = new Array();
 
-				
+			this.each(function(){
 
-			// });
+				var nodes = this.querySelectorAll(selector);
 
-			// var returned = Jo(this);
+				var array = new Array();
 
-			// console.log( returned );
+				for( var node = 0; node < nodes.length; node++ ){
 
-			// var nodes = this.nodes;
+					if( newNodes.indexOf(nodes[node]) < 0  ) array.push(nodes[node]);
 
-			// this.nodes = new Array();
+				};
 
-			// for( var node = 0; node < nodes.length; node++ ){
+				newNodes = newNodes.concat(array);
+	
+			});
 
-			// 	console.log( nodes[node].querySelector("div > div") );
-
-			// 	var founded = nodes[node].querySelectorAll(selector);
-
-			// 	for( var found = 0; found < founded.length; found++ ){
-
-			// 		this.nodes.push(founded[found]);
-				
-			// 	};
-
-
-			// };
+			this.nodes = newNodes;
 
 			return this;
 
@@ -76,33 +67,25 @@
 			return this;
 
 		},
-		css: function( styles, value ){
-
-			if( isString(styles) ){
-
-				return this.nodes[0].style[styles];
-
-			}
-			else if( isObject(styles) ){
-
-				this.each(function(){
-
-					for( var parameter in styles ) this.style[parameter] = styles[parameter];
-
-				});
-
-			};
-
-			return this;
-
-		},
 		on: function( action, fn, useCapture ){
 
-			if( isEmpty(window) ) useCapture = false;
+
+			if( isEmpty(useCapture) ) useCapture = false;
+
 
 			this.each(function(){
+				
+				if( Jo.specialEvents[action] && !Jo.support.events(action) ){
+
+					var newEvent = Jo.specialEvents[action](fn);
+
+					action = newEvent.name;
+					fn = newEvent.fn;
+
+				};
 
 				this.addEventListener(action, fn, useCapture);
+
 
 			});
 
@@ -111,13 +94,74 @@
 		},
 		off: function( action, fn, useCapture ){
 
-			if( isEmpty(window) ) useCapture = false;
+			if( isEmpty(useCapture) ) useCapture = false;
 
 			this.each(function(){
 
 				this.removeEventListener(action, fn, useCapture);
 
 			});
+
+			return this;
+
+		},
+		attr: function( name, value ){
+
+
+			if( isString(name) ){
+
+				if( !isEmpty(value) ){
+
+					this.each(function(){
+
+						this.setAttribute(name, value);
+						
+					});
+
+				}
+				else {
+
+					return this.nodes[0].style[name];
+
+				};
+
+			}
+			else if( isObject(name) ){
+
+			};
+
+			return this;
+
+		},
+		css: function( name, value ){
+
+			if( isString(name) ){
+
+				if( !isEmpty(value) ){
+
+					this.each(function(){
+
+						this.style[name] = value;
+
+					});
+
+				}
+				else {
+
+					return this.nodes[0].style[name];
+
+				};
+
+			}
+			else if( isObject(name) ){
+
+				this.each(function(){
+
+					for( var parameter in name ) this.style[parameter] = name[parameter];
+
+				});
+
+			};
 
 			return this;
 
@@ -128,7 +172,7 @@
 
 		if( isObject(source) || isArray(source) ){
 			
-			for( var length in window ) return false;
+			for( var length in source ) return false;
 
 			return true;
 
@@ -175,6 +219,24 @@
 
 	};
 
+	function isNodeDescandant( target, parent ){
+
+		if( isEmpty(target) || isEmpty(parent) ) return false;
+
+		var targetParent = target.parentNode;
+
+		while( targetParent != null ){
+
+			if( targetParent == parent ) return true;
+
+			targetParent = targetParent.parentNode;
+
+		};
+
+		return false;
+
+	};
+
 	Jo.infos = function(){
 
 		console.log({
@@ -183,6 +245,52 @@
 			author_github: "JordanDelcros",
 			author_website: "http://www.jordan-delcros.com"
 		});
+
+	};
+
+	Jo.support = {
+
+		events: function( action ){
+
+			if( "on" + action in document ) return true;
+
+			return false;
+
+		}
+
+	};
+
+	Jo.specialEvents = {
+
+		mouseenter: function( fn ){
+
+			return Jo.specialEvents.mousehover( "mouseover", fn );
+
+		},
+		mouseleave: function( fn ){
+
+			return Jo.specialEvents.mousehover( "mouseout", fn );
+
+		},
+		mousehover: function( action, fn ){
+
+			var returned = new Object();
+
+			returned.name = action;
+
+			returned.fn = function(){
+
+				var relTarget = event.relatedTarget;
+
+				if( isNodeDescandant(event.target, this) || isNodeDescandant(relTarget, this) ) return false;
+
+				fn.call(this);
+
+			}
+
+			return returned;
+
+		}
 
 	};
 
