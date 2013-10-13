@@ -6,47 +6,52 @@
 	<script src="scripts/jo.js"></script>
 	<style>
 
-		header b {
-			font-style: italic;
-		}
+	#outter {
+
+		width: 500px;
+		height: 500px;
+		background: red;
+	}
+
+	#inner {
+
+		width: 250px;
+		height: 250px;
+		background: blue;
+	}
 
 	</style>
 </head>
 <body>
-	<header id="UN" class="PREMIER">
-		<h1 class="title">
-			<span>
-				<b class="out">
-					<b class="in">Yo</b>
-				</b>
-				<b class="out">Jo</b>
-			</span>
-		</h1>
-		<h2></h2>
-	</header>
-	<header id="DEUX" class="DEUXIEME">
-		<h1 class="title">
-			<span>
-				<b class="out 2">
-					<b class="2in">Yo</b>
-				</b>
-				<b class="out 2">
-					<b class="2in">Yo</b>
-				</b>
-			</span>
-		</h1>
-		<h2></h2>
-	</header>
-	<section>
-		<p>
-			<span>
-				<b class="spanish">Yo Jo</b>
-			</span>
-		</p>
-	</section>
+	<div id="outter">
+		<div id="inner"></div>
+		<div id="next">
+			<div id="in2">
+				<p></p>
+			</div>
+		</div>
+		<p></p>
+	</div>
 	<script>
 
-		console.log( $("header > h1 > span > b, header > h1 > span > b > b") );
+		var $element = $("#outter");
+
+		$element
+			.find("#inner")
+			.on("mouseenter", function( event ){
+
+				$(this).css({
+					backgroundColor: "green"
+				});
+
+			})
+			.on("mouseleave", function(){
+	
+				$(this).css({
+					backgroundColor: "red"
+				})
+	
+			});
 
 	</script>
 </body>
