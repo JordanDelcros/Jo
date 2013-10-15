@@ -24,7 +24,7 @@
 </head>
 <body>
 	<div id="outter">
-		<div id="inner">
+		<div>
 			<div id="alone">
 				<span>
 					<span></span>
@@ -33,7 +33,7 @@
 		</div>
 	<script>
 
-		var $element = $("#outter");
+		var $element = $("#outter > div");
 
 		$element
 			.attr("class", "checked")
@@ -57,7 +57,7 @@
 	
 			});
 
-		var $subElements = $element.find("span");
+		var $subElements = $element.find("> div");
 
 		console.log($subElements);
 

@@ -1,5 +1,6 @@
 (function( window, undefined ){
 
+
 	var Jo = function( selector, context ){
 		return new Jo.fn.init(selector, context);
 	};
@@ -15,11 +16,7 @@
 
 			if( isString(selector) ){
 
-				var nodes = document.querySelectorAll(selector);
-
-				for( var node = 0; node < nodes.length; node++ ){
-					this.nodes.push(nodes[node]);
-				};
+				this.nodes = getNodes(selector);
 			
 			}
 			else if( isObject(selector) ){
@@ -37,17 +34,7 @@
 
 			this.each(function(){
 
-				var nodes = this.querySelectorAll(selector);
-
-				var array = new Array();
-
-				for( var node = 0; node < nodes.length; node++ ){
-
-					if( newNodes.indexOf(nodes[node]) < 0  ) array.push(nodes[node]);
-
-				};
-
-				newNodes = newNodes.concat(array);
+				newNodes = newNodes.concat(getNodes(selector, this));
 	
 			});
 
@@ -219,11 +206,54 @@
 
 	};
 
-	function isNodeDescandant( target, parent ){
+	function getNodes( selector, origin ){
 
-		if( isEmpty(target) || isEmpty(parent) ) return false;
+		if( isEmpty(origin) ) origin = document;
 
-		var targetParent = target.parentNode;
+		var returned = new Array();
+		var originId = origin.id ? origin.id : null;
+		var removeIdAfter = false;
+		var oldOrigin;
+
+		selector = selector.replace(/\s*([\<\>])\s*/ig,"$1");
+
+		if( selector.substr(0,1) === ">" ){
+
+			if( isEmpty(originId) ){
+
+				removeIdAfter = true;
+				originId = origin.id = "Jo_" + Math.random().toString(36).substr(2,9) + new Date().getTime().toString(36);
+
+			};
+
+
+			selector = "#" + origin.id + selector;
+			oldOrigin = origin;
+			origin = document;
+
+			console.log("originId", selector);
+
+		};
+
+		console.log(  )
+
+		var nodes = origin.querySelectorAll(selector);
+
+		if( removeIdAfter === true ) oldOrigin.removeAttribute("id");
+
+		for( var node = 0; node < nodes.length; node++ ){
+			returned.push(nodes[node]);
+		};
+
+		return returned;
+
+	};
+
+	function isChildOf( parent ){
+
+		if( isEmpty(this) || isEmpty(parent) ) return false;
+
+		var targetParent = this.parentNode;
 
 		while( targetParent != null ){
 
@@ -250,9 +280,9 @@
 
 	Jo.support = {
 
-		events: function( action ){
+		events: function( event ){
 
-			if( "on" + action in document ) return true;
+			if( "on" + event in document ) return true;
 
 			return false;
 
@@ -282,11 +312,11 @@
 
 				var relTarget = event.relatedTarget;
 
-				if( isNodeDescandant(event.target, this) || isNodeDescandant(relTarget, this) ) return false;
+				if( isChildOf.call(event.target, this) || isChildOf.call(relTarget, this) ) return false;
 
 				fn.call(this);
 
-			}
+			};
 
 			return returned;
 
