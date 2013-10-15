@@ -4,62 +4,36 @@
 	<meta charset="utf-8"/>
 	<title>Jo</title>
 	<script src="scripts/jo.js"></script>
-	<style>
-
-	#outter {
-
-		width: 500px;
-		height: 500px;
-		background: red;
-	}
-
-	#inner {
-
-		width: 250px;
-		height: 250px;
-		background: blue;
-	}
-
-	</style>
 </head>
 <body>
-	<div id="outter">
-		<div>
-			<div id="alone">
-				<span>
-					<span></span>
-				</span>
-			</div>
-		</div>
+	<div>
+		<ul>
+			<li class="1">
+				<a href="#">text</a>
+			</li>
+			<li class="2">
+				<a href="#">text</a>
+			</li>
+			<li class="3">
+				<a href="#">text</a>
+			</li>
+			<li class="4">
+				<a href="#">text</a>
+			</li>
+			<li class="5">
+				<a href="#">text</a>
+			</li>
+		</ul>
+	</div>
 	<script>
 
-		var $element = $("#outter > div");
+		var $element = $("> div");
 
-		$element
-			.attr("class", "checked")
-			.attr("class", "unchecked");
+		console.log("el", $element);
 
-		$element
-			.on("mouseenter", function( event ){
+		var $subElement = $element.find("> ul:nth(1) li:nth(3)");
 
-				console.log("over")
-
-				$(this).css("background-color", "purple");
-
-			})
-			.on("mouseleave", function(){
-	
-				console.log("out");
-
-				$(this).css({
-					backgroundColor: "red"
-				})
-	
-			});
-
-		var $subElements = $element.find("> div");
-
-		console.log($subElements);
+		console.log("subEl", $subElement);
 
 	</script>
 </body>

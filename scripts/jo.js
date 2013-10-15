@@ -213,9 +213,28 @@
 		var returned = new Array();
 		var originId = origin.id ? origin.id : null;
 		var removeIdAfter = false;
-		var oldOrigin;
+		var oldOrigin = origin;
 
+		var specialSelectors = {
+
+			":first": ":first-child",
+			":last": ":last-child",
+			":odd": ":nth-child(2n+1)",
+			":even": ":nth-child(2n+0)"
+
+		};
+
+		// REMOVE UNTIL SPACE
 		selector = selector.replace(/\s*([\<\>])\s*/ig,"$1");
+
+		// SPECIAL SELECTORS
+
+		// FIRST/LAST - CHILD/OF-TYPE
+		selector = selector.replace(/\:(first|last|nth)-?(child|of-type)?\(?(\w+)?\)?/ig, function(all, target, type, number){
+
+			return isEmpty(type) ? ":" + target + "-child" + (isEmpty(number) ? "" : "(" + number + ")") : all;
+
+		});
 
 		if( selector.substr(0,1) === ">" ){
 
@@ -226,16 +245,10 @@
 
 			};
 
-
 			selector = "#" + origin.id + selector;
-			oldOrigin = origin;
 			origin = document;
 
-			console.log("originId", selector);
-
 		};
-
-		console.log(  )
 
 		var nodes = origin.querySelectorAll(selector);
 
