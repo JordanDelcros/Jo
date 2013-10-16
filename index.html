@@ -24,14 +24,71 @@
 				<a href="#">text</a>
 			</li>
 		</ul>
+		<ul>
+			<li class="1">
+				<a href="#">text</a>
+			</li>
+			<li class="2">
+				<a href="#">text</a>
+			</li>
+			<li class="3">
+				<a href="#">text</a>
+			</li>
+			<li class="4">
+				<a href="#">text</a>
+			</li>
+			<li class="5">
+				<a href="#">text</a>
+			</li>
+		</ul>
+	</div>
+	<div>
+		<ul>
+			<li class="1">
+				<a href="#">text</a>
+			</li>
+			<li class="2">
+				<a href="#">text</a>
+			</li>
+			<li class="3">
+				<a href="#">text</a>
+			</li>
+			<li class="4">
+				<a href="#">text</a>
+			</li>
+			<li class="5">
+				<a href="#">text</a>
+			</li>
+		</ul>
+		<ul>
+			<li class="1">
+				<a href="#">text</a>
+			</li>
+			<li class="2">
+				<a href="#">text</a>
+			</li>
+			<li class="3">
+				<a href="#">text</a>
+			</li>
+			<li class="4">
+				<a href="#">text</a>
+			</li>
+			<li class="5">
+				<a href="#">text</a>
+			</li>
+		</ul>
 	</div>
 	<script>
 
-		var $element = $("> div");
+		var $element = $("body");
 
 		console.log("el", $element);
 
-		var $subElement = $element.find("> ul:nth(1) li:nth(3)");
+		var $subElement = $element.find("div ul:last-child li:nth(odd) a:last:first-child");
+
+		$subElement.css({
+			color: "red"
+		})
 
 		console.log("subEl", $subElement);
 
