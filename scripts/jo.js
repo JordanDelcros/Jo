@@ -152,6 +152,65 @@
 
 			return this;
 
+		},
+		is: function( selector ){
+
+			if( isEmpty(selector) ) return false;
+
+			this.each(function(){
+
+			});
+
+			selector = selector.replace(/([#\.:\[])([^#\.:\[]+)/ig, function(all, type, curiosity){
+
+				if( type === "." && curiosity.match(/\]$/ig) ){
+
+					return all;
+
+				};
+
+				return "|" + all;
+
+			}).split("|");
+
+			console.log(this);
+
+			for( var key in selector ){
+
+				// is tag
+				if( selector[key].match(/^\w/i) ){
+
+					console.log("is tag ===", selector[key] )
+
+				}
+				// is id
+				else if( selector[key].match(/^#/) ){
+
+					console.log("is id ===", selector[key]);
+
+				}
+				// is class
+				else if( selector[key].match(/^\./) ){
+
+					console.log("is class ===", selector[key]);
+
+				}
+				// is attr
+				else if( selector[key].match(/^\[/) ){
+
+					console.log("is attr ===", selector[key])	
+
+				}
+				// is pseudo
+				else if( selector[key].match(/^:/) ){
+
+					console.log("is pseudo ===", selector[key] )
+
+				};
+			
+			};
+
+
 		}
 	};
 

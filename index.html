@@ -80,13 +80,30 @@
 	</div>
 	<script>
 
-		var $element = $("html").find("body > div:nth-child(1) ul:last li:nth(odd) a:nth-of-type(1)");
+		var $element = $("html div");
 
-		$element.css({
-			backgroundColor: "gray"
-		})
+		if( $element.is("li:first-child:last_child#monId.maClass1.maClass2.maClass3:first-child:last-child[id^=mon][href$=.html]") ){
+	
+			$(this).find("a").each(function(){
 
-		console.log("subEl", $element);
+				$(this).css({
+					backgroundColor: "blue"
+				})
+
+			});
+
+		}
+		else {
+
+			$(this).find("a").each(function(){
+
+				$(this).css({
+					backgroundColor: "red"
+				})
+
+			});
+
+		};
 
 	</script>
 </body>
