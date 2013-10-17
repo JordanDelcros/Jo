@@ -215,59 +215,27 @@
 		var removeIdAfter = false;
 		var oldOrigin = origin;
 
-		// REMOVE UNTIL SPACE
-		selector = selector.replace(/\s*([\<\>])\s*/ig," $1 ");
+		selector = selector.replace(/:(first|last|nth|only|not)(-first-child|-last-child|-first-of-type|-last-of-type|-child|-of-type|-line|-letter)?(\(\w+\))?/ig, function(all, target, type, number){
 
-		// SPECIAL SELECTORS
-		// FIRST/LAST/NTH/ODD - CHILD/OF-TYPE
-		selector = selector.replace(/:(first|last|nth)(\s|\([^\(]+\)|-child)?([^\s])?/ig, function(all, type, target, last){
+			var returned = ":" + target;
 
-			console.log(all, type, target, last);
+			if( !isEmpty(type) && type.match(/^-first|-last$/ig) && !isEmpty(number) ) type += "-child";
 
-			var returned = ":";
-
-			if( last !== undefined ) target += last; // SEARCH IF COMBINING multiple :el:el
-
-			if( type ){
-
-				returned += type;
-
-				if( target ){
-
-					if( target.match(/^\s|\(/ig) ){
-
-						returned += "-child";
-
-					}
-					else {
-
-						returned += target;
-
-					};
-
-					if( target.match(/^\(/ig) ) returned += target;
-
-				}
-				else {
-
-					returned += "-child";
-
-				};
-
+			if( isEmpty(type) ) {
+				returned += "-child";
 			}
 			else {
-
-				returned = all;
-
+				returned += type;
 			};
+
+			if( !isEmpty(number) ) returned += number;
 
 			return returned;
 
 		});
 
-		console.log(selector);
 
-		if( selector.match(/\s*>/ig) ){
+		if( selector.match(/^\s*>/ig) ){
 
 			if( isEmpty(originId) ){
 
@@ -280,7 +248,6 @@
 			origin = document;
 
 		};
-		console.log( selector + "." );
 
 		var nodes = origin.querySelectorAll(selector);
 

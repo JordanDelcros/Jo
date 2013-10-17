@@ -80,17 +80,13 @@
 	</div>
 	<script>
 
-		var $element = $("body");
+		var $element = $("html").find("body > div:nth-child(1) ul:last li:nth(odd) a:nth-of-type(1)");
 
-		console.log("el", $element);
-
-		var $subElement = $element.find("div ul:last-child li:nth(odd) a:last:first-child");
-
-		$subElement.css({
-			color: "red"
+		$element.css({
+			backgroundColor: "gray"
 		})
 
-		console.log("subEl", $subElement);
+		console.log("subEl", $element);
 
 	</script>
 </body>
