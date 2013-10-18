@@ -302,7 +302,27 @@
 
 	};
 
+	function selectorToArray( selector ){
+
+		selector = selector.replace(/\s*(\>)\s*/ig, "|$1|").replace(/^\|/ig, "");
+
+		// CONTINUE HERE
+		// MAC ARRAY AND CONVERT ALL SPECIAL SELECTOR TO STANDARD
+
+		return selector.replace(/\s/ig, "|").replace(/([#\.:\[])([^#\.:\[\|\>]+)/ig, function(all, type, curiosity){
+
+			if( type === "." && curiosity.match(/\]$/ig) ) return all;
+			return "|" + all;
+
+		}).split("|");
+
+	};
+
 	function getNodes( selector, origin ){
+
+		selectorss = selectorToArray(selector);
+
+		console.log(selectorss);
 
 		if( isEmpty(origin) ) origin = document;
 
