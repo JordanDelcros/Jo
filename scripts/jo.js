@@ -213,7 +213,6 @@
 
 						if( selector[key].match(/^:first(-child)?$/ig) ){
 
-
 							if( this.parentNode.firstElementChild !== this ) returned = false;
 
 						}
@@ -224,30 +223,20 @@
 						}
 						else if( selector[key].match(/^:nth(-child)?\([^\)]+\)$/ig) ){
 
-							var nth = /^:nth(-child)?\(([^\)]+)\)/ig.exec(selector[key])[2];
-							var index = 1;
-							var sibling = this;
+							console.log("nth", selector[key])
 
-							while( (sibling = sibling.previousElementSibling) !== null ) index++;
+							var toFound = this;
+							var $NodeList = $(this.parentNode).find("> *" + selector[key]);
 
-							if( nth.match(/n/ig) ){
+							var found = false;
 
-								// 1n+1 error
+							$NodeList.each(function(){
 
-								nth = /^([0-9\-]+)?(n)([+-])?([0-9]+)?$/ig.exec(nth);
+								if( this === toFound ) found = true;
 
-								console.log(nth[1], nth[2], nth[3], nth[4]);
+							});
 
-								if( isEmpty(nth[3]) && isEmpty(nth[4]) ) nth[4] = nth[1];
-
-								if( index !== parseInt(nth[4]) && (index !== parseInt(nth[1]) + parseInt(nth[4]) && index % parseInt(nth[1]) !== nth[4]) ) returned = false;
-
-							}
-							else {
-
-								if( index !== parseInt(nth) ) returned = false;
-
-							};
+							if( found === false ) returned = false;
 
 						};
 

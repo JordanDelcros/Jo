@@ -116,26 +116,28 @@
 	</div>
 	<script>
 
-		var $element = $("html div:nth-child(1n+1)");
+		var $element = $("html div");
 
-		$element.each(function(){
+		// transform find
 
-			// if( $(this).is("div:nth-child(1n+1)") ){
+		// $element.each(function(){
 
-			// 	$(this).css({
-			// 		backgroundColor: "green"
-			// 	});
+		// 	if( $(this).is("div:nth(even)") ){
 
-			// }
-			// else {
+		// 		$(this).css({
+		// 			backgroundColor: "green"
+		// 		});
 
-			// 	$(this).css({
-			// 		backgroundColor: "red"
-			// 	});
+		// 	}
+		// 	else {
 
-			// };
+		// 		$(this).css({
+		// 			backgroundColor: "red"
+		// 		});
 
-		});
+		// 	};
+
+		// });
 
 	</script>
 </body>
