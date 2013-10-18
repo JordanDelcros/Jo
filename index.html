@@ -6,6 +6,42 @@
 	<script src="scripts/jo.js"></script>
 </head>
 <body>
+	<div id="monId" class="maClass1 maClass2 maClass3" action="monAction">
+		<ul>
+			<li class="1">
+				<a href="#">text</a>
+			</li>
+			<li class="2">
+				<a href="#">text</a>
+			</li>
+			<li class="3">
+				<a href="#">text</a>
+			</li>
+			<li class="4">
+				<a href="#">text</a>
+			</li>
+			<li class="5">
+				<a href="#">text</a>
+			</li>
+		</ul>
+		<ul>
+			<li class="1">
+				<a href="#">text</a>
+			</li>
+			<li class="2">
+				<a href="#">text</a>
+			</li>
+			<li class="3">
+				<a href="#">text</a>
+			</li>
+			<li class="4">
+				<a href="#">text</a>
+			</li>
+			<li class="5">
+				<a href="#">text</a>
+			</li>
+		</ul>
+	</div>
 	<div>
 		<ul>
 			<li class="1">
@@ -80,30 +116,26 @@
 	</div>
 	<script>
 
-		var $element = $("html div");
+		var $element = $("html div:nth-child(1n+1)");
 
-		if( $element.is("li:first-child:last_child#monId.maClass1.maClass2.maClass3:first-child:last-child[id^=mon][href$=.html]") ){
-	
-			$(this).find("a").each(function(){
+		$element.each(function(){
 
-				$(this).css({
-					backgroundColor: "blue"
-				})
+			// if( $(this).is("div:nth-child(1n+1)") ){
 
-			});
+			// 	$(this).css({
+			// 		backgroundColor: "green"
+			// 	});
 
-		}
-		else {
+			// }
+			// else {
 
-			$(this).find("a").each(function(){
+			// 	$(this).css({
+			// 		backgroundColor: "red"
+			// 	});
 
-				$(this).css({
-					backgroundColor: "red"
-				})
+			// };
 
-			});
-
-		};
+		});
 
 	</script>
 </body>

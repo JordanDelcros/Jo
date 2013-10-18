@@ -50,7 +50,7 @@
 				fn.apply(this.nodes[key], [key]);
 
 			};
-
+			
 			return this;
 
 		},
@@ -155,11 +155,7 @@
 		},
 		is: function( selector ){
 
-			if( isEmpty(selector) ) return false;
-
-			this.each(function(){
-
-			});
+			var returned = isEmpty(selector) ? false : true;
 
 			selector = selector.replace(/([#\.:\[])([^#\.:\[]+)/ig, function(all, type, curiosity){
 
@@ -173,43 +169,95 @@
 
 			}).split("|");
 
-			console.log(this);
+			this.each(function(){
 
-			for( var key in selector ){
+				for( var key in selector ){
 
-				// is tag
-				if( selector[key].match(/^\w/i) ){
+					// is tag
+					if( selector[key].match(/^\w/i) ){
 
-					console.log("is tag ===", selector[key] )
+						if( selector[key].toLowerCase() !== this.tagName.toLowerCase() ) returned = false;
 
-				}
-				// is id
-				else if( selector[key].match(/^#/) ){
+					}
+					// is id
+					else if( selector[key].match(/^#/) ){
 
-					console.log("is id ===", selector[key]);
+						if( selector[key].substring(1) !== this.id ) returned = false;
 
-				}
-				// is class
-				else if( selector[key].match(/^\./) ){
+					}
+					// is class
+					else if( selector[key].match(/^\./) ){
 
-					console.log("is class ===", selector[key]);
+						if( this.classList.contains(selector[key].substring(1)) === false ) returned = false;
 
-				}
-				// is attr
-				else if( selector[key].match(/^\[/) ){
+					}
+					// is attr
+					else if( selector[key].match(/^\[/) ){
 
-					console.log("is attr ===", selector[key])	
+						var attribute = selector[key].substring(1).slice(0,-1).split("=");
 
-				}
-				// is pseudo
-				else if( selector[key].match(/^:/) ){
+						if( isEmpty(this.attributes.getNamedItem(attribute[0])) ){
 
-					console.log("is pseudo ===", selector[key] )
+							returned = false
 
+						}
+						else {
+
+							if( this.attributes.getNamedItem(attribute[0]).nodeValue !== attribute[1] ) returned = false;
+
+						};	
+
+					}
+					// is pseudo
+					else if( selector[key].match(/^:/) ){
+
+						if( selector[key].match(/^:first(-child)?$/ig) ){
+
+
+							if( this.parentNode.firstElementChild !== this ) returned = false;
+
+						}
+						else if( selector[key].match(/^:last(-child)?$/ig) ){
+
+							if( this.parentNode.lastElementChild !== this ) returned = false;
+
+						}
+						else if( selector[key].match(/^:nth(-child)?\([^\)]+\)$/ig) ){
+
+							var nth = /^:nth(-child)?\(([^\)]+)\)/ig.exec(selector[key])[2];
+							var index = 1;
+							var sibling = this;
+
+							while( (sibling = sibling.previousElementSibling) !== null ) index++;
+
+							if( nth.match(/n/ig) ){
+
+								// 1n+1 error
+
+								nth = /^([0-9\-]+)?(n)([+-])?([0-9]+)?$/ig.exec(nth);
+
+								console.log(nth[1], nth[2], nth[3], nth[4]);
+
+								if( isEmpty(nth[3]) && isEmpty(nth[4]) ) nth[4] = nth[1];
+
+								if( index !== parseInt(nth[4]) && (index !== parseInt(nth[1]) + parseInt(nth[4]) && index % parseInt(nth[1]) !== nth[4]) ) returned = false;
+
+							}
+							else {
+
+								if( index !== parseInt(nth) ) returned = false;
+
+							};
+
+						};
+
+					};
+				
 				};
-			
-			};
 
+			});
+
+			return returned;
 
 		}
 	};
