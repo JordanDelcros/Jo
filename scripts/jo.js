@@ -1,8 +1,9 @@
 (function( window, undefined ){
 
+	var Joot;
 
-	var Jo = function( selector, context ){
-		return new Jo.fn.init(selector, context);
+	var Jo = function( selector, context, Joot ){
+		return new Jo.fn.init(selector, context, Joot);
 	};
 
 	Jo.fn = Jo.prototype = {
@@ -11,6 +12,20 @@
 		init: function( selector, context ){
 
 			if( !selector ) return this;
+
+			if( isFunction(selector) ){
+
+				console.log(window);
+				var oldOnLoad = window.onload;
+
+				window.onload = function(){
+					
+					oldOnLoad.call(this);
+					selector.call(this);
+
+				};
+				
+			};
 
 			this.nodes = new Array();
 
@@ -26,6 +41,21 @@
 			};
 
 			return this;
+
+		},
+		onLoad: function( fn ){
+
+			if( document.readyState === "complete" ){
+
+				
+
+			}
+			else {
+
+				document.addEventListener("DOMContentLoaded", complete, false);
+				window.addEventListener("load", complete, false);
+
+			};
 
 		},
 		find: function( selector ){
@@ -211,8 +241,6 @@
 					// is pseudo
 					else if( selector[key].match(/^:/) ){
 
-						console.log("pseudo", selector[key])
-
 						if( selector[key] === ":first-child" ){
 
 							if( this.parentNode.firstElementChild !== this ) returned = false;
@@ -228,7 +256,7 @@
 							if( this.parentNode.lastElementChild !== this ) returned = false;
 
 						}
-						else if( selector[key].match(/^:nth(-child)?\([^\)]+\)$/ig) ){
+						else if( selector[key].match(/^:nth-child?\([^\)]+\)$/ig) ){
 
 							var toFound = this;
 							var $NodeList = $(this.parentNode).find("> *" + selector[key]);
@@ -244,8 +272,16 @@
 							if( found === false ) returned = false;
 
 						}
-						else if(  ){
+						else if( selector[key] === ":first-of-type" ){
+							console.log("last of type dude")
 							// of-type
+
+
+						}
+						else if( selector[key] === ":last-of-type" ){
+							console.log("last of type dude")
+							// of-type
+							console.log("Jo in", Jo(this.parentNode).find(">div:last-of-type") )
 						};
 
 					};
@@ -258,6 +294,8 @@
 
 		}
 	};
+
+	Joot = Jo(document);
 
 	function isEmpty( source ){
 
@@ -310,6 +348,28 @@
 
 	};
 
+	function isFunction( source ){
+
+		if( source instanceof Function || typeof source === "function" ){
+			return true;
+		}
+		else {
+			return false;
+		};
+
+	};
+
+	function isJo( source ){
+
+		if( source instanceof Jo && typeof source === "object" ){
+			return true;
+		}
+		else {
+			return false;
+		};
+
+	};
+
 	function prepareSelector( selector ){
 
 		var returned = selector.replace(/\s+/ig, " ").split(",");
@@ -349,7 +409,7 @@
 
 	};
 
-	function getNodes( selector, origin ){
+	function getNodes( selector, origin ){	
 
 		selector = prepareSelector(selector);
 
