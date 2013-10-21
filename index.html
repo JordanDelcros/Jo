@@ -116,28 +116,28 @@
 	</div>
 	<script>
 
-		var $element = $("html body").find("div, div#monId.maClass:only li a");
+		var $element = $("html body").find("div");
 
 		// transform find
 
-		// $element.each(function(){
+		$element.each(function(){
 
-		// 	if( $(this).is("div:nth(even)") ){
+			if( $(this).is("div:last") ){
 
-		// 		$(this).css({
-		// 			backgroundColor: "green"
-		// 		});
+				$(this).css({
+					backgroundColor: "green"
+				});
 
-		// 	}
-		// 	else {
+			}
+			else {
 
-		// 		$(this).css({
-		// 			backgroundColor: "red"
-		// 		});
+				$(this).css({
+					backgroundColor: "red"
+				});
 
-		// 	};
+			};
 
-		// });
+		});
 
 	</script>
 </body>

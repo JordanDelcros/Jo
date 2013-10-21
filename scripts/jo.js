@@ -157,7 +157,7 @@
 
 			var returned = isEmpty(selector) ? false : true;
 
-			selector = selector.replace(/([#\.:\[])([^#\.:\[]+)/ig, function(all, type, curiosity){
+			selector = prepareSelector(selector).replace(/([#\.:\[])([^#\.:\[]+)/ig, function(all, type, curiosity){
 
 				if( type === "." && curiosity.match(/\]$/ig) ){
 
@@ -211,19 +211,24 @@
 					// is pseudo
 					else if( selector[key].match(/^:/) ){
 
-						if( selector[key].match(/^:first(-child)?$/ig) ){
+						console.log("pseudo", selector[key])
+
+						if( selector[key] === ":first-child" ){
 
 							if( this.parentNode.firstElementChild !== this ) returned = false;
 
 						}
-						else if( selector[key].match(/^:last(-child)?$/ig) ){
+						else if( selector[key] === ":last-child" ){
 
+							console.log("last");
+
+							//here
+
+							console.log( this.parentNode.lastElementChild, this );
 							if( this.parentNode.lastElementChild !== this ) returned = false;
 
 						}
 						else if( selector[key].match(/^:nth(-child)?\([^\)]+\)$/ig) ){
-
-							console.log("nth", selector[key])
 
 							var toFound = this;
 							var $NodeList = $(this.parentNode).find("> *" + selector[key]);
@@ -238,6 +243,9 @@
 
 							if( found === false ) returned = false;
 
+						}
+						else if(  ){
+							// of-type
 						};
 
 					};
@@ -343,11 +351,7 @@
 
 	function getNodes( selector, origin ){
 
-		selectorss = prepareSelector(selector);
-
-		console.log("prepare", selectorss);
-		// just replace actual special selector replacement by new prepareSelector() function
-		// and use it too in is() method
+		selector = prepareSelector(selector);
 
 		if( isEmpty(origin) ) origin = document;
 
@@ -355,26 +359,6 @@
 		var originId = origin.id ? origin.id : null;
 		var removeIdAfter = false;
 		var oldOrigin = origin;
-
-		selector = selector.replace(/:(first|last|nth|only|not)(-first-child|-last-child|-first-of-type|-last-of-type|-child|-of-type|-line|-letter)?(\(\w+\))?/ig, function(all, target, type, number){
-
-			var returned = ":" + target;
-
-			if( !isEmpty(type) && type.match(/^-first|-last$/ig) && !isEmpty(number) ) type += "-child";
-
-			if( isEmpty(type) ) {
-				returned += "-child";
-			}
-			else {
-				returned += type;
-			};
-
-			if( !isEmpty(number) ) returned += number;
-
-			return returned;
-
-		});
-
 
 		if( selector.match(/^\s*>/ig) ){
 
