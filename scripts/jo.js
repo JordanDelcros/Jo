@@ -302,27 +302,52 @@
 
 	};
 
-	function selectorToArray( selector ){
+	function prepareSelector( selector ){
 
-		selector = selector.replace(/\s*(\>)\s*/ig, "|$1|").replace(/^\|/ig, "");
+		var returned = selector.replace(/\s+/ig, " ").split(",");
 
-		// CONTINUE HERE
-		// MAC ARRAY AND CONVERT ALL SPECIAL SELECTOR TO STANDARD
+		for( var key = 0; key < returned.length; key++ ){
 
-		return selector.replace(/\s/ig, "|").replace(/([#\.:\[])([^#\.:\[\|\>]+)/ig, function(all, type, curiosity){
+			returned[key] = returned[key].split(/\s/ig);
 
-			if( type === "." && curiosity.match(/\]$/ig) ) return all;
-			return "|" + all;
+			for( var subkey = 0; subkey < returned[key].length; subkey++ ){
 
-		}).split("|");
+				returned[key][subkey] = returned[key][subkey].replace(/([#\.:\[])([^#\.:\[\|\>]+)/ig, function(all, type, curiosity){
+
+					if( type === "." && curiosity.match(/\]$/ig) ) return all;
+					return "|" + all;
+
+				}).split("|");
+
+				for( var lastkey = 0; lastkey < returned[key][subkey].length; lastkey++ ){
+
+					returned[key][subkey][lastkey] = returned[key][subkey][lastkey].replace(/^:(first|last|nth|only)(-child|-of-type)?(\([0-9n\+\-]+\))?/ig, function(all, target, type, number){
+
+						return ":" + target + (isEmpty(type) ? "-child" : type) + (isEmpty(number) ? "" : number);
+
+					});
+
+				};
+
+				returned[key][subkey] = returned[key][subkey].join("");
+
+			};
+
+			returned[key] = returned[key].join(" ");
+
+		};
+
+		return returned.join(",");
 
 	};
 
 	function getNodes( selector, origin ){
 
-		selectorss = selectorToArray(selector);
+		selectorss = prepareSelector(selector);
 
-		console.log(selectorss);
+		console.log("prepare", selectorss);
+		// just replace actual special selector replacement by new prepareSelector() function
+		// and use it too in is() method
 
 		if( isEmpty(origin) ) origin = document;
 
