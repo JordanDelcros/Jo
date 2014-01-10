@@ -8,34 +8,26 @@
 
 		Jo(function($){
 
-			console.log("dub", $("body"));
+			var $element = $("html body").find(">div");
 
-			// console.log( document.querySelectorAll(".test > div:last-of-type") )
+			$element.each(function(){
 
-			// var $element = $("html body").find("> div:first-of-type");
+				if( $(this).is(":nth-of-type(1n+2)") ){
 
-			// console.log($element)
+					$(this).css({
+						backgroundColor: "green"
+					});
 
-			// // transform find
+				}
+				else {
 
-			// $element.each(function(){
+					$(this).css({
+						backgroundColor: "red"
+					});
 
-			// 	if( $(this).is("div:last-of-type") ){
+				};
 
-			// 		$(this).css({
-			// 			backgroundColor: "green"
-			// 		});
-
-			// 	}
-			// 	else {
-
-			// 		$(this).css({
-			// 			backgroundColor: "red"
-			// 		});
-
-			// 	};
-
-			// });
+			});
 
 		});
 
@@ -78,7 +70,7 @@
 			</li>
 		</ul>
 	</div>
-	<div>
+	<div class="maClass1">
 		<ul>
 			<li class="1">
 				<a href="#">text</a>

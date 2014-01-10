@@ -15,18 +15,19 @@
 
 			if( isFunction(selector) ){
 
-				console.log(window);
 				var oldOnLoad = window.onload;
 
 				window.onload = function(){
 					
-					oldOnLoad.call(this);
-					selector.call(this);
+					if( isFunction(oldOnLoad) ) oldOnLoad();
+
+					selector.apply(this, [Jo]);
 
 				};
 				
 			};
 
+			this.selector = selector;
 			this.nodes = new Array();
 
 			if( isString(selector) ){
@@ -71,6 +72,20 @@
 			this.nodes = newNodes;
 
 			return this;
+
+		},
+		item: function( number ){
+
+			if( number <= this.nodes.length ){
+
+				return Jo(this.nodes[number]);
+
+			}
+			else {
+
+				return this;
+
+			};
 
 		},
 		each: function( fn ){
@@ -226,12 +241,18 @@
 
 						var attribute = selector[key].substring(1).slice(0,-1).split("=");
 
+						if( !isEmpty(attribute[1]) ){
+
+							attribute[1] = attribute[1].replace(/^[\"\']/, "").replace(/[\"\']$/, "");
+
+						};
+
 						if( isEmpty(this.attributes.getNamedItem(attribute[0])) ){
 
 							returned = false
 
 						}
-						else {
+						else if( !isEmpty(attribute[1]) ){
 
 							if( this.attributes.getNamedItem(attribute[0]).nodeValue !== attribute[1] ) returned = false;
 
@@ -248,11 +269,6 @@
 						}
 						else if( selector[key] === ":last-child" ){
 
-							console.log("last");
-
-							//here
-
-							console.log( this.parentNode.lastElementChild, this );
 							if( this.parentNode.lastElementChild !== this ) returned = false;
 
 						}
@@ -273,15 +289,38 @@
 
 						}
 						else if( selector[key] === ":first-of-type" ){
-							console.log("last of type dude")
-							// of-type
+							
+							if( Jo(this.parentNode).find(">:first-of-type").item(0).nodes[0] !== this ){
 
+								returned = false;
+
+							};
 
 						}
 						else if( selector[key] === ":last-of-type" ){
-							console.log("last of type dude")
-							// of-type
-							console.log("Jo in", Jo(this.parentNode).find(">div:last-of-type") )
+
+							if( Jo(this.parentNode).find(">:last-of-type").item(0).nodes[0] !== this ){
+
+								returned = false;
+
+							};
+
+						}
+						else if( selector[key].match(/^:nth-of-type?\([^\)]+\)$/ig) ){
+
+							var toFound = this;
+							var $NodeList = $(this.parentNode).find("> *" + selector[key]);
+
+							var found = false;
+
+							$NodeList.each(function(){
+
+								if( this === toFound ) found = true;
+
+							});
+
+							if( found === false ) returned = false;
+
 						};
 
 					};
