@@ -44,21 +44,6 @@
 			return this;
 
 		},
-		onLoad: function( fn ){
-
-			if( document.readyState === "complete" ){
-
-				
-
-			}
-			else {
-
-				document.addEventListener("DOMContentLoaded", complete, false);
-				window.addEventListener("load", complete, false);
-
-			};
-
-		},
 		find: function( selector ){
 
 			var newNodes = new Array();
@@ -101,23 +86,22 @@
 		},
 		on: function( action, fn, useCapture ){
 
-
 			if( isEmpty(useCapture) ) useCapture = false;
 
-
 			this.each(function(){
-				
-				if( Jo.specialEvents[action] && !Jo.support.events(action) ){
 
-					var newEvent = Jo.specialEvents[action](fn);
+				if( isFunction(Jo.specialEvents[action]) && !Jo.support.events(action) ){
 
-					action = newEvent.name;
+					var newEvent = Jo.specialEvents[action].call(this, fn);
+
+					action = newEvent.action;
 					fn = newEvent.fn;
+
+					this.addEventListener(newEvent.action, newEvent.function, useCapture);
 
 				};
 
-				this.addEventListener(action, fn, useCapture);
-
+				window.addEventListener ? this.addEventListener(action, fn, useCapture) : this.attachEvent("on" + action, fn, useCapture);
 
 			});
 
@@ -518,7 +502,7 @@
 
 		events: function( event ){
 
-			if( "on" + event in document ) return true;
+			if( event in document || "on" + event in document ) return true;
 
 			return false;
 
@@ -528,33 +512,52 @@
 
 	Jo.specialEvents = {
 
-		mouseenter: function( fn ){
+		ready: function( fn ){
 
-			return Jo.specialEvents.mousehover( "mouseover", fn );
+			if( document.readyState === "complete" ){
+
+				fn();
+
+			}
+			else {
+
+				return {
+					action: "DOMContentLoaded",
+					function: fn
+				};
+
+			};
 
 		},
-		mouseleave: function( fn ){
+		enter: function( fn ){
 
-			return Jo.specialEvents.mousehover( "mouseout", fn );
+			return {
+				action: "mouseover",
+				fn: Jo.specialEvents.mousehover(fn)
+			};
 
 		},
-		mousehover: function( action, fn ){
+		leave: function( fn ){
 
-			var returned = new Object();
+			return {
+				action: "mouseout",
+				fn: Jo.specialEvents.mousehover(fn)
+			};
 
-			returned.name = action;
+		},
+		mousehover: function( fn ){
 
-			returned.fn = function(){
+			return function( event ){
 
-				var relTarget = event.relatedTarget;
+				var evt = event || window.event;
+				var targetElement = evt.target || evt.srcElement;
+				var relatedTarget = evt.relatedTarget || evt.fromElement
 
-				if( isChildOf.call(event.target, this) || isChildOf.call(relTarget, this) ) return false;
+				if( isChildOf.call(targetElement, this) && isChildOf.call(relatedTarget, this) ) return false;
 
 				fn.call(this);
 
 			};
-
-			return returned;
 
 		}
 

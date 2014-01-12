@@ -6,7 +6,38 @@
 	<script src="scripts/jo.js"></script>
 	<script>
 
+		Jo(document).on("ready", function(){
+
+			console.log("document is ready");
+
+			// $("img").css({
+			// 	width: "100px",
+			// 	height: "auto"
+			// });
+
+
+			// use special only if browser do not support
+			// over and out are bad childs,
+			// enter and leave are good
+
+			Jo("ul")
+				.on("enter", function(){
+
+					console.log("mouseenter speical !!!!!");
+
+				})
+				.on("leave", function(){
+
+					console.log("mouseout");
+
+				});
+
+		});
+
+/*
 		Jo(function($){
+
+			console.log("window load !");
 
 			var $element = $("html body").find(">div");
 
@@ -30,10 +61,11 @@
 			});
 
 		});
-
+*/
 	</script>
 </head>
 <body class="test">
+	<!-- <img src="http://images2.fanpop.com/images/photos/6300000/Lara-Croft-Doppelganger-tomb-raider-6320375-1280-1548.jpg" alt="Mss Croft"/> -->
 	<div id="monId" class="maClass1 maClass2 maClass3" action="monAction">
 		<ul>
 			<li class="1">
