@@ -6,38 +6,83 @@
 	<script src="scripts/jo.js"></script>
 	<script>
 
-		Jo(document).on("ready", function(){
+		(function(){
+
+			Jo.fn.border = function(){
+
+				return this.each(function(){
+
+					$(this).css("border", "1px solid black");
+
+				});
+
+			};
+
+		})(Jo);
+
+		var isReady = function(){
 
 			console.log("document is ready");
+
+		
+			Jo("div")
+				.on("blabla", function(){
+					console.log("blablabla");
+				})
+				.on("mouseup", function(){
+					console.log("down !!!!!!", event.clientX);
+				})
+				.on("mousedown", function(){
+					$(this)	
+						.trigger("blabla")
+						.off("blabla")
+						.trigger("mouseup");
+
+				});
+
+			$("*").border();
 
 			// $("img").css({
 			// 	width: "100px",
 			// 	height: "auto"
 			// });
 
+			var fn = function(){
 
-			// use special only if browser do not support
-			// over and out are bad childs,
-			// enter and leave are good
+				console.log("mouseenter speical !!!!!");
+
+				// $(this).off("enter", fn);
+
+			};
+
+			var fn2 = function(){
+
+				console.log("mouseenter speical 2 !!!!!");
+				$(this).off("mouseenter", fn2);
+
+			};
 
 			Jo("ul")
-				.on("enter", function(){
+				.on("mouseenter", fn)
+				.on("mouseenter", fn2)
+				.trigger("mouseenter")
+				// .off("mouseenter", fn)
+				.on("mouseleave", function(){
 
-					console.log("mouseenter speical !!!!!");
-
-				})
-				.on("leave", function(){
-
-					console.log("mouseout");
+					console.log("te mouseout");
 
 				});
 
-		});
+		};
 
-/*
+		Jo(document)
+			.on("ready", isReady)
+			// .off("ready", isReady);
+
+
 		Jo(function($){
 
-			console.log("window load !");
+			console.log("function (window) ready !");
 
 			var $element = $("html body").find(">div");
 
@@ -61,7 +106,7 @@
 			});
 
 		});
-*/
+
 	</script>
 </head>
 <body class="test">

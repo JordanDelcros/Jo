@@ -21,7 +21,7 @@
 					
 					if( isFunction(oldOnLoad) ) oldOnLoad();
 
-					selector.apply(this, [Jo]);
+					selector.call(this, Jo);
 
 				};
 				
@@ -77,7 +77,7 @@
 
 			for( var key = 0; key < this.nodes.length; key++ ){
 
-				fn.apply(this.nodes[key], [key]);
+				fn.call(this.nodes[key], key);
 
 			};
 			
@@ -90,18 +90,44 @@
 
 			this.each(function(){
 
-				if( isFunction(Jo.specialEvents[action]) && !Jo.support.events(action) ){
+				if( isEmpty(this.events) ) this.events = new Object();
 
-					var newEvent = Jo.specialEvents[action].call(this, fn);
-
-					action = newEvent.action;
-					fn = newEvent.fn;
-
-					this.addEventListener(newEvent.action, newEvent.function, useCapture);
-
+				this.events[action] = {
+					evt: action,
+					fn: fn
 				};
 
-				window.addEventListener ? this.addEventListener(action, fn, useCapture) : this.attachEvent("on" + action, fn, useCapture);
+				if( !isFunction(Jo.specialEvents[action]) && !Jo.support.events(action) ){
+
+					var customEvent = new CustomEvent(action, {
+						detail: {},
+						bubbles: true,
+						cancelable: true
+					});
+
+					this.events[action].evt = customEvent;
+
+					window.addEventListener ? this.addEventListener(action, fn, useCapture) : this.attachEvent(action, fn, useCapture);
+
+				}
+				else if( isFunction(Jo.specialEvents[action]) && !Jo.support.events(action) ){
+
+					var specialEvent = Jo.specialEvents[action].call(this, fn);
+
+					this.events[action].evt = specialEvent.action;
+
+					action = specialEvent.action;
+					fn = specialEvent.fn;
+
+
+					window.addEventListener ? this.addEventListener(action, fn, useCapture) : this.attachEvent("on" + action, fn, useCapture);
+
+				}
+				else {
+
+					window.addEventListener ? this.addEventListener(action, fn, useCapture) : this.attachEvent("on" + action, fn, useCapture);
+	
+				};
 
 			});
 
@@ -114,7 +140,36 @@
 
 			this.each(function(){
 
-				this.removeEventListener(action, fn, useCapture);
+				if( !isEmpty(this.events[action]) ){
+	
+					window.removeEventListener ? this.removeEventListener(this.events[action].evt, fn, useCapture) : this.detachEvent("on" + action, this.events[action], useCapture);
+					delete this.events[action];
+
+				};
+
+			});
+
+			return this;
+
+		},
+		trigger: function( action ){
+
+			this.each(function(){
+
+				if( !isEmpty(this.events[action]) ){
+
+					if( !isFunction(Jo.specialEvents[action]) && !Jo.support.events(action) ){
+
+						this.dispatchEvent(this.events[action].evt);
+
+					}
+					else {
+
+						this.events[action].fn.call(this, event);
+
+					};
+
+				};
 
 			});
 
@@ -469,21 +524,9 @@
 
 	};
 
-	function isChildOf( parent ){
+	function isChildOf( children, parent ){
 
-		if( isEmpty(this) || isEmpty(parent) ) return false;
-
-		var targetParent = this.parentNode;
-
-		while( targetParent != null ){
-
-			if( targetParent == parent ) return true;
-
-			targetParent = targetParent.parentNode;
-
-		};
-
-		return false;
+		return parent.contains ? parent.contains(children) : !!(parent.compareDocumentPosition(children) & 16);
 
 	};
 
@@ -523,13 +566,13 @@
 
 				return {
 					action: "DOMContentLoaded",
-					function: fn
+					fn: fn
 				};
 
 			};
 
 		},
-		enter: function( fn ){
+		mouseenter: function( fn ){
 
 			return {
 				action: "mouseover",
@@ -537,7 +580,7 @@
 			};
 
 		},
-		leave: function( fn ){
+		mouseleave: function( fn ){
 
 			return {
 				action: "mouseout",
@@ -550,12 +593,19 @@
 			return function( event ){
 
 				var evt = event || window.event;
-				var targetElement = evt.target || evt.srcElement;
-				var relatedTarget = evt.relatedTarget || evt.fromElement
+				var target = evt.target || evt.srcElement;
+				var relatedTarget = evt.relatedTarget || evt.fromElement;
 
-				if( isChildOf.call(targetElement, this) && isChildOf.call(relatedTarget, this) ) return false;
+				if( (this === target || isChildOf(target, this)) && !isChildOf(relatedTarget, this) ){
 
-				fn.call(this);
+					fn.call(this);
+
+				}
+				else {
+
+					return false;
+
+				};
 
 			};
 
