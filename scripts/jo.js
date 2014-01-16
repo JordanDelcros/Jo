@@ -88,12 +88,16 @@
 
 			if( isEmpty(useCapture) ) useCapture = false;
 
+			var originalAction = action;
+
 			this.each(function(){
 
-				if( isEmpty(this.events) ) this.events = new Object();
+				if( !isObject(this.events) ) this.events = new Object();
 
-				this.events[action] = {
-					evt: action,
+				if( !isArray(this.events[originalAction]) ) this.events[originalAction] = new Array();
+
+				var evt = {
+					action: action,
 					fn: fn
 				};
 
@@ -105,27 +109,32 @@
 						cancelable: true
 					});
 
-					this.events[action].evt = customEvent;
+					evt.action = customEvent;
 
-					window.addEventListener ? this.addEventListener(action, fn, useCapture) : this.attachEvent(action, fn, useCapture);
+					var f = this.events[originalAction].push(evt) - 1;
+
+					window.addEventListener ? this.addEventListener(action, this.events[originalAction][f].fn, useCapture) : this.attachEvent(action, fn, useCapture);
 
 				}
 				else if( isFunction(Jo.specialEvents[action]) && !Jo.support.events(action) ){
 
 					var specialEvent = Jo.specialEvents[action].call(this, fn);
 
-					this.events[action].evt = specialEvent.action;
+					evt.action = specialEvent.action;
 
 					action = specialEvent.action;
 					fn = specialEvent.fn;
 
+					var f = this.events[originalAction].push(evt) - 1;
 
-					window.addEventListener ? this.addEventListener(action, fn, useCapture) : this.attachEvent("on" + action, fn, useCapture);
+					window.addEventListener ? this.addEventListener(action, this.events[originalAction][f].fn, useCapture) : this.attachEvent("on" + action, fn, useCapture);
 
 				}
 				else {
 
-					window.addEventListener ? this.addEventListener(action, fn, useCapture) : this.attachEvent("on" + action, fn, useCapture);
+					var f = this.events[originalAction].push(evt) - 1;
+
+					window.addEventListener ? this.addEventListener(action, this.events[originalAction][f].fn, useCapture) : this.attachEvent("on" + action, fn, useCapture);
 	
 				};
 
@@ -141,9 +150,23 @@
 			this.each(function(){
 
 				if( !isEmpty(this.events[action]) ){
-	
-					window.removeEventListener ? this.removeEventListener(this.events[action].evt, fn, useCapture) : this.detachEvent("on" + action, this.events[action], useCapture);
-					delete this.events[action];
+
+					for( var i in this.events[action] ){
+
+						if( isFunction(fn) && this.events[action][i].fn === fn ){
+
+							window.removeEventListener ? this.removeEventListener(this.events[action][i].action, this.events[action][i].fn, useCapture) : this.detachEvent("on" + action, this.events[action], useCapture);
+							this.events[action].splice(i, 1);
+
+						}
+						else {
+
+							window.removeEventListener ? this.removeEventListener(this.events[action][i].action, this.events[action][i].fn, useCapture) : this.detachEvent("on" + action, this.events[action], useCapture);
+							this.events[action].splice(i, 1);
+
+						};
+
+					};
 
 				};
 
@@ -156,16 +179,20 @@
 
 			this.each(function(){
 
-				if( !isEmpty(this.events[action]) ){
+				if( !isEmpty(this.events) && !isEmpty(this.events[action]) ){
 
 					if( !isFunction(Jo.specialEvents[action]) && !Jo.support.events(action) ){
 
-						this.dispatchEvent(this.events[action].evt);
+						this.dispatchEvent(this.events[action].action);
 
 					}
 					else {
 
-						this.events[action].fn.call(this, event);
+						for( var i in this.events[action] ){
+
+							this.events[action][i].fn.call(this, event);
+
+						};
 
 					};
 
@@ -418,6 +445,17 @@
 	function isArray( source ){
 
 		if( source instanceof Array || typeof source === "array" ){
+			return true;
+		}
+		else {
+			return false;
+		};
+
+	};
+
+	function isBoolean( source ){
+
+		if( source === true || source === false ){
 			return true;
 		}
 		else {

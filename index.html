@@ -23,22 +23,21 @@
 		var isReady = function(){
 
 			console.log("document is ready");
-
 		
-			Jo("div")
-				.on("blabla", function(){
-					console.log("blablabla");
-				})
-				.on("mouseup", function(){
-					console.log("down !!!!!!", event.clientX);
-				})
-				.on("mousedown", function(){
-					$(this)	
-						.trigger("blabla")
-						.off("blabla")
-						.trigger("mouseup");
+			// Jo("div")
+			// 	.on("blabla", function(){
+			// 		console.log("blablabla");
+			// 	}, "bla")
+			// 	.on("mouseup", function(){
+			// 		console.log("down !!!!!!", event.clientX);
+			// 	})
+			// 	.on("mousedown", function(){
+			// 		$(this)	
+			// 			.trigger("blabla")
+			// 			.off("blabla")
+			// 			.trigger("mouseup");
 
-				});
+			// 	});
 
 			$("*").border();
 
@@ -62,14 +61,22 @@
 
 			};
 
+			$(window).on("keydown", function(){
+
+				console.log(event);
+
+			});
+
 			Jo("ul")
 				.on("mouseenter", fn)
 				.on("mouseenter", fn2)
+				.off("mouseenter", fn2)
 				.trigger("mouseenter")
-				// .off("mouseenter", fn)
+				.off("mouseenter", fn)
 				.on("mouseleave", function(){
 
 					console.log("te mouseout");
+					$(this).off("mouseleave");
 
 				});
 
