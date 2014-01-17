@@ -415,11 +415,10 @@
 			return true;
 
 		}
-		else if( source === undefined || source === null || source === "" ){
-			return true;
-		}
 		else {
-			return false;
+
+			return source === undefined || source === null || source === "";
+
 		};
 
 	};
@@ -428,77 +427,43 @@
 
 	function isString( source ){
 
-		if( source instanceof String || typeof source === "string" ){
-			return true;
-		}
-		else {
-			return false;
-		};
+		return source instanceof String || typeof source === "string";
 
 	};
 
 	function isObject( source ){
 
-		if( source instanceof Object || typeof source === "object" ){
-			return true;
-		}
-		else {
-			return false;
-		};
+		return source instanceof Object || typeof source === "object";
 
 	};
 
 	function isArray( source ){
 
-		if( source instanceof Array || typeof source === "array" ){
-			return true;
-		}
-		else {
-			return false;
-		};
+		return source instanceof Array || typeof source === "array";
 
 	};
 
 	function isNumber( source ){
 
-		if( typeof source === "number" || /^[\d\.]+$/ig.test(source) || !isNaN(source) ){
-			return true;
-		};
-
-		return false;
+		return typeof source === "number" || /^[\d\.]+$/ig.test(source) || (!isNaN(parseFloat(source)) && isFinite(source));
 
 	};
 
 	function isBoolean( source ){
 
-		if( typeof source === "boolean" || source === true || source === false ){
-			return true;
-		}
-		else {
-			return false;
-		};
+		return typeof source === "boolean" || source === true || source === false;
 
 	};
 
 	function isFunction( source ){
 
-		if( source instanceof Function || typeof source === "function" ){
-			return true;
-		}
-		else {
-			return false;
-		};
+		return source instanceof Function || typeof source === "function";
 
 	};
 
 	function isJo( source ){
 
-		if( source instanceof Jo && typeof source === "object" ){
-			return true;
-		}
-		else {
-			return false;
-		};
+		return source instanceof Jo && typeof source === "object";
 
 	};
 
