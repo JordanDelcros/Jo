@@ -145,9 +145,16 @@
 		},
 		off: function( action, fn, useCapture ){
 
+			if( isBoolean(fn) ){
+
+				useCapture = fn;
+				fn = undefined;
+
+			};
+
 			if( isEmpty(useCapture) ) useCapture = false;
 
-			this.each(function(){
+			return this.each(function(){
 
 				if( !isEmpty(this.events[action]) ){
 
@@ -159,7 +166,7 @@
 							this.events[action].splice(i, 1);
 
 						}
-						else {
+						else if( isEmpty(fn) ){
 
 							window.removeEventListener ? this.removeEventListener(this.events[action][i].action, this.events[action][i].fn, useCapture) : this.detachEvent("on" + action, this.events[action], useCapture);
 							this.events[action].splice(i, 1);
@@ -172,12 +179,10 @@
 
 			});
 
-			return this;
-
 		},
 		trigger: function( action ){
 
-			this.each(function(){
+			return this.each(function( event ){
 
 				if( !isEmpty(this.events) && !isEmpty(this.events[action]) ){
 
@@ -200,31 +205,30 @@
 
 			});
 
-			return this;
-
 		},
 		attr: function( name, value ){
 
+			if( isString(name) && !isEmpty(value) ){
 
-			if( isString(name) ){
+				parameter = name;
 
-				if( !isEmpty(value) ){
+				name = new Object();
+
+				name[parameter] = value;
+
+			};
+
+			if( isObject(name) ){
+			
+				for( var i in name ){
 
 					this.each(function(){
 
-						this.setAttribute(name, value);
-						
+						this.setAttribute(i, name[i]);
+
 					});
 
-				}
-				else {
-
-					return this.nodes[0].style[name];
-
 				};
-
-			}
-			else if( isObject(name) ){
 
 			};
 
@@ -404,7 +408,7 @@
 
 	function isEmpty( source ){
 
-		if( isObject(source) || isArray(source) ){
+		if( (isObject(source) || isArray(source)) && !isFunction(source) ){
 			
 			for( var length in source ) return false;
 
@@ -419,6 +423,8 @@
 		};
 
 	};
+
+	console.log("FN", isEmpty(function(){ var a = "efzbefzi" }) );
 
 	function isString( source ){
 
@@ -453,9 +459,19 @@
 
 	};
 
+	function isNumber( source ){
+
+		if( typeof source === "number" || /^[\d\.]+$/ig.test(source) || !isNaN(source) ){
+			return true;
+		};
+
+		return false;
+
+	};
+
 	function isBoolean( source ){
 
-		if( source === true || source === false ){
+		if( typeof source === "boolean" || source === true || source === false ){
 			return true;
 		}
 		else {
@@ -631,6 +647,7 @@
 			return function( event ){
 
 				var evt = event || window.event;
+				console.log(evt);
 				var target = evt.target || evt.srcElement;
 				var relatedTarget = evt.relatedTarget || evt.fromElement;
 

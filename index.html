@@ -57,20 +57,23 @@
 			var fn2 = function(){
 
 				console.log("mouseenter speical 2 !!!!!");
-				$(this).off("mouseenter", fn2);
+				// $(this).off("mouseenter", fn2);
 
 			};
 
-			$(window).on("keydown", function(){
+			$(window).on("keydown", function( event ){
 
 				console.log(event);
 
 			});
 
 			Jo("ul")
+				.attr({
+					"data-test": "POKEMON"
+				})
 				.on("mouseenter", fn)
 				.on("mouseenter", fn2)
-				.off("mouseenter", fn2)
+				.off("mouseenter", "pokemon")
 				.trigger("mouseenter")
 				.off("mouseenter", fn)
 				.on("mouseleave", function(){
