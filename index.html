@@ -23,65 +23,6 @@
 		var isReady = function(){
 
 			console.log("document is ready");
-		
-			// Jo("div")
-			// 	.on("blabla", function(){
-			// 		console.log("blablabla");
-			// 	}, "bla")
-			// 	.on("mouseup", function(){
-			// 		console.log("down !!!!!!", event.clientX);
-			// 	})
-			// 	.on("mousedown", function(){
-			// 		$(this)	
-			// 			.trigger("blabla")
-			// 			.off("blabla")
-			// 			.trigger("mouseup");
-
-			// 	});
-
-			$("*").border();
-
-			// $("img").css({
-			// 	width: "100px",
-			// 	height: "auto"
-			// });
-
-			var fn = function(){
-
-				console.log("mouseenter speical !!!!!");
-
-				// $(this).off("enter", fn);
-
-			};
-
-			var fn2 = function(){
-
-				console.log("mouseenter speical 2 !!!!!");
-				// $(this).off("mouseenter", fn2);
-
-			};
-
-			$(window).on("keydown", function( event ){
-
-				console.log(event);
-
-			});
-
-			Jo("ul")
-				.attr({
-					"data-test": "POKEMON"
-				})
-				.on("mouseenter", fn)
-				.on("mouseenter", fn2)
-				.off("mouseenter", "pokemon")
-				.trigger("mouseenter")
-				.off("mouseenter", fn)
-				.on("mouseleave", function(){
-
-					console.log("te mouseout");
-					$(this).off("mouseleave");
-
-				});
 
 		};
 
@@ -93,27 +34,6 @@
 		Jo(function($){
 
 			console.log("function (window) ready !");
-
-			var $element = $("html body").find(">div");
-
-			$element.each(function(){
-
-				if( $(this).is(":nth-of-type(1n+2)") ){
-
-					$(this).css({
-						backgroundColor: "green"
-					});
-
-				}
-				else {
-
-					$(this).css({
-						backgroundColor: "red"
-					});
-
-				};
-
-			});
 
 		});
 

@@ -423,8 +423,6 @@
 
 	};
 
-	console.log("FN", isEmpty(function(){ var a = "efzbefzi" }) );
-
 	function isString( source ){
 
 		return source instanceof String || typeof source === "string";
