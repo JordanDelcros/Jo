@@ -39,9 +39,23 @@
 				this.nodes = getNodes(selector);
 			
 			}
-			else if( isObject(selector) ){
+			else if( isNodeList(selector) ){
 
-				this.nodes = [selector];
+				for( var a = 0; a < selector.length; a++ ){
+
+					this.nodes.push(selector[a]);
+
+				};
+
+			}
+			else if( isNode(selector) ){
+
+				this.nodes.push(selector);
+
+			}
+			else if( isJo(selector) ){
+
+				this.nodes = selector.nodes;
 
 			};
 
@@ -460,6 +474,18 @@
 	function isFunction( source ){
 
 		return source instanceof Function || typeof source === "function";
+
+	};
+
+	function isNode( source ){
+
+		return source instanceof HTMLElement || source.nodeType;
+
+	};
+
+	function isNodeList( source ){
+
+		return source instanceof HTMLCollection || source instanceof NodeList;
 
 	};
 
