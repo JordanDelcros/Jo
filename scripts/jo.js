@@ -1,3 +1,7 @@
+/**
+* @package Jo (JavaScript overloaded)
+* @author Jordan Delcros <www.jordan-delcros.com>
+*/
 (function( window, undefined ){
 
 	var Joot;
