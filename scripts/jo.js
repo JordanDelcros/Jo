@@ -77,6 +77,36 @@
 			return this;
 
 		},
+		child: function( selector ){
+
+			var newNodes = new Array();
+
+			this.each(function(){
+
+				var childs = this.children;
+
+				for( var child = 0; child < childs.length; child++ ){
+
+					if( !isEmpty(selector) ){
+
+						if( Jo(childs[child]).is(selector) ) newNodes.push(childs[child]);
+
+					}
+					else {
+
+						newNodes.push(childs[child]);
+
+					};
+
+				};
+
+			});
+
+			this.nodes = newNodes;
+
+			return this;
+
+		},
 		item: function( number ){
 
 			if( number <= this.nodes.length ){
@@ -571,6 +601,12 @@
 
 	};
 
+	function getChilds( origin, selector ){
+
+
+
+	};
+
 	function isChildOf( children, parent ){
 
 		return parent.contains ? parent.contains(children) : !!(parent.compareDocumentPosition(children) & 16);
@@ -640,7 +676,7 @@
 			return function( event ){
 
 				var evt = event || window.event;
-				console.log(evt);
+
 				var target = evt.target || evt.srcElement;
 				var relatedTarget = evt.relatedTarget || evt.fromElement;
 
