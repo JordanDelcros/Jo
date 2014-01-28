@@ -9,3 +9,17 @@ Like every Javascript library, link JS file into HTML head or body end
 Now you can use `Jo` or `$` like this `$("div:nth-child(1)")` to get nodes.
 
 Then you can use methods like `$("body > section:first-child").css("background-color", "#FF00FF")`.
+
+## Methods
+
+- find
+- child
+- node
+- item
+- each
+- on
+- off
+- trigger
+- attr
+- css
+- is

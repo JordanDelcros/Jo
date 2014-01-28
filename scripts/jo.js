@@ -32,30 +32,30 @@
 			};
 
 			this.selector = selector;
-			this.nodes = new Array();
+			this.found = new Array();
 
 			if( isString(selector) ){
 
-				this.nodes = getNodes(selector);
+				this.found = getNodes(selector);
 			
 			}
 			else if( isNodeList(selector) ){
 
 				for( var a = 0; a < selector.length; a++ ){
 
-					this.nodes.push(selector[a]);
+					this.found.push(selector[a]);
 
 				};
 
 			}
 			else if( isNode(selector) ){
 
-				this.nodes.push(selector);
+				this.found.push(selector);
 
 			}
 			else if( isJo(selector) ){
 
-				this.nodes = selector.nodes;
+				this.found = selector.found;
 
 			};
 
@@ -72,7 +72,7 @@
 	
 			});
 
-			this.nodes = newNodes;
+			this.found = newNodes;
 
 			return this;
 
@@ -102,16 +102,46 @@
 
 			});
 
-			this.nodes = newNodes;
+			this.found = newNodes;
+
+			return this;
+
+		},
+		node: function( selector ){
+
+			var newNodes = new Array();
+
+			this.each(function(){
+
+				var nodes = this.childNodes;
+
+				for( var node = 0; node < nodes.length; node++ ){
+
+					if( !isEmpty(selector) ){
+
+						if( Jo(nodes[node]).is(selector) ) newNodes.push(nodes[node]);
+
+					}
+					else {
+
+						newNodes.push(nodes[node]);
+
+					};
+
+				};
+
+			});
+
+			this.found = newNodes;
 
 			return this;
 
 		},
 		item: function( number ){
 
-			if( number <= this.nodes.length ){
+			if( number <= this.found.length ){
 
-				return Jo(this.nodes[number]);
+				return Jo(this.found[number]);
 
 			}
 			else {
@@ -123,9 +153,9 @@
 		},
 		each: function( fn ){
 
-			for( var key = 0; key < this.nodes.length; key++ ){
+			for( var key = 0; key < this.found.length; key++ ){
 
-				fn.call(this.nodes[key], key);
+				fn.call(this.found[key], key);
 
 			};
 			
@@ -298,7 +328,7 @@
 				}
 				else {
 
-					return this.nodes[0].style[name];
+					return this.found[0].style[name];
 
 				};
 
@@ -312,6 +342,13 @@
 				});
 
 			};
+
+			return this;
+
+		},
+		html: function( html ){
+
+			// Parse special html and append it to selected elements
 
 			return this;
 
@@ -336,8 +373,14 @@
 
 				for( var key in selector ){
 
+					// is textNode
+					if( selector[key] === "text" ){
+
+						if( this.nodeType !== 3 ) returned = false;
+
+					}
 					// is tag
-					if( selector[key].match(/^\w/i) ){
+					else if( selector[key].match(/^\w/i) ){
 
 						if( selector[key].toLowerCase() !== this.tagName.toLowerCase() ) returned = false;
 
@@ -408,7 +451,7 @@
 						}
 						else if( selector[key] === ":first-of-type" ){
 							
-							if( Jo(this.parentNode).find(">:first-of-type").item(0).nodes[0] !== this ){
+							if( Jo(this.parentNode).find(">:first-of-type").item(0).found[0] !== this ){
 
 								returned = false;
 
@@ -417,7 +460,7 @@
 						}
 						else if( selector[key] === ":last-of-type" ){
 
-							if( Jo(this.parentNode).find(">:last-of-type").item(0).nodes[0] !== this ){
+							if( Jo(this.parentNode).find(">:last-of-type").item(0).found[0] !== this ){
 
 								returned = false;
 
@@ -438,6 +481,11 @@
 							});
 
 							if( found === false ) returned = false;
+
+						}
+						else {
+
+							returned = false;
 
 						};
 
