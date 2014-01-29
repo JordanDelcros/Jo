@@ -548,7 +548,7 @@
 		insertStart: function( html ){
 
 			this.each(function(){
-;
+
 				this.insertAdjacentHTML("afterbegin", html);
 
 			});
