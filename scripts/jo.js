@@ -562,6 +562,15 @@
 
 			});
 
+		},
+		remove: function(){
+
+			this.each(function(){
+
+				this.parentNode.removeChild(this);
+
+			});
+
 		}
 	};
 

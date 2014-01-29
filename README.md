@@ -27,3 +27,4 @@ Then you can use methods like `$("body > section:first-child").css("background-c
 - insertAfter
 - insertStart
 - insertEnd
+- remove
