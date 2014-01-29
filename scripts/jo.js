@@ -531,7 +531,7 @@
 
 			this.each(function(){
 
-				this.insertAdjacentHTML("beforebegin", html)
+				this.insertAdjacentHTML("beforebegin", html);
 
 			});
 
@@ -540,7 +540,7 @@
 
 			this.each(function(){
 
-				this.insertAdjacentHTML("afterend", html)
+				this.insertAdjacentHTML("afterend", html);
 
 			});
 
@@ -548,8 +548,8 @@
 		insertStart: function( html ){
 
 			this.each(function(){
-
-				this.insertAdjacentHTML("afterbegin", html)
+;
+				this.insertAdjacentHTML("afterbegin", html);
 
 			});
 
@@ -558,7 +558,7 @@
 
 			this.each(function(){
 
-				this.insertAdjacentHTML("beforeend", html)
+				this.insertAdjacentHTML("beforeend", html);
 
 			});
 
@@ -568,6 +568,15 @@
 			this.each(function(){
 
 				this.remove();
+
+			});
+
+		},
+		hide: function(){
+
+			this.each(function(){
+
+				this.style.display = "none";
 
 			});
 

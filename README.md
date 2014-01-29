@@ -28,3 +28,4 @@ Then you can use methods like `$("body > section:first-child").css("background-c
 - insertStart
 - insertEnd
 - remove
+- hide
