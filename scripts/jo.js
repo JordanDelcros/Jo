@@ -349,8 +349,37 @@
 		html: function( html ){
 
 			// Parse special html and append it to selected elements
+			this.each(function(){
+
+				this.innerHTML = "<b>test</b>";
+				// console.log(this);
+
+			});
+
+			// insertAdjacentHTML();
 
 			return this;
+
+		},
+		text: function( text ){
+
+			if( isEmpty(text) ){
+
+				var returned = new Array();
+
+				this.each(function(){
+
+					console.log(this, this.nodeName, this.innerHTML, this.textContent);
+
+				});
+
+			}
+			else {
+
+				return this;
+
+			};
+
 
 		},
 		is: function( selector ){
