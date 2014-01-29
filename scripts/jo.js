@@ -369,17 +369,40 @@
 
 				this.each(function(){
 
-					console.log(this, this.nodeName, this.innerHTML, this.textContent);
+					returned.push(this.textContent);
 
 				});
+
+				return returned;
 
 			}
 			else {
 
-				return this;
+				this.each(function(){
+
+					Jo(this).empty();
+
+					this.appendChild(document.createTextNode(text));
+
+				});
 
 			};
 
+
+		},
+		empty: function(){
+
+			this.each(function(){
+
+				while( this.firstChild ){
+
+					this.firstChild.remove();
+
+				};
+
+			});
+
+			return this;
 
 		},
 		is: function( selector ){
