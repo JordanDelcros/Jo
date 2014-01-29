@@ -567,7 +567,7 @@
 
 			this.each(function(){
 
-				this.parentNode.removeChild(this);
+				this.remove();
 
 			});
 
