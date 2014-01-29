@@ -526,6 +526,42 @@
 
 			return returned;
 
+		},
+		insertBefore: function( html ){
+
+			this.each(function(){
+
+				this.insertAdjacentHTML("beforebegin", html)
+
+			});
+
+		},
+		insertAfter: function( html ){
+
+			this.each(function(){
+
+				this.insertAdjacentHTML("afterend", html)
+
+			});
+
+		},
+		insertStart: function( html ){
+
+			this.each(function(){
+
+				this.insertAdjacentHTML("afterbegin", html)
+
+			});
+
+		},
+		insertEnd: function( html ){
+
+			this.each(function(){
+
+				this.insertAdjacentHTML("beforeend", html)
+
+			});
+
 		}
 	};
 
