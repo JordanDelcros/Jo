@@ -380,9 +380,19 @@
 
 				this.each(function(){
 
-					Jo(this).empty();
+					// Jo(this).empty();
 
-					this.appendChild(document.createTextNode(text));
+					console.dir(this);
+
+					if( Jo(this).is("text") ){
+
+						// this.nodeValue = text;
+
+					}
+					else {
+
+						// this.appendChild(document.createTextNode(text));
+					}
 
 				});
 
@@ -411,7 +421,7 @@
 
 			selector = prepareSelector(selector).replace(/([#\.:\[])([^#\.:\[]+)/ig, function(all, type, curiosity){
 
-				if( type === "." && curiosity.match(/\]$/ig) ){
+				if( type === "." && new RegExp("\]$", "ig").test(curiosity) ){
 
 					return all;
 
@@ -426,31 +436,31 @@
 				for( var key in selector ){
 
 					// is textNode
-					if( selector[key] === "text" ){
+					if( selector[key] === "text" && this.nodeType !== 3 ){
 
-						if( this.nodeType !== 3 ) returned = false;
+						return false;
 
 					}
 					// is tag
-					else if( selector[key].match(/^\w/i) ){
+					else if( new RegExp("^\\w", "i").test(selector[key]) ){
 
-						if( selector[key].toLowerCase() !== this.tagName.toLowerCase() ) returned = false;
-
-					}
-					// is id
-					else if( selector[key].match(/^#/) ){
-
-						if( selector[key].substring(1) !== this.id ) returned = false;
+						if( this.nodeType !== 1 || selector[key].toLowerCase() !== this.nodeName.toLowerCase() ) returned = false;
 
 					}
-					// is class
-					else if( selector[key].match(/^\./) ){
+					// has id
+					else if( new RegExp("^#", "g").test(selector[key]) ){
 
-						if( this.classList.contains(selector[key].substring(1)) === false ) returned = false;
+						if( this.nodeType !== 1 || selector[key].substring(1) !== this.id ) returned = false;
 
 					}
-					// is attr
-					else if( selector[key].match(/^\[/) ){
+					// has class
+					else if( new RegExp("^\\.", "g").test(selector[key]) ){
+
+						if( this.nodeType !== 1 || this.classList.contains(selector[key].substring(1)) === false ) returned = false;
+
+					}
+					// has attr
+					else if( new RegExp("^\\[", "g").test(selector[key]) ){
 
 						var attribute = selector[key].substring(1).slice(0,-1).split("=");
 
@@ -460,32 +470,24 @@
 
 						};
 
-						if( isEmpty(this.attributes.getNamedItem(attribute[0])) ){
-
-							returned = false
-
-						}
-						else if( !isEmpty(attribute[1]) ){
-
-							if( this.attributes.getNamedItem(attribute[0]).nodeValue !== attribute[1] ) returned = false;
-
-						};	
+						if( this.nodeType !== 1 || isEmpty(this.attributes.getNamedItem(attribute[0])) || (!isEmpty(attribute[1]) && this.attributes.getNamedItem(attribute[0]).nodeValue !== attribute[1]) ) returned = false;	
 
 					}
 					// is pseudo
-					else if( selector[key].match(/^:/) ){
+					else if( new RegExp("^:", "g").test(selector[key]) ){
 
 						if( selector[key] === ":first-child" ){
 
+							// Use native method to compare same node
 							if( this.parentNode.firstElementChild !== this ) returned = false;
 
 						}
 						else if( selector[key] === ":last-child" ){
 
-							if( this.parentNode.lastElementChild !== this ) returned = false;
+							if( this.nodeType !== 1 || this.parentNode.lastElementChild !== this ) returned = false;
 
 						}
-						else if( selector[key].match(/^:nth-child?\([^\)]+\)$/ig) ){
+						else if( new RegExp("^:nth-child?\\([^\\)]+\\)$", "gi").test(selector[key]) ){
 
 							var toFound = this;
 							var $NodeList = $(this.parentNode).find("> *" + selector[key]);
@@ -519,7 +521,7 @@
 							};
 
 						}
-						else if( selector[key].match(/^:nth-of-type?\([^\)]+\)$/ig) ){
+						else if( new RegExp("^:nth-of-type?\\([^\\)]+\\)$", "gi").test(selector[key]) ){
 
 							var toFound = this;
 							var $NodeList = $(this.parentNode).find("> *" + selector[key]);
@@ -591,7 +593,7 @@
 
 	function isNumber( source ){
 
-		return typeof source === "number" || /^[\d\.]+$/ig.test(source) || (!isNaN(parseFloat(source)) && isFinite(source));
+		return typeof source === "number" || new RegExp("^[\\d\\.]+$", "gi").test(source) || (!isNaN(parseFloat(source)) && isFinite(source));
 
 	};
 
@@ -637,7 +639,7 @@
 
 				returned[key][subkey] = returned[key][subkey].replace(/([#\.:\[])([^#\.:\[\|\>]+)/ig, function(all, type, curiosity){
 
-					if( type === "." && curiosity.match(/\]$/ig) ) return all;
+					if( type === "." && new RegExp("\\]$", "ig").test(curiosity) ) return all;
 					return "|" + all;
 
 				}).split("|");
@@ -675,7 +677,7 @@
 		var removeIdAfter = false;
 		var oldOrigin = origin;
 
-		if( selector.match(/^\s*>/ig) ){
+		if( new RegExp("^\\s*>", "ig").test(selector) ){
 
 			if( isEmpty(originId) ){
 
