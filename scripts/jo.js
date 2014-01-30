@@ -436,31 +436,31 @@
 				for( var key in selector ){
 
 					// is textNode
-					if( selector[key] === "text" && this.nodeType !== 3 ){
+					if( selector[key] === "text" && !isText(this) ){
 
-						return false;
+						returned = false;
 
 					}
 					// is tag
-					else if( new RegExp("^\\w", "i").test(selector[key]) ){
+					else if( new RegExp("^\\w", "i").test(selector[key]) && isTag(this) ){
 
-						if( this.nodeType !== 1 || selector[key].toLowerCase() !== this.nodeName.toLowerCase() ) returned = false;
+						if( selector[key].toLowerCase() !== this.nodeName.toLowerCase() ) returned = false;
 
 					}
 					// has id
-					else if( new RegExp("^#", "g").test(selector[key]) ){
+					else if( new RegExp("^#", "g").test(selector[key]) && isTag(this) ){
 
-						if( this.nodeType !== 1 || selector[key].substring(1) !== this.id ) returned = false;
+						if( selector[key].substring(1) !== this.id ) returned = false;
 
 					}
 					// has class
-					else if( new RegExp("^\\.", "g").test(selector[key]) ){
+					else if( new RegExp("^\\.", "g").test(selector[key]) && isTag(this) ){
 
-						if( this.nodeType !== 1 || this.classList.contains(selector[key].substring(1)) === false ) returned = false;
+						if( this.classList.contains(selector[key].substring(1)) === false ) returned = false;
 
 					}
 					// has attr
-					else if( new RegExp("^\\[", "g").test(selector[key]) ){
+					else if( new RegExp("^\\[", "g").test(selector[key]) && isTag(this) ){
 
 						var attribute = selector[key].substring(1).slice(0,-1).split("=");
 
@@ -470,7 +470,7 @@
 
 						};
 
-						if( this.nodeType !== 1 || isEmpty(this.attributes.getNamedItem(attribute[0])) || (!isEmpty(attribute[1]) && this.attributes.getNamedItem(attribute[0]).nodeValue !== attribute[1]) ) returned = false;	
+						if( isEmpty(this.attributes.getNamedItem(attribute[0])) || (!isEmpty(attribute[1]) && this.attributes.getNamedItem(attribute[0]).nodeValue !== attribute[1]) ) returned = false;	
 
 					}
 					// is pseudo
@@ -479,12 +479,19 @@
 						if( selector[key] === ":first-child" ){
 
 							// Use native method to compare same node
-							if( this.parentNode.firstElementChild !== this ) returned = false;
+							// make it for node and tag
+							if( isTag(this) ){
+
+							}
+							else {
+
+							};
+if( this.parentNode.firstElementChild !== this ) returned = false;
 
 						}
 						else if( selector[key] === ":last-child" ){
 
-							if( this.nodeType !== 1 || this.parentNode.lastElementChild !== this ) returned = false;
+							if( !isTag(this) || this.parentNode.lastElementChild !== this ) returned = false;
 
 						}
 						else if( new RegExp("^:nth-child?\\([^\\)]+\\)$", "gi").test(selector[key]) ){
@@ -612,6 +619,18 @@
 	function isNode( source ){
 
 		return source instanceof HTMLElement || source.nodeType;
+
+	};
+
+	function isTag( source ){
+
+		return isNode(source) && source.nodeType === 1;
+
+	};
+
+	function isText( source ){
+
+		return isNode(source) && source.nodeType === 3;
 
 	};
 
