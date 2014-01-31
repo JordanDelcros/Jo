@@ -589,6 +589,42 @@
 
 			});
 
+		},
+		addClass: function( className ){
+
+			this.each(function(){
+
+				if( this.classList ) {
+
+					this.classList.add( className );
+
+				}
+				else {
+
+					this.className += ''+className;
+
+				}
+
+			});
+
+		},
+		removeClass: function( className ){
+
+			this.each(function(){
+
+				if( this.classList ) {
+
+					this.classList.remove( className );
+
+				}
+				else {
+
+					this.className = this.className.replace(new RegExp('(^| )' + className.split(' ').join('|') + '( |$)', 'gi'), ' ');
+
+				}
+
+			});
+
 		}
 	};
 
