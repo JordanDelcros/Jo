@@ -23,3 +23,12 @@ Then you can use methods like `$("body > section:first-child").css("background-c
 - attr
 - css
 - is
+- insertBefore
+- insertAfter
+- insertStart
+- insertEnd
+- remove
+- hide
+- show
+- addClass
+- removeClass

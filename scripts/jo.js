@@ -635,6 +635,105 @@
 
 			return returned;
 
+		},
+		insertBefore: function( html ){
+
+			this.each(function(){
+
+				this.insertAdjacentHTML("beforebegin", html);
+
+			});
+
+		},
+		insertAfter: function( html ){
+
+			this.each(function(){
+
+				this.insertAdjacentHTML("afterend", html);
+
+			});
+
+		},
+		insertStart: function( html ){
+
+			this.each(function(){
+
+				this.insertAdjacentHTML("afterbegin", html);
+
+			});
+
+		},
+		insertEnd: function( html ){
+
+			this.each(function(){
+
+				this.insertAdjacentHTML("beforeend", html);
+
+			});
+
+		},
+		remove: function(){
+
+			this.each(function(){
+
+				this.remove();
+
+			});
+
+		},
+		hide: function(){
+
+			this.each(function(){
+
+				this.style.display = "none";
+
+			});
+
+		},
+		show: function(){
+
+			this.each(function(){
+
+				this.style.display = '';
+
+			});
+
+		},
+		addClass: function( className ){
+
+			this.each(function(){
+
+				if( this.classList ) {
+
+					this.classList.add( className );
+
+				}
+				else {
+
+					this.className += ''+className;
+
+				}
+
+			});
+
+		},
+		removeClass: function( className ){
+
+			this.each(function(){
+
+				if( this.classList ) {
+
+					this.classList.remove( className );
+
+				}
+				else {
+
+					this.className = this.className.replace(new RegExp('(^| )' + className.split(' ').join('|') + '( |$)', 'gi'), ' ');
+
+				}
+
+			});
+
 		}
 	};
 
