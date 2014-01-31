@@ -64,22 +64,22 @@
 		},
 		find: function( selector ){
 
-			var newNodes = new Array();
+			var found = new Array();
 
 			this.each(function(){
 
-				newNodes = newNodes.concat(getNodes(selector, this));
+				found = found.concat(getNodes(selector, this));
 	
 			});
 
-			this.found = newNodes;
+			this.found = found;
 
 			return this;
 
 		},
 		child: function( selector ){
 
-			var newNodes = new Array();
+			var found = new Array();
 
 			this.each(function(){
 
@@ -89,12 +89,12 @@
 
 					if( !isEmpty(selector) ){
 
-						if( Jo(childs[child]).is(selector) ) newNodes.push(childs[child]);
+						if( Jo(childs[child]).is(selector) ) found.push(childs[child]);
 
 					}
 					else {
 
-						newNodes.push(childs[child]);
+						found.push(childs[child]);
 
 					};
 
@@ -102,14 +102,14 @@
 
 			});
 
-			this.found = newNodes;
+			this.found = found;
 
 			return this;
 
 		},
 		node: function( selector, normalize ){
 
-			var newNodes = new Array();
+			var found = new Array();
 
 			if( isBoolean(selector) ){
 
@@ -147,16 +147,12 @@
 
 					if( !isEmpty(selector) && isString(selector) && Jo(nodes[node]).is(selector) ){
 
-						console.log("not empty", selector, nodes[node], Jo(nodes[node]).is(selector));
-
-						newNodes.push(nodes[node]);
+						found.push(nodes[node]);
 
 					}
 					else if( isEmpty(selector) ){
 
-						console.log("selec", selector, nodes[node]);
-
-						newNodes.push(nodes[node]);
+						found.push(nodes[node]);
 
 					};
 
@@ -164,7 +160,7 @@
 
 			});
 
-			this.found = newNodes;
+			this.found = found;
 
 			return this;
 
@@ -427,8 +423,6 @@
 
 					// Jo(this).empty();
 
-					console.dir(this);
-
 					if( Jo(this).is("text") ){
 
 						// this.nodeValue = text;
@@ -443,6 +437,52 @@
 
 			};
 
+
+		},
+		replace: function( html ){
+
+			var found = new Array();
+
+			if( isEmpty(html) ){
+
+				Jo(this).remove();
+
+				this.found = new Array();
+
+				return this;
+
+			}
+			else if( isString(html) ){
+
+				var temporaryNode = document.createElement("div");
+				temporaryNode.innerHTML = html;
+
+				html = temporaryNode.childNodes;
+
+				temporaryNode.remove();
+
+			}
+			else if( isNode(html) ){
+
+				html = [html];
+
+			};
+
+			this.each(function(){
+
+				var position = html[0];
+
+				for( var node = html.length-1; node >= 0; node-- ){
+
+					console.log("replace", html[node])
+
+				};
+
+			});
+
+			this.found = found;
+
+			return this;
 
 		},
 		empty: function(){
