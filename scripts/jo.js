@@ -64,24 +64,28 @@
 		},
 		find: function( selector ){
 
+			var $this = Jo(this);
+
 			var found = new Array();
 
-			this.each(function(){
+			$this.each(function(){
 
 				found = found.concat(getNodes(selector, this));
 	
 			});
 
-			this.found = found;
+			$this.found = found;
 
-			return this;
+			return $this;
 
 		},
 		child: function( selector ){
 
+			var $this = Jo(this);
+
 			var found = new Array();
 
-			this.each(function(){
+			$this.each(function(){
 
 				var childs = this.children;
 
@@ -102,12 +106,14 @@
 
 			});
 
-			this.found = found;
+			$this.found = found;
 
-			return this;
+			return $this;
 
 		},
 		node: function( selector, normalize ){
+
+			var $this = Jo(this);
 
 			var found = new Array();
 
@@ -121,7 +127,7 @@
 
 			if( isTrue(normalize) ){
 
-				this.each(function(){
+				$this.each(function(){
 
 					var nodes = this.childNodes;
 
@@ -139,7 +145,7 @@
 
 			};
 
-			this.each(function(){
+			$this.each(function(){
 
 				var nodes = this.childNodes;
 
@@ -160,9 +166,9 @@
 
 			});
 
-			this.found = found;
+			$this.found = found;
 
-			return this;
+			return $this;
 
 		},
 		item: function( number ){
@@ -450,33 +456,102 @@
 		},
 		insertBefore: function( html ){
 
-			this.each(function(){
+			var $this = Jo(this);
 
-				this.insertAdjacentHTML("beforebegin", html);
+			var found = new Array();
 
-			});
+			if( isString(html) ){
+
+				this.each(function(){
+
+					this.insertAdjacentHTML("beforebegin", html);
+
+				});
+
+			}
+			else if( isNode(html) ){
+
+				this.each(function(){
+
+					this.parentNode.insertBefore(html.cloneNode(true), this);
+
+				});
+
+			}
+			else if( isNodeList(html) ){
+
+				var length = html.length;
+
+				this.each(function(){
+
+					for( var node = 0; node < length; node++ ){
+
+						console.log(html[node], node, length);
+
+						this.parentNode.insertBefore(html[node].cloneNode(true), this);
+
+					};
+
+				});
+
+			};
 
 			return this;
 
 		},
 		insertAfter: function( html ){
 
-			this.each(function(){
+			if( isString(html) ){
 
-				this.insertAdjacentHTML("afterend", html);
+				this.each(function(){
 
-			});
+					this.insertAdjacentHTML("afterend", html);
+
+				});
+
+			}
+			else if( isNode(html) ){
+
+				this.each(function(){
+
+					this.parentNode.insertBefore(html.cloneNode(true), this.nextSibling);
+
+				});
+
+			}
+			else if( isNodeList(html) ){
+
+				this.each(function(){
+
+					for( var node = html.length-1; node >= 0; node-- ){
+
+						this.parentNode.insertBefore(html[node].cloneNode(true), this.nextSibling);
+
+					};
+
+				});
+
+			};
 
 			return this;
 
 		},
 		insertStart: function( html ){
 
-			this.each(function(){
+			if( isString(html) ){
+				
+				this.each(function(){
 
-				this.insertAdjacentHTML("afterbegin", html);
+					this.insertAdjacentHTML("afterbegin", html);
 
-			});
+				});
+
+			}
+			else if( isNode(html) ){
+
+
+
+			};
 
 			return this;
 
