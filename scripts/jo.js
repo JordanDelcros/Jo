@@ -107,9 +107,37 @@
 			return this;
 
 		},
-		node: function( selector ){
+		node: function( selector, normalize ){
 
 			var newNodes = new Array();
+
+			if( isBoolean(selector) ){
+
+				var normalize = selector;
+
+				selector = undefined;
+
+			};
+
+			if( isTrue(normalize) ){
+
+				this.each(function(){
+
+					var nodes = this.childNodes;
+
+					for( var node = 0; node < nodes.length; node++ ){
+
+						if( isText(nodes[node]) && new RegExp("^\\s+$", "g").test(nodes[node].textContent) ){
+
+							Jo(nodes[node]).remove();
+
+						};
+
+					};
+
+				});
+
+			};
 
 			this.each(function(){
 
@@ -117,12 +145,16 @@
 
 				for( var node = 0; node < nodes.length; node++ ){
 
-					if( !isEmpty(selector) ){
+					if( !isEmpty(selector) && isString(selector) && Jo(nodes[node]).is(selector) ){
 
-						if( Jo(nodes[node]).is(selector) ) newNodes.push(nodes[node]);
+						console.log("not empty", selector, nodes[node], Jo(nodes[node]).is(selector));
+
+						newNodes.push(nodes[node]);
 
 					}
-					else {
+					else if( isEmpty(selector) ){
+
+						console.log("selec", selector, nodes[node]);
 
 						newNodes.push(nodes[node]);
 
@@ -159,6 +191,19 @@
 
 			};
 			
+			return this;
+
+		},
+		remove: function(){
+
+			this.each(function(){
+
+				this.remove();
+
+			});
+
+			this.node = new Array();
+
 			return this;
 
 		},
@@ -442,25 +487,25 @@
 
 					}
 					// is tag
-					else if( new RegExp("^\\w", "i").test(selector[key]) && isTag(this) ){
+					else if( new RegExp("^\\w", "i").test(selector[key]) && (!isTag(this) || selector[key].toLowerCase() !== this.nodeName.toLowerCase()) ){
 
-						if( selector[key].toLowerCase() !== this.nodeName.toLowerCase() ) returned = false;
+						returned = false;
 
 					}
 					// has id
-					else if( new RegExp("^#", "g").test(selector[key]) && isTag(this) ){
+					else if( new RegExp("^#", "g").test(selector[key]) && (!isTag(this) || selector[key].substring(1) !== this.id) ){
 
-						if( selector[key].substring(1) !== this.id ) returned = false;
+						returned = false;
 
 					}
 					// has class
-					else if( new RegExp("^\\.", "g").test(selector[key]) && isTag(this) ){
+					else if( new RegExp("^\\.", "g").test(selector[key]) && (!isTag(this) || isFalse(this.classList.contains(selector[key].substring(1)))) ){
 
-						if( this.classList.contains(selector[key].substring(1)) === false ) returned = false;
+						returned = false;
 
 					}
 					// has attr
-					else if( new RegExp("^\\[", "g").test(selector[key]) && isTag(this) ){
+					else if( new RegExp("^\\[", "g").test(selector[key]) ){
 
 						var attribute = selector[key].substring(1).slice(0,-1).split("=");
 
@@ -470,48 +515,40 @@
 
 						};
 
-						if( isEmpty(this.attributes.getNamedItem(attribute[0])) || (!isEmpty(attribute[1]) && this.attributes.getNamedItem(attribute[0]).nodeValue !== attribute[1]) ) returned = false;	
+						if( !isTag(this) || isEmpty(this.attributes.getNamedItem(attribute[0])) || (!isEmpty(attribute[1]) && this.attributes.getNamedItem(attribute[0]).nodeValue !== attribute[1]) ) returned = false;	
 
 					}
 					// is pseudo
 					else if( new RegExp("^:", "g").test(selector[key]) ){
 
-						if( selector[key] === ":first-child" ){
+						if( selector[key] === ":first-child" && (!isTag(this) || !this.parentNode.firstElementChild.isEqualNode(this)) ){
 
-							// Use native method to compare same node
-							// make it for node and tag
-							if( isTag(this) ){
-
-							}
-							else {
-
-							};
-if( this.parentNode.firstElementChild !== this ) returned = false;
+							returned = false;
 
 						}
-						else if( selector[key] === ":last-child" ){
+						else if( selector[key] === ":last-child" && (!isTag(this) || this.parentNode.lastElementChild.isEqualNode(this)) ){
 
-							if( !isTag(this) || this.parentNode.lastElementChild !== this ) returned = false;
+							returned = false;
 
 						}
 						else if( new RegExp("^:nth-child?\\([^\\)]+\\)$", "gi").test(selector[key]) ){
 
 							var toFound = this;
-							var $NodeList = $(this.parentNode).find("> *" + selector[key]);
+							var $nodeList = Jo(this.parentNode).find("> *" + selector[key]);
 
 							var found = false;
 
-							$NodeList.each(function(){
+							$nodeList.each(function(){
 
-								if( this === toFound ) found = true;
+								if( this.isEqualNode(toFound) ) found = true;
 
 							});
 
-							if( found === false ) returned = false;
+							if( !isTag(this) || found === false ) returned = false;
 
 						}
 						else if( selector[key] === ":first-of-type" ){
-							
+							// first of which type ???
 							if( Jo(this.parentNode).find(">:first-of-type").item(0).found[0] !== this ){
 
 								returned = false;
@@ -607,6 +644,18 @@ if( this.parentNode.firstElementChild !== this ) returned = false;
 	function isBoolean( source ){
 
 		return typeof source === "boolean" || source === true || source === false;
+
+	};
+
+	function isTrue( source ){
+
+		return source === true;
+
+	};
+
+	function isFalse( source ){
+
+		return source === false;
 
 	};
 
