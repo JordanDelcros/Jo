@@ -580,6 +580,15 @@
 
 			});
 
+		},
+		show: function(){
+
+			this.each(function(){
+
+				this.style.display = '';
+
+			});
+
 		}
 	};
 
