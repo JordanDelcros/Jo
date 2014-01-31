@@ -190,19 +190,6 @@
 			return this;
 
 		},
-		remove: function(){
-
-			this.each(function(){
-
-				this.remove();
-
-			});
-
-			this.node = new Array();
-
-			return this;
-
-		},
 		on: function( action, fn, useCapture ){
 
 			if( isEmpty(useCapture) ) useCapture = false;
@@ -387,6 +374,28 @@
 			return this;
 
 		},
+		addClass: function( className ){
+
+			this.each(function(){
+
+				this.classList.add(className);
+
+			});
+
+			return this;
+
+		},
+		removeClass: function( className ){
+
+			this.each(function(){
+
+				this.classList.remove(className);
+
+			});
+
+			return this;
+
+		},
 		html: function( html ){
 
 			// Parse special html and append it to selected elements
@@ -439,6 +448,50 @@
 
 
 		},
+		insertBefore: function( html ){
+
+			this.each(function(){
+
+				this.insertAdjacentHTML("beforebegin", html);
+
+			});
+
+			return this;
+
+		},
+		insertAfter: function( html ){
+
+			this.each(function(){
+
+				this.insertAdjacentHTML("afterend", html);
+
+			});
+
+			return this;
+
+		},
+		insertStart: function( html ){
+
+			this.each(function(){
+
+				this.insertAdjacentHTML("afterbegin", html);
+
+			});
+
+			return this;
+
+		},
+		insertEnd: function( html ){
+
+			this.each(function(){
+
+				this.insertAdjacentHTML("beforeend", html);
+
+			});
+
+			return this;
+
+		},
 		replace: function( html ){
 
 			var found = new Array();
@@ -485,13 +538,26 @@
 			return this;
 
 		},
+		remove: function(){
+
+			this.each(function(){
+
+				this.remove();
+
+			});
+
+			this.node = new Array();
+
+			return this;
+
+		},
 		empty: function(){
 
 			this.each(function(){
 
 				while( this.firstChild ){
 
-					this.firstChild.remove();
+					Jo(this.firstChild).remove();
 
 				};
 
@@ -636,51 +702,6 @@
 			return returned;
 
 		},
-		insertBefore: function( html ){
-
-			this.each(function(){
-
-				this.insertAdjacentHTML("beforebegin", html);
-
-			});
-
-		},
-		insertAfter: function( html ){
-
-			this.each(function(){
-
-				this.insertAdjacentHTML("afterend", html);
-
-			});
-
-		},
-		insertStart: function( html ){
-
-			this.each(function(){
-
-				this.insertAdjacentHTML("afterbegin", html);
-
-			});
-
-		},
-		insertEnd: function( html ){
-
-			this.each(function(){
-
-				this.insertAdjacentHTML("beforeend", html);
-
-			});
-
-		},
-		remove: function(){
-
-			this.each(function(){
-
-				this.remove();
-
-			});
-
-		},
 		hide: function(){
 
 			this.each(function(){
@@ -689,50 +710,18 @@
 
 			});
 
+			return this;
+
 		},
 		show: function(){
 
 			this.each(function(){
 
-				this.style.display = '';
+				this.style.display = "";
 
 			});
 
-		},
-		addClass: function( className ){
-
-			this.each(function(){
-
-				if( this.classList ) {
-
-					this.classList.add( className );
-
-				}
-				else {
-
-					this.className += ''+className;
-
-				}
-
-			});
-
-		},
-		removeClass: function( className ){
-
-			this.each(function(){
-
-				if( this.classList ) {
-
-					this.classList.remove( className );
-
-				}
-				else {
-
-					this.className = this.className.replace(new RegExp('(^| )' + className.split(' ').join('|') + '( |$)', 'gi'), ' ');
-
-				}
-
-			});
+			return this;
 
 		}
 	};
