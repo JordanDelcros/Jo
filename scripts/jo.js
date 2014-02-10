@@ -196,6 +196,142 @@
 			return this;
 
 		},
+		is: function( selector ){
+
+			var returned = isEmpty(selector) ? false : true;
+
+			selector = prepareSelector(selector).replace(/([#\.:\[])([^#\.:\[]+)/ig, function(all, type, curiosity){
+
+				if( type === "." && new RegExp("\]$", "ig").test(curiosity) ){
+
+					return all;
+
+				};
+
+				return "|" + all;
+
+			}).split("|");
+
+			this.each(function(){
+
+				for( var key in selector ){
+
+					// is textNode
+					if( selector[key] === "text" && !isText(this) ){
+
+						returned = false;
+
+					}
+					// is tag
+					else if( new RegExp("^\\w", "i").test(selector[key]) && (!isTag(this) || selector[key].toLowerCase() !== this.nodeName.toLowerCase()) ){
+
+						returned = false;
+
+					}
+					// has id
+					else if( new RegExp("^#", "g").test(selector[key]) && (!isTag(this) || selector[key].substring(1) !== this.id) ){
+
+						returned = false;
+
+					}
+					// has class
+					else if( new RegExp("^\\.", "g").test(selector[key]) && (!isTag(this) || isFalse(this.classList.contains(selector[key].substring(1)))) ){
+
+						returned = false;
+
+					}
+					// has attr
+					else if( new RegExp("^\\[", "g").test(selector[key]) ){
+
+						var attribute = selector[key].substring(1).slice(0,-1).split("=");
+
+						if( !isEmpty(attribute[1]) ){
+
+							attribute[1] = attribute[1].replace(/^[\"\']/, "").replace(/[\"\']$/, "");
+
+						};
+
+						if( !isTag(this) || isEmpty(this.attributes.getNamedItem(attribute[0])) || (!isEmpty(attribute[1]) && this.attributes.getNamedItem(attribute[0]).nodeValue !== attribute[1]) ) returned = false;	
+
+					}
+					// is pseudo
+					else if( new RegExp("^:", "g").test(selector[key]) ){
+
+						if( selector[key] === ":first-child" && (!isTag(this) || !this.parentNode.firstElementChild.isEqualNode(this)) ){
+
+							returned = false;
+
+						}
+						else if( selector[key] === ":last-child" && (!isTag(this) || this.parentNode.lastElementChild.isEqualNode(this)) ){
+
+							returned = false;
+
+						}
+						else if( new RegExp("^:nth-child?\\([^\\)]+\\)$", "gi").test(selector[key]) ){
+
+							var toFound = this;
+							var $nodeList = Jo(this.parentNode).find("> *" + selector[key]);
+
+							var found = false;
+
+							$nodeList.each(function(){
+
+								if( this.isEqualNode(toFound) ) found = true;
+
+							});
+
+							if( !isTag(this) || found === false ) returned = false;
+
+						}
+						else if( selector[key] === ":first-of-type" ){
+							// first of which type ???
+							if( Jo(this.parentNode).find(">:first-of-type").item(0).found[0] !== this ){
+
+								returned = false;
+
+							};
+
+						}
+						else if( selector[key] === ":last-of-type" ){
+
+							if( Jo(this.parentNode).find(">:last-of-type").item(0).found[0] !== this ){
+
+								returned = false;
+
+							};
+
+						}
+						else if( new RegExp("^:nth-of-type?\\([^\\)]+\\)$", "gi").test(selector[key]) ){
+
+							var toFound = this;
+							var $NodeList = $(this.parentNode).find("> *" + selector[key]);
+
+							var found = false;
+
+							$NodeList.each(function(){
+
+								if( this === toFound ) found = true;
+
+							});
+
+							if( found === false ) returned = false;
+
+						}
+						else {
+
+							returned = false;
+
+						};
+
+					};
+				
+				};
+
+			});
+
+			return returned;
+
+		},
 		on: function( action, fn, useCapture ){
 
 			if( isEmpty(useCapture) ) useCapture = false;
@@ -362,7 +498,15 @@
 				}
 				else {
 
-					return this.found[0].style[name];
+					var returned = new Array();
+
+					this.each(function(){
+
+						returned.push(window.getComputedStyle(this, null).getPropertyValue(name));
+
+					});
+
+					return returned;
 
 				};
 
@@ -486,8 +630,6 @@
 
 					for( var node = 0; node < length; node++ ){
 
-						console.log(html[node], node, length);
-
 						this.parentNode.insertBefore(html[node].cloneNode(true), this);
 
 					};
@@ -521,11 +663,17 @@
 			}
 			else if( isNodeList(html) ){
 
+				var length = html.length - 1;
+
 				this.each(function(){
 
-					for( var node = html.length-1; node >= 0; node-- ){
+					console.log("mfzjebfmz",this);
 
-						this.parentNode.insertBefore(html[node].cloneNode(true), this.nextSibling);
+					for( var node = length; node >= 0; node-- ){
+
+						console.log(html[node]);
+
+						// this.parentNode.insertBefore(html[node].cloneNode(true), this.nextSibling);
 
 					};
 
@@ -641,140 +789,15 @@
 			return this;
 
 		},
-		is: function( selector ){
-
-			var returned = isEmpty(selector) ? false : true;
-
-			selector = prepareSelector(selector).replace(/([#\.:\[])([^#\.:\[]+)/ig, function(all, type, curiosity){
-
-				if( type === "." && new RegExp("\]$", "ig").test(curiosity) ){
-
-					return all;
-
-				};
-
-				return "|" + all;
-
-			}).split("|");
+		show: function(){
 
 			this.each(function(){
 
-				for( var key in selector ){
-
-					// is textNode
-					if( selector[key] === "text" && !isText(this) ){
-
-						returned = false;
-
-					}
-					// is tag
-					else if( new RegExp("^\\w", "i").test(selector[key]) && (!isTag(this) || selector[key].toLowerCase() !== this.nodeName.toLowerCase()) ){
-
-						returned = false;
-
-					}
-					// has id
-					else if( new RegExp("^#", "g").test(selector[key]) && (!isTag(this) || selector[key].substring(1) !== this.id) ){
-
-						returned = false;
-
-					}
-					// has class
-					else if( new RegExp("^\\.", "g").test(selector[key]) && (!isTag(this) || isFalse(this.classList.contains(selector[key].substring(1)))) ){
-
-						returned = false;
-
-					}
-					// has attr
-					else if( new RegExp("^\\[", "g").test(selector[key]) ){
-
-						var attribute = selector[key].substring(1).slice(0,-1).split("=");
-
-						if( !isEmpty(attribute[1]) ){
-
-							attribute[1] = attribute[1].replace(/^[\"\']/, "").replace(/[\"\']$/, "");
-
-						};
-
-						if( !isTag(this) || isEmpty(this.attributes.getNamedItem(attribute[0])) || (!isEmpty(attribute[1]) && this.attributes.getNamedItem(attribute[0]).nodeValue !== attribute[1]) ) returned = false;	
-
-					}
-					// is pseudo
-					else if( new RegExp("^:", "g").test(selector[key]) ){
-
-						if( selector[key] === ":first-child" && (!isTag(this) || !this.parentNode.firstElementChild.isEqualNode(this)) ){
-
-							returned = false;
-
-						}
-						else if( selector[key] === ":last-child" && (!isTag(this) || this.parentNode.lastElementChild.isEqualNode(this)) ){
-
-							returned = false;
-
-						}
-						else if( new RegExp("^:nth-child?\\([^\\)]+\\)$", "gi").test(selector[key]) ){
-
-							var toFound = this;
-							var $nodeList = Jo(this.parentNode).find("> *" + selector[key]);
-
-							var found = false;
-
-							$nodeList.each(function(){
-
-								if( this.isEqualNode(toFound) ) found = true;
-
-							});
-
-							if( !isTag(this) || found === false ) returned = false;
-
-						}
-						else if( selector[key] === ":first-of-type" ){
-							// first of which type ???
-							if( Jo(this.parentNode).find(">:first-of-type").item(0).found[0] !== this ){
-
-								returned = false;
-
-							};
-
-						}
-						else if( selector[key] === ":last-of-type" ){
-
-							if( Jo(this.parentNode).find(">:last-of-type").item(0).found[0] !== this ){
-
-								returned = false;
-
-							};
-
-						}
-						else if( new RegExp("^:nth-of-type?\\([^\\)]+\\)$", "gi").test(selector[key]) ){
-
-							var toFound = this;
-							var $NodeList = $(this.parentNode).find("> *" + selector[key]);
-
-							var found = false;
-
-							$NodeList.each(function(){
-
-								if( this === toFound ) found = true;
-
-							});
-
-							if( found === false ) returned = false;
-
-						}
-						else {
-
-							returned = false;
-
-						};
-
-					};
-				
-				};
+				this.style.display = "";
 
 			});
 
-			return returned;
+			return this;
 
 		},
 		hide: function(){
@@ -782,17 +805,6 @@
 			this.each(function(){
 
 				this.style.display = "none";
-
-			});
-
-			return this;
-
-		},
-		show: function(){
-
-			this.each(function(){
-
-				this.style.display = "";
 
 			});
 
