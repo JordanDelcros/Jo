@@ -548,17 +548,32 @@
 		},
 		html: function( html ){
 
-			// Parse special html and append it to selected elements
-			this.each(function(){
+			if( isEmpty(html) ){
 
-				this.innerHTML = "<b>test</b>";
-				// console.log(this);
+				var returned = new Array();
 
-			});
+				this.each(function(){
 
-			// insertAdjacentHTML();
+					returned.push(this.innerHTML);
 
-			return this;
+				});
+
+				return returned;
+
+			}
+			else {
+
+				this.each(function(){
+
+					this.innerHTML = html;
+
+				});
+
+				this.found = updateNodes(this);
+
+				return this;
+
+			};
 
 		},
 		text: function( text ){
@@ -580,22 +595,25 @@
 
 				this.each(function(){
 
-					// Jo(this).empty();
+					Jo(this).empty();
 
 					if( Jo(this).is("text") ){
 
-						// this.nodeValue = text;
+						this.nodeValue = text;
 
 					}
 					else {
 
-						// this.appendChild(document.createTextNode(text));
+						this.appendChild(document.createTextNode(text));
 					}
 
 				});
 
-			};
+				this.found = updateNodes(this);
 
+				return this;
+
+			};
 
 		},
 		insertBefore: function( html ){
@@ -769,12 +787,14 @@
 
 			});
 
-			this.node = new Array();
+			this.found = new Array();
 
 			return this;
 
 		},
 		empty: function(){
+
+			var newNodes = new Array();
 
 			this.each(function(){
 
@@ -986,9 +1006,21 @@
 
 	};
 
-	function getChilds( origin, selector ){
+	function updateNodes( Jo ){
 
+		var found = new Array();
 
+		Jo.each(function(){
+
+			if( document.contains(this) ){
+
+				found.push(this)
+
+			};
+
+		});
+
+		return found;
 
 	};
 
