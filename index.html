@@ -56,6 +56,13 @@
 
 			console.log("document is ready");
 
+			var ht = "<b>ah</b>";
+			var nodes = document.querySelectorAll("body h2");
+			var node = document.createElement("b");
+			node.appendChild(document.createTextNode("hahaha"));
+
+			$("h2").border().replace(ht);
+
 		};
 
 		Jo(document)
@@ -89,5 +96,6 @@
 			<h2>Why ?</h2>
 		</section>
 	</main>
+	<h3>putain</h3>
 </body>
 </html>

@@ -681,17 +681,13 @@
 			}
 			else if( isNodeList(html) ){
 
-				var length = html.length - 1;
+				var length = html.length;
 
 				this.each(function(){
 
-					console.log("mfzjebfmz",this);
+					for( var node = 0; node < length; node++ ){
 
-					for( var node = length; node >= 0; node-- ){
-
-						console.log(html[node]);
-
-						// this.parentNode.insertBefore(html[node].cloneNode(true), this.nextSibling);
+						this.parentNode.insertBefore(html[node].cloneNode(true), this.nextSibling);
 
 					};
 
@@ -715,7 +711,34 @@
 			}
 			else if( isNode(html) ){
 
+				var node = html.cloneNode(true);
 
+				this.each(function(){
+
+					this.insertBefore(node.cloneNode(true), this.firstChild);
+
+				});
+
+			}
+			else if( isNodeList(html) ){
+
+				var nodes = new Array();
+
+				for( var node = 0; node < html.length; node++ ){
+
+					nodes.push(html[node].cloneNode(true));
+
+				};
+
+				this.each(function(){
+
+					for( var node = 0; node < nodes.length; node++ ){
+
+						this.insertBefore(nodes[node].cloneNode(true), this.firstChild);
+
+					};
+
+				});
 
 			};
 
@@ -724,11 +747,48 @@
 		},
 		insertEnd: function( html ){
 
-			this.each(function(){
+			if( isString(html) ){
 
-				this.insertAdjacentHTML("beforeend", html);
+				this.each(function(){
 
-			});
+					this.insertAdjacentHTML("beforeend", html);
+
+				});
+
+			}
+			else if( isNode(html) ){
+
+				var node = html.cloneNode(html);
+
+				this.each(function(){
+
+					this.insertBefore(node.cloneNode(true), this.lastChild.nextSibling);
+
+				});
+
+			}
+			else if( isNodeList(html) ){
+
+				var nodes = new Array();
+
+				for( var node = 0; node < html.length; node++ ){
+
+					nodes.push(html[node].cloneNode(true));
+
+				};
+
+				this.each(function(){
+
+					for( var node = 0; node < nodes.length; node++ ){
+
+						this.insertBefore(nodes[node].cloneNode(true), this.lastChild.nextSibling);
+
+					};
+
+				});
+
+			};
+
 
 			return this;
 
