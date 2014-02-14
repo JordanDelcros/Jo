@@ -36,7 +36,27 @@
 
 			if( isString(selector) ){
 
-				this.found = getNodes(selector);
+				if( new RegExp("^<.+>$", "gi").test(selector) ){
+
+					var temporaryNode = document.createElement("div");
+
+					temporaryNode.innerHTML = selector;
+
+					for( var node = 0; node < temporaryNode.childNodes.length; node++ ){
+
+						this.found.push(temporaryNode.childNodes[node]);
+
+					};
+
+					temporaryNode.remove();
+
+				}
+				else {
+
+					this.found = getNodes(selector);
+
+				};
+
 			
 			}
 			else if( isNodeList(selector) ){
@@ -616,6 +636,21 @@
 			};
 
 		},
+		clone: function(){
+
+			var found = new Array();
+
+			this.each(function(){
+
+				found.push(this.cloneNode(true));
+
+			});
+
+			this.found = found;
+
+			return this;
+
+		},
 		insertBefore: function( html ){
 
 			var $this = Jo(this);
@@ -635,7 +670,7 @@
 
 				this.each(function(){
 
-					this.parentNode.insertBefore(html.cloneNode(true), this);
+					this.parentNode.insertBefore(html, this);
 
 				});
 
@@ -648,13 +683,35 @@
 
 					for( var node = 0; node < length; node++ ){
 
-						this.parentNode.insertBefore(html[node].cloneNode(true), this);
+						this.parentNode.insertBefore(html[node], this);
+
+					};
+
+				});
+
+			}
+			else if( isJo(html) ){
+
+				var length = html.found.length;
+
+				this.each(function(){
+
+					for( var node = 0; node < length; node++ ){
+
+						this.parentNode.insertBefore(html.found[node], this);
 
 					};
 
 				});
 
 			};
+
+			return this;
+
+		},
+		insertToBefore: function( selector ){
+
+			Jo(selector).insertBefore(this);
 
 			return this;
 
@@ -674,7 +731,7 @@
 
 				this.each(function(){
 
-					this.parentNode.insertBefore(html.cloneNode(true), this.nextSibling);
+					this.parentNode.insertBefore(html, this.nextSibling);
 
 				});
 
@@ -687,7 +744,22 @@
 
 					for( var node = 0; node < length; node++ ){
 
-						this.parentNode.insertBefore(html[node].cloneNode(true), this.nextSibling);
+						this.parentNode.insertBefore(html[node], this.nextSibling);
+
+					};
+
+				});
+
+			}
+			else if( isJo(html) ){
+
+				var length = html.found.length;
+
+				this.each(function(){
+
+					for( var node = 0; node < length; node++ ){
+
+						this.parentNode.insertBefore(html.found[node], this.nextSibling);
 
 					};
 
@@ -698,11 +770,21 @@
 			return this;
 
 		},
+		insertToAfter: function( selector ){
+
+			Jo(selector).insertAfter(this);
+
+			return this;
+
+		},
 		insertStart: function( html ){
 
 			if( isString(html) ){
 				
 				this.each(function(){
+
+					// HERE
+					console.dir(this);
 
 					this.insertAdjacentHTML("afterbegin", html);
 
@@ -711,36 +793,52 @@
 			}
 			else if( isNode(html) ){
 
-				var node = html.cloneNode(true);
-
 				this.each(function(){
 
-					this.insertBefore(node.cloneNode(true), this.firstChild);
+					this.insertBefore(html, this.firstChild);
 
 				});
 
 			}
 			else if( isNodeList(html) ){
 
-				var nodes = new Array();
-
-				for( var node = 0; node < html.length; node++ ){
-
-					nodes.push(html[node].cloneNode(true));
-
-				};
+				var length = html.length;
 
 				this.each(function(){
 
-					for( var node = 0; node < nodes.length; node++ ){
+					for( var node = 0; node < length; node++ ){
 
-						this.insertBefore(nodes[node].cloneNode(true), this.firstChild);
+						this.insertBefore(html[node], this.firstChild);
+
+					};
+
+				});
+
+			}
+			else if( isJo(html) ){
+
+				var length = html.found.length;
+
+				this.each(function(){
+
+					for( var node = 0; node < length; node++ ){
+
+						console.log("toStart", html[node], this);
+
+						this.insertBefore(html.found[node], this.firstChild);
 
 					};
 
 				});
 
 			};
+
+			return this;
+
+		},
+		insertToStart: function( selector ){
+
+			Jo(selector).insertStart(this);
 
 			return this;
 
@@ -758,30 +856,37 @@
 			}
 			else if( isNode(html) ){
 
-				var node = html.cloneNode(html);
-
 				this.each(function(){
 
-					this.insertBefore(node.cloneNode(true), this.lastChild.nextSibling);
+					this.insertBefore(node, this.lastChild.nextSibling);
 
 				});
 
 			}
 			else if( isNodeList(html) ){
 
-				var nodes = new Array();
-
-				for( var node = 0; node < html.length; node++ ){
-
-					nodes.push(html[node].cloneNode(true));
-
-				};
+				var length = html.length;
 
 				this.each(function(){
 
-					for( var node = 0; node < nodes.length; node++ ){
+					for( var node = 0; node < length; node++ ){
 
-						this.insertBefore(nodes[node].cloneNode(true), this.lastChild.nextSibling);
+						this.insertBefore(nodes[node], this.lastChild.nextSibling);
+
+					};
+
+				});
+
+			}
+			else if( isJo(html) ){
+
+				var length = html.found.length;
+
+				this.each(function(){
+
+					for( var node = 0; node < length; node++ ){
+
+						this.insertBefore(html.found[node], this.lastChild.nextSibling);
 
 					};
 
@@ -789,6 +894,13 @@
 
 			};
 
+
+			return this;
+
+		},
+		insertToEnd: function( selector ){
+
+			Jo(selector).insertEnd(this);
 
 			return this;
 
@@ -1098,6 +1210,12 @@
 			author_github: "JordanDelcros",
 			author_website: "http://www.jordan-delcros.com"
 		});
+
+	};
+
+	Jo.length = function(){
+
+		return this.found.length;
 
 	};
 
