@@ -795,8 +795,6 @@
 		},
 		replace: function( html ){
 
-			var found = new Array();
-
 			if( isEmpty(html) ){
 
 				Jo(this).remove();
@@ -822,19 +820,25 @@
 
 			};
 
+			var nodes = new Array();
+
+			for( var node = 0; node < html.length; node++ ){
+
+				nodes.push(html[node]);
+
+			};
+
 			this.each(function(){
 
-				var position = html[0];
+				for( var node = 0; node < html.length; node++ ){
 
-				for( var node = html.length-1; node >= 0; node-- ){
-
-					console.log("replace", html[node])
+					this.appendChild(html[node].cloneNode(true));
 
 				};
 
 			});
 
-			this.found = found;
+			this.found = updateNodes(this);
 
 			return this;
 
