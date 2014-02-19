@@ -661,7 +661,28 @@
 
 				this.each(function(){
 
-					this.insertAdjacentHTML("beforebegin", html);
+					if( this.insertAdjacentHTML ){
+
+						this.insertAdjacentHTML("beforebegin", html);
+
+					}
+					else {
+
+						var temporaryNode = document.createElement("div");
+
+						temporaryNode.innerHTML = html;
+
+						var nodes = temporaryNode.childNodes;
+
+						temporaryNode.remove();
+
+						for( var node = 0; node < nodes.length; node++ ){
+						
+							this.parentNode.insertBefore(nodes[node], this);
+
+						};
+
+					};
 
 				});
 
@@ -722,7 +743,28 @@
 
 				this.each(function(){
 
-					this.insertAdjacentHTML("afterend", html);
+					if( this.insertAdjacentHTML ){
+
+						this.insertAdjacentHTML("afterend", html);
+
+					}
+					else {
+
+						var temporaryNode = document.createElement("div");
+
+						temporaryNode.innerHTML = html;
+
+						var nodes = temporaryNode.childNodes;
+
+						temporaryNode.remove();
+
+						for( var node = 0; node < nodes.length; node++ ){
+
+							this.parentNode.insertBefore(nodes[node], this.nextSibling);
+
+						};
+
+					};
 
 				});
 
@@ -783,10 +825,28 @@
 				
 				this.each(function(){
 
-					// HERE
-					console.dir(this);
+					if( this.insertAdjacentHTML ){
 
-					this.insertAdjacentHTML("afterbegin", html);
+						this.insertAdjacentHTML("afterbegin", html);
+
+					}
+					else {
+
+						var temporaryNode = document.createElement("div");
+
+						temporaryNode.innerHTML = html;
+
+						var nodes = temporaryNode.childNodes;
+
+						temporaryNode.remove();
+
+						for( var node = 0; node < nodes.length; node++ ){
+
+							this.insertBefore(nodes[node], this.firstChild);
+
+						};
+
+					};
 
 				});
 
@@ -823,8 +883,6 @@
 
 					for( var node = 0; node < length; node++ ){
 
-						console.log("toStart", html[node], this);
-
 						this.insertBefore(html.found[node], this.firstChild);
 
 					};
@@ -849,7 +907,28 @@
 
 				this.each(function(){
 
-					this.insertAdjacentHTML("beforeend", html);
+					if( this.insertAdjacentHTML ){
+
+						this.insertAdjacentHTML("beforeend", html);
+
+					}
+					else {
+
+						var temporaryNode = document.createElement("div");
+
+						temporaryNode.innerHTML = html;
+
+						var nodes = temporaryNode.childNodes;
+
+						temporaryNode.remove();
+
+						for( var node = 0; node < nodes.length; node++ ){
+
+							this.parentNode.appendChild(nodes[node]);
+
+						};
+
+					};
 
 				});
 
@@ -858,7 +937,7 @@
 
 				this.each(function(){
 
-					this.insertBefore(node, this.lastChild.nextSibling);
+					this.appendChild(node);
 
 				});
 
@@ -871,7 +950,7 @@
 
 					for( var node = 0; node < length; node++ ){
 
-						this.insertBefore(nodes[node], this.lastChild.nextSibling);
+						this.appendChild(nodes[node]);
 
 					};
 
@@ -886,7 +965,7 @@
 
 					for( var node = 0; node < length; node++ ){
 
-						this.insertBefore(html.found[node], this.lastChild.nextSibling);
+						this.appendChild(html.found[node]);
 
 					};
 
@@ -929,6 +1008,11 @@
 			else if( isNode(html) ){
 
 				html = [html];
+
+			}
+			else if( isJo(html) ){
+
+				html = html.found;
 
 			};
 
@@ -1223,6 +1307,60 @@
 
 	};
 
+	Jo.merge = function( object_1, object_2 ){
+
+		console.log("MAKE THIS FUNCTION ( .merge() )");
+
+	};
+
+	Jo.ajax = function( settings ){
+
+		var request = new XMLHttpRequest();
+
+		request.open(settings.type ? settings.type : "GET", settings.url, true);
+
+		request.onreadystatechange = function(){
+
+			// uninitialized
+			if( this.readyState === 0 ){
+
+			}
+			// open
+			else if( this.readyState === 1 ){
+
+			}
+			// sent
+			else if( this.readyState === 2 ){
+
+			}
+			// receiving
+			else if( this.readyState === 3 ){
+
+			}
+			// loaded
+			else if( this.readyState === 4 ){
+
+				if( this.status >= 200 && this.status <= 400 ){
+
+					settings.complete();
+
+				}
+				else {
+
+					setting.error();
+
+				};
+
+			};
+
+		};
+
+		request.send();
+
+		delete request;
+
+	};
+
 	Jo.support = {
 
 		events: function( event ){
@@ -1231,6 +1369,26 @@
 
 			return false;
 
+		}
+
+	};
+
+	Jo.specialTypes = {
+
+		test: function( tagName ){
+
+
+			for( var type in this.types ){
+
+				if( this.types[type].indexOf(tagName) >= 0 ) return type;
+
+			};
+
+			return false;
+
+		},
+		types: {
+			svg: new Array("svg", "rect")
 		}
 
 	};

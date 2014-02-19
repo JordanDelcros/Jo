@@ -57,7 +57,7 @@
 			console.log("document is ready");
 
 			var ht = "<b>ah</b>";
-			var nodes = document.querySelectorAll("body h2");
+			var nodes = $("body h2").clone();
 			var node = document.createElement("b");
 			node.appendChild(document.createTextNode("hahaha"));
 
