@@ -56,45 +56,15 @@
 
 			console.log("document is ready");
 
-			var obj0 = new Object();
+			$.ajax({
+				url: "test.html",
+				type: "POST",
+				complete: function( response, status ){
 
-			obj0.care = "important";
-			obj0.protect = {
-				cocoa: "fuck",
-				that: "shit"
-			};
+					console.log("ajax response", response, status);
 
-			// var obj1 = ["zero", "un", "deux", "trois"];
-			// var obj1 = new Array("zero", "un", "deux", "trois");
-			var obj1 = {
-				zero: "test",
-				un: obj0,
-				deux: "test",
-				trois: "test"
-			};
-
-			// // var obj1 = new Array();
-
-			// // obj1["zero"] = "test";
-			// // obj1["un"] = "test";
-
-			var obj2 = new Array("quatre", "cinq", "six");
-			var obj2 = {
-				un: {
-					that: "fucking shit"
-				},
-				deux: "test2",
-				trois: "test2",
-				quatre: "test2",
-				cinq: "test2",
-				six: "test2",
-			};
-
-			var obj3 = Jo.merge(obj1, obj2);
-
-			obj0.care = "NOOOO"
-
-			console.log(obj3, obj0)
+				}
+			});
 
 		};
 
