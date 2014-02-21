@@ -1309,7 +1309,56 @@
 
 	Jo.merge = function( object_1, object_2 ){
 
-		console.log("MAKE THIS FUNCTION ( .merge() )");
+		var returned = isArray(object_1) ? new Array() : new Object();
+
+		for( var property in object_1 ){
+
+			if( !isEmpty(object_1[property]) && object_1.hasOwnProperty(property) ){
+
+				if( isObject(object_1) ){
+
+					returned[property] = Jo.merge(isArray(object_1[property]) ? new Array() : new Object(), object_1[property]);
+
+				}
+				else {
+
+					returned[property] = object_1[property];
+
+				};
+
+			};
+
+		};
+
+		for( var property in object_2 ){
+
+			if( object_2.hasOwnProperty(property) ){
+
+				if( !isEmpty(returned[property]) && isObject(object_2[property]) ){
+
+					if( isObject(returned[property]) ){
+
+						returned[property] = Jo.merge(returned[property], object_2[property]);
+
+					}
+					else {
+
+						returned[property] = Jo.merge(isArray(returned[property]) ? new Array() : new Object(), object_2[property]);
+
+					};
+
+				}
+				else {
+
+					returned[property] = object_2[property];
+
+				};
+
+			};
+
+		};
+
+		return returned;
 
 	};
 
@@ -1342,12 +1391,12 @@
 
 				if( this.status >= 200 && this.status <= 400 ){
 
-					settings.complete();
+					settings.complete(this.responseText, this.status);
 
 				}
 				else {
 
-					setting.error();
+					setting.error( this.status );
 
 				};
 
