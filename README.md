@@ -27,8 +27,17 @@ Then you can use methods like `$("body > section:first-child").css("background-c
 - insertAfter
 - insertStart
 - insertEnd
+- replace
 - remove
 - hide
 - show
 - addClass
 - removeClass
+
+- length
+- merge
+- ajax
+
+## Watch this later
+
+use new FormData(formElement) for simplify ajax sending

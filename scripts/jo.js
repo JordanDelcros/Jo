@@ -1365,29 +1365,43 @@
 	Jo.ajax = function( settings ){
 
 		settings = Jo.merge({
-			type: "GET"
+			method: "GET",
+			async: true
 		}, settings);
 
-		var request = new XMLHttpRequest();
+		var parameters = new Array();
 
-		request.open(settings.type, settings.url, true);
+		for( var parameter in settings.data ){
+
+			parameters.push(encodeURIComponent(parameter) + "=" + (isObject(settings.data[parameter]) ? JSON.stringify(settings.data[parameter]) : settings.data[parameter]));
+
+		};
+
+		settings.data = parameters.join("&");
+
+		var request = new XMLHttpRequest();
 
 		request.onreadystatechange = function(){
 
 			// uninitialized
 			if( this.readyState === 0 ){
 
+				console.log("readyState 0");
+
 			}
 			// open
 			else if( this.readyState === 1 ){
+				console.log("readyState 1");
 
 			}
 			// sent
 			else if( this.readyState === 2 ){
+				console.log("readyState 2");
 
 			}
 			// receiving
 			else if( this.readyState === 3 ){
+				console.log("readyState 3");
 
 			}
 			// loaded
@@ -1412,7 +1426,20 @@
 
 		};
 
-		request.send();
+		request.open(settings.method, settings.url, settings.async);
+
+		if( settings.method === "GET" ){
+
+			settings.url += "?" + settings.data;
+
+		}
+		else if( settings.method === "POST" ){
+
+			request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+		};
+
+		request.send(settings.data);
 
 		delete request;
 

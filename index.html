@@ -56,45 +56,25 @@
 
 			console.log("document is ready");
 
-			var obj0 = new Object();
+			var ht = "<b>ah</b>";
+			var nodes = document.querySelectorAll("body h2");
+			var node = document.createElement("b");
+			node.appendChild(document.createTextNode("hahaha"));
 
-			obj0.care = "important";
-			obj0.protect = {
-				cocoa: "fuck",
-				that: "shit"
-			};
+			$("h2").border().replace(ht);
 
-			// var obj1 = ["zero", "un", "deux", "trois"];
-			// var obj1 = new Array("zero", "un", "deux", "trois");
-			var obj1 = {
-				zero: "test",
-				un: obj0,
-				deux: "test",
-				trois: "test"
-			};
-
-			// // var obj1 = new Array();
-
-			// // obj1["zero"] = "test";
-			// // obj1["un"] = "test";
-
-			var obj2 = new Array("quatre", "cinq", "six");
-			var obj2 = {
-				un: {
-					that: "fucking shit"
+			$.ajax({
+				url: "test.php",
+				method: "POST",
+				data: {
+					tester: "ET OUI!"
 				},
-				deux: "test2",
-				trois: "test2",
-				quatre: "test2",
-				cinq: "test2",
-				six: "test2",
-			};
+				complete: function( data, status ){
 
-			var obj3 = Jo.merge(obj1, obj2);
+					$("h2").replace(data);
 
-			obj0.care = "NOOOO"
-
-			console.log(obj3, obj0)
+				}
+			})
 
 		};
 
