@@ -1315,7 +1315,7 @@
 
 			if( !isEmpty(object_1[property]) && object_1.hasOwnProperty(property) ){
 
-				if( isObject(object_1) ){
+				if( isObject(object_1[property]) ){
 
 					returned[property] = Jo.merge(isArray(object_1[property]) ? new Array() : new Object(), object_1[property]);
 
@@ -1364,9 +1364,13 @@
 
 	Jo.ajax = function( settings ){
 
+		settings = Jo.merge({
+			type: "GET"
+		}, settings);
+
 		var request = new XMLHttpRequest();
 
-		request.open(settings.type ? settings.type : "GET", settings.url, true);
+		request.open(settings.type, settings.url, true);
 
 		request.onreadystatechange = function(){
 
@@ -1391,7 +1395,11 @@
 
 				if( this.status >= 200 && this.status <= 400 ){
 
-					settings.complete(this.responseText, this.status);
+					if( isFunction(settings.complete) ){
+
+						settings.complete(this.responseText, this.status);
+
+					};
 
 				}
 				else {
