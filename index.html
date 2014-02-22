@@ -67,11 +67,36 @@
 				url: "test.php",
 				method: "POST",
 				data: {
-					tester: "ET OUI!"
+					tester: "OUIII ahah"
+				},
+				initilizing: function(  ){
+
+					// console.log("initilizing");
+
+				},
+				opening: function(  ){
+
+					// console.log("AH ! I'm opening the request");
+
+				},
+				sending: function(  ){
+
+					// console.log("I'm sending all shit but I can access settings");
+
+				},
+				receiving: function(  ){
+
+					// console.log("I'm currently receiving datas from the request response");
+
 				},
 				complete: function( data, status ){
 
 					$("h2").replace(data);
+
+				},
+				error: function( status ){
+
+					console.log("ERROR", status, this);
 
 				}
 			})

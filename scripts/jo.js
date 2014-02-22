@@ -1366,7 +1366,8 @@
 
 		settings = Jo.merge({
 			method: "GET",
-			async: true
+			async: true,
+			type: "text/xml"
 		}, settings);
 
 		var parameters = new Array();
@@ -1383,25 +1384,40 @@
 
 		request.onreadystatechange = function(){
 
-			// uninitialized
 			if( this.readyState === 0 ){
 
-				console.log("readyState 0");
+				if( isFunction(settings.initializing) ){
+
+					settings.initializing();
+
+				};
 
 			}
-			// open
 			else if( this.readyState === 1 ){
-				console.log("readyState 1");
+
+				if( isFunction(settings.opening) ){
+
+					settings.opening();
+
+				};
 
 			}
-			// sent
 			else if( this.readyState === 2 ){
-				console.log("readyState 2");
+
+				if( isFunction(settings.sending) ){
+
+					settings.sending();
+
+				};
 
 			}
-			// receiving
 			else if( this.readyState === 3 ){
-				console.log("readyState 3");
+
+				if( isFunction(settings.receiving) ){
+
+					settings.receiving();
+
+				};
 
 			}
 			// loaded
@@ -1418,7 +1434,10 @@
 				}
 				else {
 
-					setting.error( this.status );
+					settings.error({
+						code: this.status,
+						text: this.statusText
+					});
 
 				};
 
