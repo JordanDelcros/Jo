@@ -63,45 +63,61 @@
 
 			$("h2").border().replace(ht);
 
-			$.ajax({
-				url: "test.php",
-				method: "POST",
-				data: {
-					tester: "OUIII ahah"
-				},
-				initilizing: function(  ){
+			$("form").on("submit", function( event ){
 
-					// console.log("initilizing");
+				event.preventDefault();
 
-				},
-				opening: function(  ){
+				var ajax = $.ajax({
+					url: "test.php",
+					method: "POST",
+					data: this,
+					initialize: function( request ){
 
-					// console.log("AH ! I'm opening the request");
+						console.log("init", request);
 
-				},
-				sending: function(  ){
+					},
+					open: function( request ){
 
-					// console.log("I'm sending all shit but I can access settings");
+						console.log("open", request);
 
-				},
-				receiving: function(  ){
+					},
+					send: function( request ){
 
-					// console.log("I'm currently receiving datas from the request response");
+						console.log("send", request);
 
-				},
-				complete: function( data, status ){
+					},
+					receive: function( request ){
 
-					$("h2").replace(data);
+						console.log("receive", request);
 
-				},
-				error: function( status ){
+					},
+					progress: function( loaded, total ){
 
-					console.log("ERROR", status, this);
+						console.log("progresss", loaded, total, (loaded / total * 100) + "%");
 
-				}
-			})
+					},
+					complete: function( data, request ){
+
+						console.log("FINI", data);
+
+					},
+					error: function( request ){
+
+						console.log("ERROR", request);
+
+					}
+				});
+
+				// ajax.abort();
+
+				console.log( ajax );
+				console.log("TEST", new FormData().constructor === FormData);
+
+			});
 
 		};
+
+
 
 		Jo(document)
 			.on("ready", isReady)
@@ -127,6 +143,14 @@
 		</nav>
 	</header>
 	<main>
+		<form enctype="multipart/form-data" method="post">
+			<input type="text" name="dafuck" value="none"/>
+			<input type="submit" id="submiter"/>
+		</form>
+		<form enctype="multipart/form-data" method="post">
+			<input type="file" name="myFile"/>
+			<input type="submit" id="submiter"/>
+		</form>
 		<section id="what">
 			<h2>What ?</h2>
 		</section>

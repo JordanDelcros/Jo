@@ -40,11 +40,12 @@ Then you can use methods like `$("body > section:first-child").css("background-c
 
 ## Watch this later
 
-use new FormData(formElement) for simplify ajax sending
-WebSQL database -> window.openDatabase()
-websocket
-geolocation
-offline application
-Web storage
-Workers / Messaging <--- execute un js totalement inaccessible pour l'utilisateur ? So safe :D
+- WebSQL database -> window.openDatabase()
+- websocket
+- geolocation
+- offline application
+- localStorage SessionStorage
+- Workers / Messaging <--- execute un js totalement inaccessible pour l'utilisateur ? So safe :D
+- Geolocation
+- 
 

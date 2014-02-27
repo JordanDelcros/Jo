@@ -7,7 +7,9 @@
 	var Joot;
 
 	var Jo = function( selector, context, Joot ){
+
 		return new Jo.fn.init(selector, context, Joot);
+
 	};
 
 	Jo.fn = Jo.prototype = {
@@ -1093,6 +1095,8 @@
 		}
 	};
 
+	Jo.fn.init.prototype = Jo.fn;
+
 	Joot = Jo(document);
 
 	function isEmpty( source ){
@@ -1370,15 +1374,67 @@
 			type: "text/xml"
 		}, settings);
 
-		var parameters = new Array();
+		var data;
 
-		for( var parameter in settings.data ){
+		if( settings.method === "POST" ){
 
-			parameters.push(encodeURIComponent(parameter) + "=" + (isObject(settings.data[parameter]) ? JSON.stringify(settings.data[parameter]) : settings.data[parameter]));
+			if( settings.data.constructor === FormData ){
+
+				data = settings.data;
+
+			}
+			else if( isTag(settings.data) ){
+
+				data = new FormData(settings.data);
+
+			}
+			else if( isObject(settings.data) ){
+
+				data = new FormData();
+
+				for( var key in settings.data ){
+
+					if( settings.data.hasOwnProperty(key) ){
+
+						data.append(key, settings.data[key]);
+
+					};
+
+				};
+
+			};
+
+		}
+		else if( settings.method === "GET" ){
+
+			data = new Array();
+
+			if( isTag(settings.data) ){
+
+				Jo(settings.data).find("*[name]").each(function(){
+
+					data.push(encodeURIComponent(this.getAttribute("name")) + "=" + encodeURIComponent(this.getAttribute("value")));
+
+				});
+
+			}
+			else if( isObject(settings.data) ){
+
+				for( var key in settings.data ){
+
+					if( settings.data.hasOwnProperty(key) ){
+
+						data.push(encodeURIComponent(key) + "=" + encodeURIComponent(settings.data[key]));
+
+					};
+
+				};
+
+			};
+
+			settings.url += "?" + data.join("&");
 
 		};
-
-		settings.data = parameters.join("&");
 
 		var request = new XMLHttpRequest();
 
@@ -1386,58 +1442,54 @@
 
 			if( this.readyState === 0 ){
 
-				if( isFunction(settings.initializing) ){
+				if( isFunction(settings.initialize) ){
 
-					settings.initializing();
+					settings.initialize(this);
 
 				};
 
 			}
 			else if( this.readyState === 1 ){
 
-				if( isFunction(settings.opening) ){
+				if( isFunction(settings.open) ){
 
-					settings.opening();
+					settings.open(this);
 
 				};
 
 			}
 			else if( this.readyState === 2 ){
 
-				if( isFunction(settings.sending) ){
+				if( isFunction(settings.send) ){
 
-					settings.sending();
+					settings.send(this);
 
 				};
 
 			}
 			else if( this.readyState === 3 ){
 
-				if( isFunction(settings.receiving) ){
+				if( isFunction(settings.receive) ){
 
-					settings.receiving();
+					settings.receive(this);
 
 				};
 
 			}
-			// loaded
 			else if( this.readyState === 4 ){
 
-				if( this.status >= 200 && this.status <= 400 ){
+				if( this.status >= 200 && this.status < 400 ){
 
 					if( isFunction(settings.complete) ){
 
-						settings.complete(this.responseText, this.status);
+						settings.complete(this);
 
 					};
 
 				}
-				else {
+				else if( this.readyState >= 400 ){
 
-					settings.error({
-						code: this.status,
-						text: this.statusText
-					});
+					settings.error(this);
 
 				};
 
@@ -1445,22 +1497,25 @@
 
 		};
 
-		request.open(settings.method, settings.url, settings.async);
+		request.upload.onprogress = function( event ){
 
-		if( settings.method === "GET" ){
-
-			settings.url += "?" + settings.data;
-
-		}
-		else if( settings.method === "POST" ){
-
-			request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			settings.progress(event.loaded, event.total);
 
 		};
 
-		request.send(settings.data);
+		request.onerror = function(){
 
-		delete request;
+			settings.error(this);
+
+		};
+
+		request.open(settings.method, settings.url, settings.async);
+
+		request.send(data);
+
+		// delete this.request;
+
+		return request;
 
 	};
 
@@ -1557,8 +1612,6 @@
 
 	};
 
-	Jo.fn.init.prototype = Jo.fn;
-
 	if( isObject(window) && isObject(window.document) ) window.Jo = window.$ = Jo;
 
-})( window );
+})(window);
