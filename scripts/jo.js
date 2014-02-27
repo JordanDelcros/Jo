@@ -1388,6 +1388,39 @@
 				data = new FormData(settings.data);
 
 			}
+			else if( isJo(settings.data) ){
+
+				if( settings.data.length === 1 ){
+
+					data = new FormData(settings.data.found[0]);
+
+				}
+				else {
+
+					data = new FormData();
+
+					settings.data.find("[name]").each(function(){
+
+						if( $(this).is("[type='file']") ){
+
+							for( var file = 0; file < this.files.length; file++ ){
+
+								data.append(this.getAttribute("name") + "[" + file + "]", this.files[file])
+
+							};
+
+						}
+						else {
+
+							data.append(this.getAttribute("name"), this.value);
+
+						};
+
+					});
+
+				};
+
+			}
 			else if( isObject(settings.data) ){
 
 				data = new FormData();
@@ -1409,11 +1442,11 @@
 
 			data = new Array();
 
-			if( isTag(settings.data) ){
+			if( isJo(settings.data) || isTag(settings.data) ){
 
-				Jo(settings.data).find("*[name]").each(function(){
+				Jo(settings.data).find("[name]").each(function(){
 
-					data.push(encodeURIComponent(this.getAttribute("name")) + "=" + encodeURIComponent(this.getAttribute("value")));
+					data.push(encodeURIComponent(this.getAttribute("name")) + "=" + encodeURIComponent(this.value));
 
 				});
 
@@ -1484,6 +1517,8 @@
 
 						settings.complete(this);
 
+						delete this;
+
 					};
 
 				}
@@ -1509,13 +1544,35 @@
 
 		};
 
+		request.onabort = function(){
+
+			if( isFunction(settings.abort) ){
+
+				settings.abort(this);
+
+			};
+
+		};
+
 		request.open(settings.method, settings.url, settings.async);
 
 		request.send(data);
 
-		// delete this.request;
-
 		return request;
+
+	};
+
+	Jo.socket = function( settings ){
+
+		settings = Jo.merge({
+			secure: false
+		}, settings);
+
+		var socket = new WebSocket((settings.secure ? "wss://" : "ws://") + settings.url );
+
+		console.log("so cket", socket);
+
+		return socket;
 
 	};
 

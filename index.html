@@ -67,57 +67,13 @@
 
 				event.preventDefault();
 
-				var ajax = $.ajax({
-					url: "test.php",
-					method: "POST",
-					data: this,
-					initialize: function( request ){
-
-						console.log("init", request);
-
-					},
-					open: function( request ){
-
-						console.log("open", request);
-
-					},
-					send: function( request ){
-
-						console.log("send", request);
-
-					},
-					receive: function( request ){
-
-						console.log("receive", request);
-
-					},
-					progress: function( loaded, total ){
-
-						console.log("progresss", loaded, total, (loaded / total * 100) + "%");
-
-					},
-					complete: function( data, request ){
-
-						console.log("FINI", data);
-
-					},
-					error: function( request ){
-
-						console.log("ERROR", request);
-
-					}
+				$.socket({
+					url: "public.localhost:9000/Travaux/web/Jo/index.php"
 				});
-
-				// ajax.abort();
-
-				console.log( ajax );
-				console.log("TEST", new FormData().constructor === FormData);
 
 			});
 
 		};
-
-
 
 		Jo(document)
 			.on("ready", isReady)
@@ -148,7 +104,7 @@
 			<input type="submit" id="submiter"/>
 		</form>
 		<form enctype="multipart/form-data" method="post">
-			<input type="file" name="myFile"/>
+			<input type="file" name="myFile" multiple/>
 			<input type="submit" id="submiter"/>
 		</form>
 		<section id="what">

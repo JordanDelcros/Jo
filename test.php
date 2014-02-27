@@ -1,9 +1,5 @@
 <?php
-	echo "WHAT GET |||   ";
 
-	print_r($_GET);
-
-	die();
 
 ?><!DOCTYPE html>
 <html>
