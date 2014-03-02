@@ -1564,17 +1564,171 @@
 
 	Jo.socket = function( settings ){
 
-		settings = Jo.merge({
-			secure: false
-		}, settings);
-
-		var socket = new WebSocket((settings.secure ? "wss://" : "ws://") + settings.url );
-
-		console.log("so cket", socket);
-
-		return socket;
+		return new Jo.socket.fn.init(settings);
 
 	};
+
+	Jo.socket.fn = Jo.socket.prototype = {
+		constructor: Jo.socket,
+		init: function( settings ){
+
+			settings = Jo.merge({
+				secure: false
+			}, settings);
+
+			this.events = new Object();
+
+			this.socket = new WebSocket(settings.secure ? "wss://" : "ws://" + settings.url);
+
+			this.socket.onopen = function(){
+
+				if( isFunction(settings.open) ){
+
+					settings.open();
+
+				};
+
+			};
+
+			this.socket.onclose = function(){
+
+				if( isFunction(settings.close) ){
+
+					settings.close();
+
+				};
+
+			};
+
+			this.socket.onerror = function(){
+
+				if( isFunction(settings.error) ){
+
+					settings.error();
+
+				};
+
+			};
+
+			this.socket.onmessage = function( data ){
+
+				var data = JSON.parse(data.data);
+
+				if( isFunction(settings.receive) ){
+
+					settings.receive(data);
+
+				};
+
+				if( !isEmpty(data.type) && !isEmpty(this.events[data.type]) ){
+
+					this.events[data.type](data.data);
+
+				};
+
+				if( isFunction(settings.message) ){
+
+					settings.message(data);
+
+				};
+
+			}.bind(this);
+
+			return this;
+
+		},
+		send: function( type, data ){
+
+			setTimeout(function(){
+
+				if( this.socket.readyState === 1 ){
+
+					this.socket.send(JSON.stringify({
+						type: type,
+						data: data
+					}));
+
+				}
+				else {
+
+					this.send(type, data);
+
+				};
+
+			}.bind(this), 1);
+
+			return this;
+
+		},
+		on: function( action, fn ){
+
+			this.events[action] = fn;
+
+			return this;
+
+		},
+		close: function( fn ){
+
+			this.socket.close(1000, "closing socket");
+
+			if( isFunction(fn) ){
+
+				fn();
+
+			};
+
+			return this;
+
+		}
+	};
+
+	Jo.socket.fn.init.prototype = Jo.socket.fn;
+
+	Jo.worker = function( settings ){
+
+		return new Jo.worker.fn.init(settings);
+
+	};
+
+	Jo.worker.fn = Jo.worker.prototype = {
+		constructor: Jo.worker,
+		init: function( settings ){
+
+			settings = Jo.merge({
+
+			}, settings);
+
+			this.worker = new Worker(settings.url);
+
+			this.worker.onmessage = function( data ){
+
+				if( isFunction(settings.receive) ){
+
+					settings.receive(data);
+
+				};
+
+			};
+
+			this.worker.onerror = function( message, fine, line ){
+
+				if( isFunction(settings.error) ){
+
+					settings.error(message, fine, line);
+
+				};
+
+			};
+
+			return this;
+
+		},
+		receive: function( data ){
+
+		}
+	};
+
+	Jo.worker.fn.init.prototype = Jo.worker.fn;
 
 	Jo.support = {
 

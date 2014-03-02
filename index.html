@@ -62,18 +62,36 @@
 			node.appendChild(document.createTextNode("hahaha"));
 
 			$("h2").border().replace(ht);
+			
+			var worker = $.worker({
+				url: "scripts/worker.js",
+				send: function( data ){
 
-			$("form").on("submit", function( event ){
+					console.log("main send", data);
 
-				event.preventDefault();
+				},
+				receive: function( data ){
 
-				$.socket({
-					url: "public.localhost:9000/Travaux/web/Jo/index.php"
-				});
+					console.log("main receive", data);
 
+				},
+				send: function( data ){
+
+					console.log("main send", data);
+
+				},
+				error: function( data ){
+
+					console.log("main error", data);	
+
+				}
 			});
 
+			console.log("main", worker);
+
 		};
+
+		worker.close();
 
 		Jo(document)
 			.on("ready", isReady)
@@ -99,14 +117,6 @@
 		</nav>
 	</header>
 	<main>
-		<form enctype="multipart/form-data" method="post">
-			<input type="text" name="dafuck" value="none"/>
-			<input type="submit" id="submiter"/>
-		</form>
-		<form enctype="multipart/form-data" method="post">
-			<input type="file" name="myFile" multiple/>
-			<input type="submit" id="submiter"/>
-		</form>
 		<section id="what">
 			<h2>What ?</h2>
 		</section>

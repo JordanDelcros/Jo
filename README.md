@@ -37,15 +37,14 @@ Then you can use methods like `$("body > section:first-child").css("background-c
 - length
 - merge
 - ajax
+- socket
+- worker
 
 ## Watch this later
 
 - WebSQL database -> window.openDatabase()
-- websocket
 - geolocation
 - offline application
 - localStorage SessionStorage
 - Workers / Messaging <--- execute un js totalement inaccessible pour l'utilisateur ? So safe :D
-- Geolocation
-- 
 
