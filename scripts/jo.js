@@ -501,7 +501,15 @@
 				}
 				else {
 
-					return this.found[0].getAttribute(name);	
+					var returned = new Array();
+
+					this.each(function(){
+
+						returned.push(this.getAttribute(name));
+
+					});
+
+					return returned;
 
 				};
 
@@ -520,7 +528,7 @@
 
 						};
 
-						returned[name[i]].push(this.found[0].getAttribute(name[i]));
+						returned[name[i]].push(this.getAttribute(name[i]));
 
 					};
 
