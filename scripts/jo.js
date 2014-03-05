@@ -508,15 +508,25 @@
 			}
 			else if( isArray(name) ){
 
-				var attributes = new Object();
+				var returned = new Object();
 
-				for( var i in name ){
+				this.each(function(){
 
-					attributes[name[i]] = this.found[0].getAttribute(name[i]);
+					for( var i in name ){
 
-				};
+						if( isEmpty(returned[name[i]]) ){
 
-				return attributes;
+							returned[name[i]] = new Array();
+
+						};
+
+						returned[name[i]].push(this.found[0].getAttribute(name[i]));
+
+					};
+
+				});
+
+				return returned;
 
 			}
 			else if( isObject(name) ){
@@ -562,6 +572,29 @@
 					return returned;
 
 				};
+
+			}
+			else if( isArray(name) ){
+
+				var returned = Object();
+
+				this.each(function(){
+
+					for( var i in name ){
+
+						if( isEmpty(returned[name[i]]) ){
+
+							returned[name[i]] = new Array();
+
+						};
+
+						returned[name[i]].push(window.getComputedStyle(this, null).getPropertyValue(name));
+
+					};
+
+				});
+
+				return returned;
 
 			}
 			else if( isObject(name) ){

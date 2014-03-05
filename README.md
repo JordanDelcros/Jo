@@ -148,8 +148,8 @@ Return Jo object.
 ```
 
 ### attr( name, value )
-Set or get tag attribute.
-Return Jo object.
+Set or get attributes.
+Return Jo object or string containg attribute value or object containing attributes values.
 - **name _[string|object|array]_** the attribute to set or get. If is an object, set each attributes. If is an array, get each attributes in object.
 - **value _[string]_** the value to set or if empty, it will return the attribute value.
 ```js
@@ -164,7 +164,9 @@ Return Jo object.
     });
 ```
 
-- css
+### css( name, value )
+Set or get styles.
+Return Jo object or string containg style value or object containing styles values.
 - is
 - insertBefore
 - insertAfter
