@@ -38,13 +38,27 @@ Then you can use methods like `$("body > section:first-child").css("background-c
 - merge
 - ajax
 - socket
+
 - worker
+- - send
+- - receive / on
+- - terminate
 
-## Watch this later
-
+## To do/see
+- Blob
 - WebSQL database -> window.openDatabase()
 - geolocation
 - offline application
 - localStorage SessionStorage
 - Workers / Messaging <--- execute un js totalement inaccessible pour l'utilisateur ? So safe :D
 
+- $('html').bind('paste', function(e) {
+  e.preventDefault();
+  var item = (e.clipboardData || e.originalEvent.clipboardData).items[0];
+  var type = item.type.split('/').shift();
+  if (type == "image"){
+    var file = item.getAsFile();
+    var blob = URL.createObjectURL(file); // Blob
+    window.open(blob);
+  }
+});

@@ -383,7 +383,7 @@
 
 					var f = this.events[originalAction].push(evt) - 1;
 
-					window.addEventListener ? this.addEventListener(action, this.events[originalAction][f].fn, useCapture) : this.attachEvent(action, fn, useCapture);
+					this.addEventListener(action, this.events[originalAction][f].fn, useCapture);
 
 				}
 				else if( isFunction(Jo.specialEvents[action]) && !Jo.support.events(action) ){
@@ -397,14 +397,14 @@
 
 					var f = this.events[originalAction].push(evt) - 1;
 
-					window.addEventListener ? this.addEventListener(action, this.events[originalAction][f].fn, useCapture) : this.attachEvent("on" + action, fn, useCapture);
+					this.addEventListener(action, this.events[originalAction][f].fn, useCapture);
 
 				}
 				else {
 
 					var f = this.events[originalAction].push(evt) - 1;
 
-					window.addEventListener ? this.addEventListener(action, this.events[originalAction][f].fn, useCapture) : this.attachEvent("on" + action, fn, useCapture);
+					this.addEventListener(action, this.events[originalAction][f].fn, useCapture);
 	
 				};
 
@@ -422,7 +422,11 @@
 
 			};
 
-			if( isEmpty(useCapture) ) useCapture = false;
+			if( isEmpty(useCapture) ){
+
+				useCapture = false;
+
+			};
 
 			return this.each(function(){
 
@@ -432,13 +436,13 @@
 
 						if( isFunction(fn) && this.events[action][i].fn === fn ){
 
-							window.removeEventListener ? this.removeEventListener(this.events[action][i].action, this.events[action][i].fn, useCapture) : this.detachEvent("on" + action, this.events[action], useCapture);
+							this.removeEventListener(this.events[action][i].action, this.events[action][i].fn, useCapture);
 							this.events[action].splice(i, 1);
 
 						}
 						else if( isEmpty(fn) ){
 
-							window.removeEventListener ? this.removeEventListener(this.events[action][i].action, this.events[action][i].fn, useCapture) : this.detachEvent("on" + action, this.events[action], useCapture);
+							this.removeEventListener(this.events[action][i].action, this.events[action][i].fn, useCapture);
 							this.events[action].splice(i, 1);
 
 						};
@@ -1626,12 +1630,6 @@
 
 				};
 
-				if( isFunction(settings.message) ){
-
-					settings.message(data);
-
-				};
-
 			}.bind(this);
 
 			return this;
@@ -1700,21 +1698,105 @@
 
 			this.worker = new Worker(settings.url);
 
-			this.worker.onmessage = function( data ){
+			this.events = new Object();
+
+			this.worker.onmessage = function( message ){
 
 				if( isFunction(settings.receive) ){
 
-					settings.receive(data);
+					settings.receive.call(this, message);
 
 				};
 
-			};
+			}.bind(this);
 
-			this.worker.onerror = function( message, fine, line ){
+			this.worker.onerror = function( message, file, line ){
 
 				if( isFunction(settings.error) ){
 
-					settings.error(message, fine, line);
+					settings.error.call(this, message, file, line);
+
+				};
+
+			}.bind(this);
+
+			return this;
+
+		},
+		send: function( data ){
+
+			this.worker.postMessage(data);
+
+			return this;
+
+		},
+		on: function( action, fn, useCapture ){
+
+			if( isEmpty(useCapture) ){
+
+				useCapture = false;
+
+			};
+
+			if( isEmpty(this.events[action]) ){
+
+				this.events[action] = new Array();
+
+			};
+
+			var typeFn = function( message ){
+
+				if( !isEmpty(message.data) && !isEmpty(message.data.type) && (message.data.type === action || message.data.type === "message") ){
+
+					fn.call(this, message);
+
+				};
+
+			}.bind(this);
+
+			var f = this.events[action].push(typeFn) - 1;
+
+			this.worker.addEventListener("message", this.events[action][f], useCapture);
+
+			return this;
+
+		},
+		off: function( action, fn, useCapture ){
+
+			if( isBoolean(fn) ){
+
+				useCapture = fn;
+				fn = undefined;
+
+			};
+
+			if( isEmpty(useCapture) ){
+
+				useCapture = false;
+
+			};
+
+			if( !isEmpty(fn) ){
+
+				this.worker.removeEventListener("message", fn, useCapture);
+
+				for( var i in this.events[action] ){
+
+					if( this.events[action][i] === fn ){
+
+						this.events[action].splice(i, 1);
+
+					};
+
+				};
+
+			}
+			else if( !isEmpty(this.events[action]) ){
+
+				for( var i in this.events[action] ){
+
+					this.worker.removeEventListener("message", this.events[action][i], useCapture);
+					this.events[action].splice(i, 1);
 
 				};
 
@@ -1723,7 +1805,17 @@
 			return this;
 
 		},
-		receive: function( data ){
+		close: function( fn ){
+
+			this.worker.terminate();
+			
+			if( isFunction(fn) ){
+
+				fn.call(this);
+				
+			};
+			
+			return this;
 
 		}
 	};

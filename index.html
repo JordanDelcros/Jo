@@ -63,35 +63,47 @@
 
 			$("h2").border().replace(ht);
 			
-			var worker = $.worker({
+			var $worker = $.worker({
 				url: "scripts/worker.js",
-				send: function( data ){
+				send: function( message ){
 
-					console.log("main send", data);
-
-				},
-				receive: function( data ){
-
-					console.log("main receive", data);
+					console.log("main send", message);
 
 				},
-				send: function( data ){
+				receive: function( message ){
 
-					console.log("main send", data);
+					console.log("main receive", message);
 
 				},
-				error: function( data ){
+				close: function(){
 
-					console.log("main error", data);	
+					console.log("CLOSING");
+
+				},
+				error: function( message ){
+
+					console.log("main error", message);	
 
 				}
 			});
 
-			console.log("main", worker);
+			var myFunc = function( message ){
+
+				console.log("im receiver and ive message for u", this, message);
+
+			};
+
+			$worker
+				.on("message", myFunc, false)
+				.send("start")
+				.close(function(){
+
+					console.log("CLOSING2", this);
+
+				});
 
 		};
 
-		worker.close();
 
 		Jo(document)
 			.on("ready", isReady)
