@@ -147,6 +147,12 @@
 
 			};
 
+			if( isEmpty(normalize) ){
+
+				normalize = false;
+
+			};
+
 			if( isTrue(normalize) ){
 
 				$this.each(function(){
@@ -484,15 +490,36 @@
 
 			if( isString(name) && !isEmpty(value) ){
 
-				parameter = name;
+				if( !isEmpty(value) ){
 
-				name = new Object();
+					this.each(function(){
 
-				name[parameter] = value;
+						this.setAttribute(name, value);
 
-			};
+					});
 
-			if( isObject(name) ){
+				}
+				else {
+
+					return this.found[0].getAttribute(name);	
+
+				};
+
+			}
+			else if( isArray(name) ){
+
+				var attributes = new Object();
+
+				for( var i in name ){
+
+					attributes[name[i]] = this.found[0].getAttribute(name[i]);
+
+				};
+
+				return attributes;
+
+			}
+			else if( isObject(name) ){
 			
 				for( var i in name ){
 
