@@ -309,11 +309,52 @@ Return an object depending on content to merge.
 ```
 
 ### ajax( settings )
-Instantiate XMLHTTPRequest
+Instantiate XMLHTTPRequest.
+```js
+  $.ajax({
+    method: "POST",
+    url: "pages/map.html",
+    data: {
+      longitude: 48.5,
+      latitude: 2.2
+    },
+    type: "html",
+    async: true,
+    initialize: function(){},
+    open: function(){},
+    send: function(){},
+    receive: function(){},
+    complete: function(){},
+    error: function(){}
+  });
+```
 
 ### socket( settings )
+Instantiate WebSocket connection
+**settings _[object]_** are the settings to apply to the socket.
+```js
+  var socket = $.socket({
+    url: "www.mysocketServer.js",
+    secure: false,
+    open: function(){},
+    close: function(){},
+    send: function(){},
+    receive: function(){},
+    error: function(){}
+  });
+```
 
 ### worker( settings )
+**settings _[object]_** are the settings to apply to the worker
+```js
+  $.worker({
+    url: "scripts/webgl.js",
+    send: function(){},
+    receive: function(){},
+    error: function(){}
+  });
+```
+
 #### send
 #### receive / on
 #### terminate

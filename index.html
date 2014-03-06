@@ -56,24 +56,9 @@
 
 			console.log("document is ready");
 
-			var ht = "<b>ah</b>";
-			var nodes = document.querySelectorAll("body h2");
-			var node = document.createElement("b");
-			node.appendChild(document.createTextNode("hahaha"));
+			var a = $("a");
 
-			$("h2").border().replace(ht);
-
-			var test = {
-				pokemon: new Array("mew"),
-				test: "work"
-			};
-
-			var old = new Array("one", test);
-			var fresh = new Array("two", "three", test);
-
-			console.log("merge", $.extend(old, fresh));
-
-			console.log("length", $("h2").length);
+			console.log( "test is", $(a).is("[href]") );
 
 		};
 
