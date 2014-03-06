@@ -62,45 +62,18 @@
 			node.appendChild(document.createTextNode("hahaha"));
 
 			$("h2").border().replace(ht);
-			
-			var $worker = $.worker({
-				url: "scripts/worker.js",
-				send: function( message ){
 
-					console.log("main send", message);
-
-				},
-				receive: function( message ){
-
-					console.log("main receive", message);
-
-				},
-				close: function(){
-
-					console.log("CLOSING");
-
-				},
-				error: function( message ){
-
-					console.log("main error", message);	
-
-				}
-			});
-
-			var myFunc = function( message ){
-
-				console.log("im receiver and ive message for u", this, message);
-
+			var test = {
+				pokemon: new Array("mew"),
+				test: "work"
 			};
 
-			$worker
-				.on("message", myFunc, false)
-				.send("start")
-				.close(function(){
+			var old = new Array("one", test);
+			var fresh = new Array("two", "three", test);
 
-					console.log("CLOSING2", this);
+			console.log("merge", $.extend(old, fresh));
 
-				});
+			console.log("length", $("h2").length);
 
 		};
 

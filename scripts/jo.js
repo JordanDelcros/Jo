@@ -58,7 +58,6 @@
 					this.found = getNodes(selector);
 
 				};
-
 			
 			}
 			else if( isNodeList(selector) ){
@@ -80,6 +79,8 @@
 				this.found = selector.found;
 
 			};
+
+			this.length = this.found.length;
 
 			return this;
 
@@ -115,7 +116,11 @@
 
 					if( !isEmpty(selector) ){
 
-						if( Jo(childs[child]).is(selector) ) found.push(childs[child]);
+						if( Jo(childs[child]).is(selector) ){
+
+							found.push(childs[child]);
+
+						};
 
 					}
 					else {
@@ -129,6 +134,7 @@
 			});
 
 			$this.found = found;
+			$this.length = $this.found.length;
 
 			return $this;
 
@@ -195,6 +201,7 @@
 			});
 
 			$this.found = found;
+			$this.length = $this.found.length;
 
 			return $this;
 
@@ -664,6 +671,7 @@
 				});
 
 				this.found = updateNodes(this);
+				this.length = this.found.length;
 
 				return this;
 
@@ -704,6 +712,7 @@
 				});
 
 				this.found = updateNodes(this);
+				this.length = this.found.length;
 
 				return this;
 
@@ -721,6 +730,7 @@
 			});
 
 			this.found = found;
+			this.length = this.found.length;
 
 			return this;
 
@@ -1065,6 +1075,7 @@
 				Jo(this).remove();
 
 				this.found = new Array();
+				this.length = this.found.length;
 
 				return this;
 
@@ -1109,6 +1120,7 @@
 			});
 
 			this.found = updateNodes(this);
+			this.length = this.found.length;
 
 			return this;
 
@@ -1122,6 +1134,7 @@
 			});
 
 			this.found = new Array();
+			this.length = this.found.length;
 
 			return this;
 
@@ -1147,7 +1160,17 @@
 
 			this.each(function(){
 
-				this.style.display = "";
+				if( !isEmpty(this.dataset.joDisplay) ){
+
+					this.style.display = this.dataset.joDisplay;
+					delete this.dataset.joDisplay;
+
+				}
+				else {
+
+					this.style.display = "";
+
+				};
 
 			});
 
@@ -1156,8 +1179,10 @@
 		},
 		hide: function(){
 
+
 			this.each(function(){
 
+				this.dataset.joDisplay = Jo(this).css("display");
 				this.style.display = "none";
 
 			});
@@ -1377,28 +1402,32 @@
 
 	};
 
-	Jo.length = function(){
+	Jo.merge = function( returned ){
 
-		return this.found.length;
+		if( isEmpty(returned) ){
 
-	};
+			returned = new Object();
 
-	Jo.merge = function( object_1, object_2 ){
+		};
 
-		var returned = isArray(object_1) ? new Array() : new Object();
+		for( var i = 1; i < arguments.length; i++ ){
 
-		for( var property in object_1 ){
+			var obj = arguments[i];
 
-			if( !isEmpty(object_1[property]) && object_1.hasOwnProperty(property) ){
+			for( var key in obj ){
 
-				if( isObject(object_1[property]) ){
+				if( obj.hasOwnProperty(key) ){
 
-					returned[property] = Jo.merge(isArray(object_1[property]) ? new Array() : new Object(), object_1[property]);
+					if( isObject(obj[key]) ){
 
-				}
-				else {
+						Jo.merge(returned[key], obj[key]);
 
-					returned[property] = object_1[property];
+					}
+					else {
+
+						returned[key] = obj[key];
+
+					};
 
 				};
 
@@ -1406,27 +1435,56 @@
 
 		};
 
-		for( var property in object_2 ){
+		return returned;
 
-			if( object_2.hasOwnProperty(property) ){
+	};
 
-				if( !isEmpty(returned[property]) && isObject(object_2[property]) ){
+	Jo.extend = function( returned ){
 
-					if( isObject(returned[property]) ){
+		if( isEmpty(returned) ){
 
-						returned[property] = Jo.merge(returned[property], object_2[property]);
+			returned = new Object();
+
+		};
+
+		for( var i = 1; i < arguments.length; i++ ){
+
+			var obj = arguments[i];
+
+			for( var key in obj ){
+
+				if( obj.hasOwnProperty(key) ){
+
+					if( isArray(obj) ){
+
+						if( isArray(returned) ){
+
+							if( returned.indexOf(obj[key]) < 0 ){
+
+								console.log("indexed false", obj[key]);
+
+								returned.push(obj[key]);
+
+							};
+
+						}
+						else if( isEmpty(returned[obj[key]]) ){
+
+							returned[obj[key]] = null;
+
+						};
+
+					}
+					else if( isObject(obj[key]) ){
+
+						Jo.merge(returned[key], obj[key]);
 
 					}
 					else {
 
-						returned[property] = Jo.merge(isArray(returned[property]) ? new Array() : new Object(), object_2[property]);
+						returned[key] = obj[key];
 
 					};
-
-				}
-				else {
-
-					returned[property] = object_2[property];
 
 				};
 

@@ -167,27 +167,156 @@ Return Jo object or string containg attribute value or object containing attribu
 ### css( name, value )
 Set or get styles.
 Return Jo object or string containg style value or object containing styles values.
-- is
-- insertBefore
-- insertAfter
-- insertStart
-- insertEnd
-- replace
-- remove
-- hide
-- show
-- addClass
-- removeClass
+```js
 
-- length
-- merge
-- ajax
-- socket
+  var border = $("div").css("border");
+  var styles = $("div").css(["margin", "padding", "outline"]);
 
-- worker
-- - send
-- - receive / on
-- - terminate
+  $("section")
+    .css("outline", styles.outline)
+    .css({
+      border: border,
+      margin: styles.margin,
+      padding: styles.padding
+    });
+
+```
+
+### is( selector )
+Compare nodes found in Jo.found array to the CSS selector. Return true if all nodes match or false if only one fail.
+Return boolean.
+- **selector _[string]_** is the selector to compare with.
+```js
+  var divs = $("section div");
+
+  if( divs.is("div[data-type^='elements'][draggable]:nth-of-type(1)") ){
+
+    divs.css("border", "1px solid green");
+
+  };
+```
+
+### insertBefore( html )
+Add html before (outer) each nodes found in the Jo.found array.
+Return Jo object.
+- **html _[string|node|nodelist|jo]_** is the code to insert before.
+```js
+  $("section > div").insertBefore("<h2>title2</h2>");
+```
+
+### insertAfter( html )
+Add html after (outer) each nodes found in the Jo.found array.
+Retrurn Jo;
+- **html _[string|node|nodelist|jo]_** is the code to insert after.
+```js
+  $("section > div").insertAfter("<h2>title2</h2>");
+```
+
+### insertStart( html )
+Add html to the start (inner) of each nodes found in the Jo.found array.
+Retrurn Jo;
+- **html _[string|node|nodelist|jo]_** is the code to insert after.
+```js
+  $("section").insertStart("<h2>title2</h2>");
+```
+
+### insertEnd( html )
+Add html to the end (inner) of each nodes found in the Jo.found array.
+Retrurn Jo;
+- **html _[string|node|nodelist|jo]_** is the code to insert after.
+```js
+  $("section").insertEnd("<h2>title2</h2>");
+```
+
+### replace( html )
+Replace all nodes found in Jo.found array by new html
+Return Jo object.
+**html _[string|node|nodeList|jo]_** is the html to replace by.
+```js
+  $("section > div").replace("<article/>");
+```
+
+
+### remove()
+Remove all nodes found in Jo.found array.
+Return Jo object.
+```js
+  $("body > *").remove();
+```
+
+### hide()
+Display none all nodes found in Jo.found array.
+Return Jo object.
+```js
+  $("a").on("click", function(){
+
+    $(this).hide();
+
+  }, false);
+```
+
+### show()
+Back to the last display type (inline or css).
+Return Jo object.
+```js
+  $("a").show();
+```
+### addClass( className )
+Add class to all nodes found in the Jo.found array.
+Return Jo object.
+**className _[string]_** is the class to add.
+```js
+  $("section div").addClass("viewed");
+```
+
+### removeClass( className )
+Remove class to all nodes found in the Jo.found array.
+Return Jo object.
+**className _[string]_** is the class to remove.
+```js
+  $("section div").removeClass("viewed");
+```
+
+## Variables
+
+### found
+Array containing nodes found.
+```js
+  var firstDiv = $("div").found[0];
+```
+
+### length
+Integer representing how many nodes have been found in Jo.found array.
+```js
+  if( $("body > section").length > 0 ){
+
+    $("body").insertStart("<p>found</p>");
+
+  };
+```
+
+### merge( return[, object[, object...]] )
+Merge an infinite of object into one
+Return an object depending on content to merge.
+```js
+  var old = new Array("one", "two", "three");
+  var fresh = new Object();
+  fresh.four = 4;
+  fresh.five = new Array("element", "elementAgain");
+
+  $.merge(old, fresh);
+
+```
+
+### ajax( settings )
+Instantiate XMLHTTPRequest
+
+### socket( settings )
+
+### worker( settings )
+#### send
+#### receive / on
+#### terminate
 
 ## To do/see
 - Blob
