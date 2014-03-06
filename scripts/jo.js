@@ -236,17 +236,48 @@
 
 			var returned = isEmpty(selector) ? false : true;
 
-			selector = prepareSelector(selector);
+			if( isJo(selector) ){
 
-			this.each(function(){
+				this.each(function( index ){
 
-				if( isFalse((this.matches || this.matchesSelector || this.msMatchesSelector || this.mozMatchesSelector || this.webkitMatchesSelector || this.oMatchesSelector).call(this, selector)) ){
+					if( this !== selector.found[index] ) returned = false;
 
-					returned = false;
+				});
 
-				};
+			}
+			else if( isNode(selector) ){
 
-			});
+				this.each(function(){
+
+					if( this !== selector ) returned = false;
+
+				});
+
+			}
+			else if( isNodeList(selector) ){
+
+				this.each(function( index ){
+
+					if( this !== selector[index] ) returned = false;
+
+				});
+
+			}
+			else if( isString(selector) ){
+
+				selector = prepareSelector(selector);
+
+				this.each(function(){
+
+					if( isFalse((this.matches || this.matchesSelector || this.msMatchesSelector || this.mozMatchesSelector || this.webkitMatchesSelector || this.oMatchesSelector).call(this, selector)) ){
+
+						returned = false;
+
+					};
+
+				});
+				
+			};
 
 			return returned;
 
