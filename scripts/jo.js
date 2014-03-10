@@ -1721,6 +1721,34 @@
 
 	Jo.socket.fn.init.prototype = Jo.socket.fn;
 
+	Jo.blob = function( settings ){
+
+		var blob = new Blob([], {
+			type: "application/octet-binary"
+		});
+
+		var url = window.URL || window.webkitURL;
+
+		url.createObjectURL(blob);
+
+		// or this :
+
+		var file = new FileReader();
+
+		file.addEventListener("loadend", function(){
+
+		}, false);
+
+		file.readAsArrayBuffer(blob);
+
+	};
+
+	Jo.rtc = function( settings ){
+
+		
+
+	};
+
 	Jo.worker = function( settings ){
 
 		return new Jo.worker.fn.init(settings);
@@ -1747,6 +1775,25 @@
 
 				};
 
+
+				if( !isEmpty(message.data) && !isEmpty(message.data.type) ){
+
+					for( var action in this.events ){
+
+						if( this.events.hasOwnProperty(action) && action === message.data.type ){
+
+							for( var evt in this.events[action] ){
+
+								this.events[action][evt].call(this, message);
+
+							};
+
+						};
+
+					};
+
+				};
+
 			}.bind(this);
 
 			this.worker.onerror = function( message, file, line ){
@@ -1762,9 +1809,12 @@
 			return this;
 
 		},
-		send: function( data ){
+		send: function( type, data ){
 
-			this.worker.postMessage(data);
+			this.worker.postMessage({
+				type: type,
+				content: data
+			});
 
 			return this;
 
@@ -1783,19 +1833,7 @@
 
 			};
 
-			var typeFn = function( message ){
-
-				if( !isEmpty(message.data) && !isEmpty(message.data.type) && (message.data.type === action || message.data.type === "message") ){
-
-					fn.call(this, message);
-
-				};
-
-			}.bind(this);
-
-			var f = this.events[action].push(typeFn) - 1;
-
-			this.worker.addEventListener("message", this.events[action][f], useCapture);
+			this.events[action].push(fn);
 
 			return this;
 
@@ -1817,29 +1855,24 @@
 
 			if( !isEmpty(fn) ){
 
-				this.worker.removeEventListener("message", fn, useCapture);
+				for( var evt in this.events[action] ){
 
-				for( var i in this.events[action] ){
+					if( this.events[action][evt] === fn ){
 
-					if( this.events[action][i] === fn ){
-
-						this.events[action].splice(i, 1);
+						this.events[action].splice(evt, 1);
 
 					};
 
 				};
 
 			}
-			else if( !isEmpty(this.events[action]) ){
+			else {
 
-				for( var i in this.events[action] ){
-
-					this.worker.removeEventListener("message", this.events[action][i], useCapture);
-					this.events[action].splice(i, 1);
-
-				};
+				delete this.events[action];
 
 			};
+
+			console.log(this.events);
 
 			return this;
 
