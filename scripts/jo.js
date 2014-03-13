@@ -1114,8 +1114,12 @@
 	function isEmpty( source ){
 
 		if( (isObject(source) || isArray(source)) && !isFunction(source) ){
-			
-			for( var length in source ) return false;
+
+			for( var length in source ){
+
+				return false;
+
+			};
 
 			return true;
 
@@ -1136,7 +1140,24 @@
 
 	function isObject( source ){
 
-		return source instanceof Object || typeof source === "object";
+		return source instanceof Object && typeof source === "object";// && (source.constructor === Object ? true : false);
+
+	};
+
+	function isJSON( string ){
+
+		try {
+
+			JSON.parse(string);
+
+		}
+		catch( Exception ){
+
+			return false
+
+		};
+
+		return true;
 
 	};
 
@@ -1203,6 +1224,12 @@
 	function isJo( source ){
 
 		return source instanceof Jo && typeof source === "object";
+
+	};
+
+	function isChildOf( children, parent ){
+
+		return parent.contains ? parent.contains(children) : !!(parent.compareDocumentPosition(children) & 16);
 
 	};
 
@@ -1300,12 +1327,6 @@
 
 	};
 
-	function isChildOf( children, parent ){
-
-		return parent.contains ? parent.contains(children) : !!(parent.compareDocumentPosition(children) & 16);
-
-	};
-
 	Jo.infos = function(){
 
 		console.log({
@@ -1317,7 +1338,8 @@
 
 	};
 
-	Jo.merge = function( returned ){
+	Jo.merge = function( returned, hasOwnProperty ){
+
 
 		if( isEmpty(returned) ){
 
@@ -1327,20 +1349,18 @@
 
 		for( var i = 1; i < arguments.length; i++ ){
 
-			var obj = arguments[i];
+			for( var key in arguments[i] ){
 
-			for( var key in obj ){
+				if( arguments[i].hasOwnProperty(key) ){
 
-				if( obj.hasOwnProperty(key) ){
+					if( isObject(arguments[i][key]) && (arguments[i][key].constructor === Object || arguments[i][key].constructor === Array) ){
 
-					if( isObject(obj[key]) ){
-
-						Jo.merge(returned[key], obj[key]);
+						Jo.merge(returned[key], arguments[i][key]);
 
 					}
 					else {
 
-						returned[key] = obj[key];
+						returned[key] = arguments[i][key];
 
 					};
 
@@ -1623,7 +1643,7 @@
 
 			this.socket = new WebSocket(settings.secure ? "wss://" : "ws://" + settings.url);
 
-			this.socket.onopen = function(){
+			this.socket.addEventListener("open", function(){
 
 				if( isFunction(settings.open) ){
 
@@ -1631,9 +1651,9 @@
 
 				};
 
-			};
+			}, false);
 
-			this.socket.onclose = function(){
+			this.socket.addEventListener("close", function(){
 
 				if( isFunction(settings.close) ){
 
@@ -1641,11 +1661,22 @@
 
 				};
 
-			};
+			}, false);
 
-			this.socket.onmessage = function( data ){
+			this.socket.addEventListener("message", function( message ){
 
-				var data = JSON.parse(data.data);
+				var data;
+
+				if( isJSON(message.data) ){
+
+					data = JSON.parse(message.data);
+
+				}
+				else {
+
+					data = message.data;
+
+				};
 
 				if( isFunction(settings.receive) ){
 
@@ -1655,13 +1686,17 @@
 
 				if( !isEmpty(data.type) && !isEmpty(this.events[data.type]) ){
 
-					this.events[data.type](data.data);
+					for( var fn in this.events[data.type] ){
+
+						this.events[data.type][fn](data.content);
+
+					};
 
 				};
 
-			}.bind(this);
+			}.bind(this), false);
 
-			this.socket.onerror = function(){
+			this.socket.addEventListener("error", function(){
 
 				if( isFunction(settings.error) ){
 
@@ -1669,7 +1704,7 @@
 
 				};
 
-			};
+			}, false);
 
 			return this;
 
@@ -1682,11 +1717,12 @@
 
 					this.socket.send(JSON.stringify({
 						type: type,
-						data: data
+						content: data
 					}));
 
 				}
 				else {
+
 
 					this.send(type, data);
 
@@ -1699,7 +1735,37 @@
 		},
 		on: function( action, fn ){
 
-			this.events[action] = fn;
+			if( isEmpty(this.events[action]) ){
+
+				this.events[action] = new Array();
+
+			};
+
+			this.events[action].push(fn);
+
+			return this;
+
+		},
+		off: function( action, fn ){
+
+			if( !isEmpty(fn) ){
+
+				for( var f in this.events[action] ){
+
+					if( this.events[action][f] === fn ){
+
+						this.events[action].splice(f, 1);
+
+					};
+
+				};
+
+			}
+			else {
+
+				delete this.events[action];
+
+			};
 
 			return this;
 
@@ -1743,11 +1809,132 @@
 
 	};
 
-	Jo.rtc = function( settings ){
+	Jo.media = function( settings ){
 
-		
+		return new Jo.media.fn.init(settings);
 
 	};
+
+	Jo.media.fn = Jo.media.prototype = {
+		constructor: Jo.media,
+		init: function( settings ){
+
+			navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+
+			settings = Jo.merge({
+				video: true,
+				audio: true
+			}, settings);
+
+			var media = navigator.getUserMedia({
+				video: true,
+				audio: true
+			}, function( stream ){
+
+				this.stream = stream;
+
+				this.src = window.URL.createObjectURL(this.stream);
+
+				settings.success.call(this, this.src, this.stream);
+
+			}.bind(this), function( code ){
+
+				settings.error.call(this);
+
+			}.bind(this));
+
+		},
+		play: function(){
+
+		},
+		pause: function(){
+
+		},
+		stop: function(){
+
+		}
+	};
+
+	Jo.media.fn.init.prototype = Jo.media.fn;
+
+	Jo.peer = function( settings ){
+
+		return new Jo.peer.fn.init( settings );
+
+	};
+
+	Jo.peer.fn = Jo.peer.prototype = {
+		constructor: Jo.peer,
+		init: function( settings ){
+
+			settings = Jo.merge({
+				config: {
+					iceServers: new Array()
+				}
+			}, settings);
+
+			window.RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.RTCPeerConnection;
+
+			this.peer = new RTCPeerConnection(settings.config);
+
+			this.sources = new Array();
+
+			this.peer.addEventListener("icecandidate", function( event ){
+
+				if( !isEmpty(event.candidate) ){
+
+					console.log("ICE CANDIDATE", event);
+
+					this.socket.send({
+						type: "candidate",
+						content: {
+							sdpMLineIndex: event.candidate.sdpMLineIndex,
+							sdpMid: event.candidate.sdpMid,
+							candidate: event.candidate.candidate
+						}
+					})
+
+				};
+
+			}.bind(this), false);
+
+			this.peer.addEventListener("addstream", function( event ){
+
+				this.sources.push(window.URL.createObjectURL(event.stream));
+
+				console.log("NEW SOURCE", this.sources[this.sources.length -1]);
+
+			}, false);
+
+			this.peer.addEventListener("removestream", function( event ){
+
+				console.log("remove one stream");
+
+			}, false);
+
+			this.peer.createOffer(function( description ){
+
+				this.peer.setLocalDescription(description);
+
+			}.bind(this), function(){
+
+			}.bind(this), function(){
+
+			}.bind(this));
+
+		},
+		add: function( stream ){
+
+			console.log("ADD STREAM");
+			this.peer.addStream(stream);
+
+		},
+		remove: function(){
+
+		}
+	};
+
+	Jo.peer.fn.init.prototype = Jo.peer.fn;
 
 	Jo.worker = function( settings ){
 
@@ -1774,7 +1961,6 @@
 					settings.receive.call(this, message);
 
 				};
-
 
 				if( !isEmpty(message.data) && !isEmpty(message.data.type) ){
 

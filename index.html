@@ -21,6 +21,10 @@
 			height: 100%;
 		}
 
+		body {
+			background-color: #333;
+		}
+
 		h2:after {
 			content: "";
 			display: block;
@@ -33,9 +37,47 @@
 	</style>
 	<script>
 
+		var media;
+
 		var isReady = function(){
 
 			console.log("document is ready");
+
+			var arr = ["a", "b", "c", "d"];
+
+			arr.splice(2, 1);
+			console.log(arr);
+
+			socket = $.socket({
+				url: "public.localhost:9000",
+				open: function(){
+					console.log("SOCKET IS OPEN");
+				}
+			});
+
+			var peer = $.peer({
+				url: "",
+				config: {
+					iceServers: new Array()
+				}
+			});
+
+			media = $.media({
+				video: true,
+				audio: false,
+				success: function( src, stream ){
+
+					Jo("video").item(0).attr("src", src).found[0].play();
+
+					peer.add(stream);
+
+				},
+				error: function( code ){
+
+					console.log("fail", code);
+
+				}
+			});
 
 		};
 
@@ -55,6 +97,8 @@
 </head>
 <body class="test">
 	<header>
+		<video width="200" height="100"></video>
+		<video width="200" height="100"></video>
 		<h1><abbr title="JavaScript Overloaded">Jo</abbr></h1>
 		<nav>
 			<ul>
