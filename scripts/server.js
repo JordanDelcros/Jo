@@ -11,43 +11,84 @@ var WSServer = new webSocketServer({
 	httpServer: server
 });
 
+var users = new Object();
+
 // ON CONNECTION
 WSServer.on("request", function( request ){
 
 	console.log("CONNECTION");
 	var connection = request.accept(null, request.origin);
 
+	var id = 0;
+
+	for( var user in users ){
+		if( users.hasOwnProperty(user) ){
+			id++;
+		};
+	};
+
+	users[id] = {
+		name: users.length,
+		connection: connection
+	};
+
+	console.log("ID is " + id);
+
 	// ON NEW MESSAGE
 	connection.on("message", function( message ){
 
 		// MESSAGE TYPE
-		console.log(message.type);
 		if( message.type === "utf8" ){
 
 			var data = JSON.parse(message.utf8Data);
 
 			// DATA FROM MESSAGE
-			console.log(data);
 
-			if( data.type === "pokemon" ){
+			console.log("MASTER GET TYPE", data.type);
 
-				console.log("pokemon");
+			if( data.type === "offer" ){
 
-				connection.sendUTF(JSON.stringify({
-					type: "pokemon",
-					content: {
-						hello: "world again"
-					}
-				}));
+				users[id].description = data.content;
 
+				for( var user in users ){
+
+					if( users.hasOwnProperty(user) && user != id ){
+
+						console.log("send offer to ", user);
+
+						users[user].connection.sendUTF(JSON.stringify({
+							type: "offer",
+							content: JSON.parse(data.content)
+						}));
+
+					};
+				};
+			}
+			else if( data.type === "candidate" ){
+
+				console.log("candidating !")
+
+				for( var user in users ){
+
+					if( users.hasOwnProperty(user) && user != id ){
+
+						console.log("send candidate to ", user);
+
+						users[user].connection.sendUTF(JSON.stringify({
+							type: "candidate",
+							content: data.content
+						}));
+
+					};
+				};
 			};
-
 		};
-
 	});
 
 	connection.on("close", function( connection ){
-		console.log("CLOS SOCKET");
+		
+		delete users[id];
+
 	});
 
 });

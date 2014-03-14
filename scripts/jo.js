@@ -1870,6 +1870,12 @@
 			settings = Jo.merge({
 				config: {
 					iceServers: new Array()
+				},
+				constraints: {
+					mandatory: {
+						OfferToReceiveAudio: true,
+						OfferToReceiveVideo: true
+					}
 				}
 			}, settings);
 
@@ -1877,7 +1883,19 @@
 
 			this.peer = new RTCPeerConnection(settings.config);
 
+			this.constraints = settings.constraints;
+
 			this.sources = new Array();
+
+			this.events = new Object();
+
+			this.peer.createDescription = function( description ){
+
+				this.peer.setLocalDescription(description);
+
+				settings.socket.send(description.type, JSON.stringify(description));
+
+			}.bind(this);
 
 			this.peer.addEventListener("icecandidate", function( event ){
 
@@ -1885,26 +1903,33 @@
 
 					console.log("ICE CANDIDATE", event);
 
-					this.socket.send({
-						type: "candidate",
-						content: {
-							sdpMLineIndex: event.candidate.sdpMLineIndex,
-							sdpMid: event.candidate.sdpMid,
-							candidate: event.candidate.candidate
-						}
-					})
+					settings.socket.send("candidate", JSON.stringify({
+						sdpMLineIndex: event.candidate.sdpMLineIndex,
+						sdpMid: event.candidate.sdpMid,
+						candidate: event.candidate.candidate
+					}));
+
+				};
+
+			}, false);
+
+			this.peer.addEventListener("addstream", function( event ){
+
+				console.log("ADD STREAM");
+
+				var url = this.sources.push(decodeURIComponent(window.URL.createObjectURL(event.stream))) - 1;
+
+				if( !isEmpty(this.events.stream) ){
+
+					for( var fn in this.events.stream ){
+
+						this.events.stream[fn].call(this, this.sources[url], event.stream);
+
+					};
 
 				};
 
 			}.bind(this), false);
-
-			this.peer.addEventListener("addstream", function( event ){
-
-				this.sources.push(window.URL.createObjectURL(event.stream));
-
-				console.log("NEW SOURCE", this.sources[this.sources.length -1]);
-
-			}, false);
 
 			this.peer.addEventListener("removestream", function( event ){
 
@@ -1912,21 +1937,128 @@
 
 			}, false);
 
-			this.peer.createOffer(function( description ){
+			settings.socket.socket.addEventListener("message", function( message ){
 
-				this.peer.setLocalDescription(description);
+				var data = JSON.parse(message.data);
 
-			}.bind(this), function(){
+				console.log("SERVER RESPOND AN => ", data.type, data.content);
 
-			}.bind(this), function(){
+				if( data.content.type === "offer" ){
 
-			}.bind(this));
+					console.log("answer offer");
+
+					this.peer.setRemoteDescription(new RTCSessionDescription(data.content));
+					this.peer.createAnswer(this.peer.createDescription, function( event ){
+
+						console.log("CONNECTION FAIL", event);
+
+						if( isFunction(settings.error) ){
+
+							settings.error();
+
+						};
+
+					}, this.constraints)
+
+				}
+				else if( data.content.type === "answer" ){
+
+					console.log("ANSWER !")
+
+					this.peer.setRemoteDescription(new RTCSessionDescription(data.content));
+
+				}
+				else if( data.content.type === "candidate" ){
+
+					console.log("CANDIDATING");
+
+					this.peer.addIceCandidate(new RTCIceCandidate(data.content));
+
+				};
+
+			}.bind(this), false);
+
+			return this;
 
 		},
-		add: function( stream ){
+		addStream: function( stream ){
 
 			console.log("ADD STREAM");
 			this.peer.addStream(stream);
+
+			return this;
+
+		},
+		call: function(){
+
+			this.peer.createOffer(this.peer.createDescription, function(){
+
+				console.log("FAIL TO SEND OFFER");
+
+			}.bind(this), this.constraints);
+
+			return this;
+
+		},
+		on: function( action, fn, useCapture ){
+
+			if( isEmpty(useCapture) ){
+
+				useCapture = false;
+
+			};
+
+			if( isEmpty(this.events[action]) ){
+
+				this.events[action] = new Array();
+
+			};
+
+			this.events[action].push(fn);
+
+			return this;
+
+		},
+		off: function( action, fn, useCapture ){
+
+			if( isBoolean(fn) ){
+
+				useCapture = fn;
+				fn = undefined;
+
+			};
+
+			if( isEmpty(useCapture) ){
+
+				useCapture = false;
+
+			};
+
+			if( !isEmpty(fn) ){
+
+				for( var evt in this.events[action] ){
+
+					if( this.events[action][evt] === fn ){
+
+						this.events[action].splice(evt, 1);
+
+					};
+
+				};
+
+			}
+			else {
+
+				delete this.events[action];
+
+			};
+
+			console.log(this.events);
+
+			return this;
+
+		},
+		answer: function(){
 
 		},
 		remove: function(){
