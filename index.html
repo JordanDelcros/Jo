@@ -50,7 +50,7 @@
 			console.log(arr);
 
 			socket = $.socket({
-				url: "10.0.15.45:9000",
+				url: window.location.host + ":9000",
 				open: function(){
 					console.log("SOCKET IS OPEN");
 				}
@@ -106,8 +106,8 @@
 </head>
 <body class="test">
 	<header>
-		<video width="200" height="100"></video>
-		<video width="200" height="100"></video>
+		<video width="200" height="100" autoplay></video>
+		<video width="200" height="100" autoplay></video>
 		<h1><abbr title="JavaScript Overloaded">Jo</abbr></h1>
 		<nav>
 			<ul>

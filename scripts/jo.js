@@ -1875,21 +1875,27 @@
 					mandatory: {
 						OfferToReceiveAudio: true,
 						OfferToReceiveVideo: true
-					}
+					},
+					optional: [
+						{
+							RtpDataChannels: true,							
+						},
+						{
+							DtlsSrtpKeyAgreement: true
+						}
+					]
 				}
 			}, settings);
 
-			window.RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.RTCPeerConnection;
+			window.RTCPeerConnection = (window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.RTCPeerConnection);
+			window.RTCSessionDescription = (window.mozRTCSessionDescription || window.RTCSessionDescription);
+			window.RTCIceCandidate = (window.mozRTCIceCandidate || window.RTCIceCandidate);
 
 			this.peer = new RTCPeerConnection(settings.config);
 
-			this.constraints = settings.constraints;
-
-			this.sources = new Array();
-
-			this.events = new Object();
-
 			this.peer.createDescription = function( description ){
+
+				console.log("CREATE DESCRIPTION");
 
 				this.peer.setLocalDescription(description);
 
@@ -1897,11 +1903,19 @@
 
 			}.bind(this);
 
+			this.constraints = settings.constraints;
+
+			this.sources = new Array();
+
+			this.events = new Object();
+
 			this.peer.addEventListener("icecandidate", function( event ){
+				
+				console.log("ICE CANDIDATE");
 
 				if( !isEmpty(event.candidate) ){
 
-					console.log("ICE CANDIDATE", event);
+					console.log("SEND ICE CANDIDATE", event);
 
 					settings.socket.send("candidate", JSON.stringify({
 						sdpMLineIndex: event.candidate.sdpMLineIndex,
@@ -1915,7 +1929,7 @@
 
 			this.peer.addEventListener("addstream", function( event ){
 
-				console.log("ADD STREAM");
+				console.log("ADD STREAM", event);
 
 				var url = this.sources.push(decodeURIComponent(window.URL.createObjectURL(event.stream))) - 1;
 
@@ -1933,7 +1947,7 @@
 
 			this.peer.addEventListener("removestream", function( event ){
 
-				console.log("remove one stream");
+				console.log("REMOVE STREAM");
 
 			}, false);
 
@@ -1941,11 +1955,11 @@
 
 				var data = JSON.parse(message.data);
 
-				console.log("SERVER RESPOND AN => ", data.type, data.content);
+				console.log("SERVER RESPOND AN => ", data.type);
 
 				if( data.content.type === "offer" ){
 
-					console.log("answer offer");
+					console.log("ANSWER OFFER");
 
 					this.peer.setRemoteDescription(new RTCSessionDescription(data.content));
 					this.peer.createAnswer(this.peer.createDescription, function( event ){
@@ -1965,6 +1979,7 @@
 
 					console.log("ANSWER !")
 
+					this.peer.setRemoteDescription(new RTCSessionDescription(data.content));
 					this.peer.setRemoteDescription(new RTCSessionDescription(data.content));
 
 				}
