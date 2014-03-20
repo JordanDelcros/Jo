@@ -207,6 +207,37 @@
 			return $this;
 
 		},
+		parent: function( selector ){
+
+			var $this = Jo(this);
+
+			var found = new Array();
+
+			$this.each(function(){
+
+				if( !isEmpty(selector) ){
+
+					if( Jo(this.parentNode).is(selector) ){
+
+						found.push(this.parentNode);
+
+					};
+
+				}
+				else {
+
+					found.push(this.parentNode);
+
+				};
+
+			});
+
+			$this.found = found;
+			$this.length = $this.found.length;
+
+			return $this;
+
+		},
 		item: function( number ){
 
 			if( number <= this.found.length ){
@@ -219,6 +250,44 @@
 				return this;
 
 			};
+
+		},
+		prev: function(){
+
+			var found = new Array();
+
+			this.each(function(){
+
+				if( this.previousElementSibling ){
+
+					this.push(this.previousElementSibling);
+
+				};
+
+			});
+
+			this.found = found;
+
+			return this;
+
+		},
+		next: function(){
+
+			var found = new Array();
+
+			this.each(function(){
+
+				if( this.nextElementSibling ){
+
+					found.push(this.nextElementSibling);
+
+				};
+
+			});
+
+			this.found = found;
+
+			return this;
 
 		},
 		each: function( fn ){
@@ -476,15 +545,15 @@
 			return this;
 
 		},
-		css: function( name, value ){
+		css: function( property, value ){
 
-			if( isString(name) ){
+			if( isString(property) ){
 
 				if( !isEmpty(value) ){
 
 					this.each(function(){
 
-						this.style[name] = value;
+						this.style[property] = value;
 
 					});
 
@@ -495,7 +564,7 @@
 
 					this.each(function(){
 
-						returned.push(window.getComputedStyle(this, null).getPropertyValue(name));
+						returned.push(window.getComputedStyle(this, null).getPropertyValue(property));
 
 					});
 
@@ -504,21 +573,21 @@
 				};
 
 			}
-			else if( isArray(name) ){
+			else if( isArray(property) ){
 
 				var returned = Object();
 
 				this.each(function(){
 
-					for( var i in name ){
+					for( var i in property ){
 
-						if( isEmpty(returned[name[i]]) ){
+						if( isEmpty(returned[property[i]]) ){
 
-							returned[name[i]] = new Array();
+							returned[property[i]] = new Array();
 
 						};
 
-						returned[name[i]].push(window.getComputedStyle(this, null).getPropertyValue(name));
+						returned[property[i]].push(window.getComputedStyle(this, null).getPropertyValue(property));
 
 					};
 
@@ -527,11 +596,11 @@
 				return returned;
 
 			}
-			else if( isObject(name) ){
+			else if( isObject(property) ){
 
 				this.each(function(){
 
-					for( var parameter in name ) this.style[parameter] = name[parameter];
+					for( var parameter in property ) this.style[parameter] = property[parameter];
 
 				});
 
@@ -759,7 +828,7 @@
 
 						for( var node = 0; node < nodes.length; node++ ){
 
-							this.parentNode.insertBefore(nodes[node], this.nextSibling);
+							this.parentNode.insertBefore(nodes[node], this.nextElementSibling);
 
 						};
 
@@ -772,7 +841,7 @@
 
 				this.each(function(){
 
-					this.parentNode.insertBefore(html, this.nextSibling);
+					this.parentNode.insertBefore(html, this.nextElementSibling);
 
 				});
 
@@ -785,7 +854,7 @@
 
 					for( var node = 0; node < length; node++ ){
 
-						this.parentNode.insertBefore(html[node], this.nextSibling);
+						this.parentNode.insertBefore(html[node], this.nextElementSibling);
 
 					};
 
@@ -800,7 +869,7 @@
 
 					for( var node = 0; node < length; node++ ){
 
-						this.parentNode.insertBefore(html.found[node], this.nextSibling);
+						this.parentNode.insertBefore(html.found[node], this.nextElementSibling);
 
 					};
 
@@ -936,7 +1005,7 @@
 
 				this.each(function(){
 
-					this.appendChild(node);
+					this.appendChild(html);
 
 				});
 
@@ -1103,6 +1172,15 @@
 			});
 
 			return this;
+
+		},
+		animate: function( styles, options ){
+
+			this.each(function(){
+
+				
+
+			});
 
 		}
 	};

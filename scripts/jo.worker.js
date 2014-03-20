@@ -1,5 +1,7 @@
 (function( self, undefined ){
 
+	self.events = new Object();
+
 	var methods = {
 		send: function( type, data ){
 
@@ -24,34 +26,38 @@
 		},
 		on: function( action, fn ){
 
-			if( isEmpty(useCapture) ){
+			if( isEmpty(self.events[action]) ){
 
-				useCapture = false;
+				self.events[action] = new Array();
 
 			};
-
-			if( isEmpty(self.events[action]) )
 
 		},
 		off: function( action, fn ){
 
-			if( isBoolean(fn) ){
+			if( !isEmpty(fn) ){
 
-				useCapture = fn;
-				fn = undefined;
+				for( var e in self.events[action]  ){
 
-			};
+					if( fn === self.events[action][e] ){
 
-			if( isEmpty(useCapture) ){
+						delete self.events[action][e];
 
-				useCapture = false;
+					}
+					else {
+
+						delete self.events[action];
+
+					};
+
+				};
 
 			};
 
 		},
 		error: function(){
 
-
+			
 
 		}
 	};
