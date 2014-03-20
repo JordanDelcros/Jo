@@ -50,25 +50,11 @@
 			console.log(arr);
 
 			socket = $.socket({
-				url: window.location.host + ":9000",
+				url: "192.168.0.24:9000", //window.location.host + ":9000",
 				open: function(){
 					console.log("SOCKET IS OPEN");
 				}
 			});
-
-			peer = $.peer({
-				url: "",
-				socket: socket,
-				config: {
-					iceServers: new Array()
-				}
-			});
-
-			peer.on("stream", function( src, stream ){
-
-				Jo("video").item(1).attr("src", src).found[0].play();
-
-			}, false);
 
 			media = $.media({
 				video: true,
@@ -77,8 +63,18 @@
 
 					Jo("video").item(0).attr("src", src).found[0].play();
 
-					peer.addStream(stream);
-					peer.call();
+					peer = $.peer({
+						socket: socket,
+						config: {
+							iceServers: new Array()
+						},
+						stream: stream,
+						addStream: function( src, stream ){
+
+							Jo("video").item(1).attr("src", src).found[0].play();
+
+						}
+					});
 
 				},
 				error: function( code ){

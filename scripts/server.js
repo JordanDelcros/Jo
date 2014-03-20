@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var webSocketServer = require("websocket").server;
 var http = require("http");
 

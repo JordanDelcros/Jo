@@ -1951,6 +1951,122 @@
 				},
 				constraints: {
 					mandatory: {
+						OfferToReceiveVideo: true,
+						OfferToReceiveAudio: true
+					}
+				}
+			}, settings);
+
+			window.RTCSessionDescription = (window.mozRTCSessionDescription || window.RTCSessionDescription);
+			window.RTCPeerConnection = (window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.RTCPeerConnection);
+			window.RTCIceCandidate = (window.mozRTCIceCandidate || window.RTCIceCandidate);
+
+			this.peer = new RTCPeerConnection(settings.config);
+
+			this.peer.addEventListener("icecandidate", function( event ){
+
+				console.log("ICE CANDIDATE");
+
+				if( !isEmpty(event.candidate) ){
+
+					settings.socket.send("candidate", event.candidate);
+
+				};
+
+			}, false);
+
+			this.peer.addStream(settings.stream);
+
+			this.peer.addEventListener("addstream", function( event ){
+
+				console.log("ADD STREAM");
+
+				if( isFunction(settings.addStream) ){
+
+					settings.addstream.call(this, window.URL.createObjectURL(event.stream), event.stream);
+
+				};
+
+			}.bind(this), false);
+
+			this.peer.addEventListener("removestream", function( event ){
+
+				console.log("REMOVE STREAM");
+
+			}, false);
+
+			this.peer.createOffer(function( description ){
+
+				this.peer.setLocalDescription(description);
+				settings.socket.send("description", description);
+
+			}.bind(this), function(){
+
+				console.log("CALL FAIL");
+
+			}, settings.constraints);
+
+			settings.socket.socket.addEventListener("message", function( message ){
+
+				var data = JSON.parse(message.data);
+
+				if( data.type === "offer" ){
+
+					console.log("RECEIVE OFFER");
+
+					this.peer.setRemoteDescription(new RTCSessionDescription(data.content));
+
+					this.peer.createAnswer(function( description ){
+
+						this.peer.setLocalDescription(description);
+						settings.socket.send("description", description);
+
+					}.bind(this), function(){
+
+						console.log("ANSWER FAILED");
+
+					}, settings.constraints);
+
+				}
+				else if( data.type === "answer" ){
+
+					console.log("RECEIVE ANSWER");
+
+					this.peer.setRemoteDescription(new RTCSessionDescription(data.content));
+
+				}
+				else if( data.type === "candidate" ){
+
+					console.log("RECEIVE CANDIDATE");
+
+					console.log(data.content);
+
+					this.peer.addIceCandidate(new RTCIceCandidate(data.content));
+
+				}
+				else if( data.type === "close" ){
+
+					console.log("RECEIVE BYE BYE");
+					this.peer.close();
+
+				};
+
+			}.bind(this), false);
+
+		}
+	};
+
+/*
+	Jo.peer.fn = Jo.peer.prototype = {
+		constructor: Jo.peer,
+		init: function( settings ){
+
+			settings = Jo.merge({
+				config: {
+					iceServers: new Array()
+				},
+				constraints: {
+					mandatory: {
 						OfferToReceiveAudio: true,
 						OfferToReceiveVideo: true
 					},
@@ -2158,7 +2274,7 @@
 
 		}
 	};
-
+*/
 	Jo.peer.fn.init.prototype = Jo.peer.fn;
 
 	Jo.worker = function( settings ){
