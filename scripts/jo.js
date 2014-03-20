@@ -2,12 +2,15 @@
 * @package Jo (JavaScript overloaded)
 * @author Jordan Delcros <www.jordan-delcros.com>
 */
+"use strict";
 (function( window, undefined ){
 
 	var Joot;
 
 	var Jo = function( selector, context, Joot ){
+
 		return new Jo.fn.init(selector, context, Joot);
+
 	};
 
 	Jo.fn = Jo.prototype = {
@@ -56,7 +59,6 @@
 					this.found = getNodes(selector);
 
 				};
-
 			
 			}
 			else if( isNodeList(selector) ){
@@ -78,6 +80,8 @@
 				this.found = selector.found;
 
 			};
+
+			this.length = this.found.length;
 
 			return this;
 
@@ -113,7 +117,11 @@
 
 					if( !isEmpty(selector) ){
 
-						if( Jo(childs[child]).is(selector) ) found.push(childs[child]);
+						if( Jo(childs[child]).is(selector) ){
+
+							found.push(childs[child]);
+
+						};
 
 					}
 					else {
@@ -127,6 +135,7 @@
 			});
 
 			$this.found = found;
+			$this.length = $this.found.length;
 
 			return $this;
 
@@ -142,6 +151,12 @@
 				var normalize = selector;
 
 				selector = undefined;
+
+			};
+
+			if( isEmpty(normalize) ){
+
+				normalize = false;
 
 			};
 
@@ -187,6 +202,7 @@
 			});
 
 			$this.found = found;
+			$this.length = $this.found.length;
 
 			return $this;
 
@@ -220,134 +236,48 @@
 
 			var returned = isEmpty(selector) ? false : true;
 
-			selector = prepareSelector(selector).replace(/([#\.:\[])([^#\.:\[]+)/ig, function(all, type, curiosity){
+			if( isJo(selector) ){
 
-				if( type === "." && new RegExp("\]$", "ig").test(curiosity) ){
+				this.each(function( index ){
 
-					return all;
+					if( this !== selector.found[index] ) returned = false;
 
-				};
+				});
 
-				return "|" + all;
+			}
+			else if( isNode(selector) ){
 
-			}).split("|");
+				this.each(function(){
 
-			this.each(function(){
+					if( this !== selector ) returned = false;
 
-				for( var key in selector ){
+				});
 
-					// is textNode
-					if( selector[key] === "text" && !isText(this) ){
+			}
+			else if( isNodeList(selector) ){
 
-						returned = false;
+				this.each(function( index ){
 
-					}
-					// is tag
-					else if( new RegExp("^\\w", "i").test(selector[key]) && (!isTag(this) || selector[key].toLowerCase() !== this.nodeName.toLowerCase()) ){
+					if( this !== selector[index] ) returned = false;
 
-						returned = false;
+				});
 
-					}
-					// has id
-					else if( new RegExp("^#", "g").test(selector[key]) && (!isTag(this) || selector[key].substring(1) !== this.id) ){
+			}
+			else if( isString(selector) ){
 
-						returned = false;
+				selector = prepareSelector(selector);
 
-					}
-					// has class
-					else if( new RegExp("^\\.", "g").test(selector[key]) && (!isTag(this) || isFalse(this.classList.contains(selector[key].substring(1)))) ){
+				this.each(function(){
+
+					if( isFalse((this.matches || this.matchesSelector || this.msMatchesSelector || this.mozMatchesSelector || this.webkitMatchesSelector || this.oMatchesSelector).call(this, selector)) ){
 
 						returned = false;
-
-					}
-					// has attr
-					else if( new RegExp("^\\[", "g").test(selector[key]) ){
-
-						var attribute = selector[key].substring(1).slice(0,-1).split("=");
-
-						if( !isEmpty(attribute[1]) ){
-
-							attribute[1] = attribute[1].replace(/^[\"\']/, "").replace(/[\"\']$/, "");
-
-						};
-
-						if( !isTag(this) || isEmpty(this.attributes.getNamedItem(attribute[0])) || (!isEmpty(attribute[1]) && this.attributes.getNamedItem(attribute[0]).nodeValue !== attribute[1]) ) returned = false;	
-
-					}
-					// is pseudo
-					else if( new RegExp("^:", "g").test(selector[key]) ){
-
-						if( selector[key] === ":first-child" && (!isTag(this) || !this.parentNode.firstElementChild.isEqualNode(this)) ){
-
-							returned = false;
-
-						}
-						else if( selector[key] === ":last-child" && (!isTag(this) || this.parentNode.lastElementChild.isEqualNode(this)) ){
-
-							returned = false;
-
-						}
-						else if( new RegExp("^:nth-child?\\([^\\)]+\\)$", "gi").test(selector[key]) ){
-
-							var toFound = this;
-							var $nodeList = Jo(this.parentNode).find("> *" + selector[key]);
-
-							var found = false;
-
-							$nodeList.each(function(){
-
-								if( this.isEqualNode(toFound) ) found = true;
-
-							});
-
-							if( !isTag(this) || found === false ) returned = false;
-
-						}
-						else if( selector[key] === ":first-of-type" ){
-							// first of which type ???
-							if( Jo(this.parentNode).find(">:first-of-type").item(0).found[0] !== this ){
-
-								returned = false;
-
-							};
-
-						}
-						else if( selector[key] === ":last-of-type" ){
-
-							if( Jo(this.parentNode).find(">:last-of-type").item(0).found[0] !== this ){
-
-								returned = false;
-
-							};
-
-						}
-						else if( new RegExp("^:nth-of-type?\\([^\\)]+\\)$", "gi").test(selector[key]) ){
-
-							var toFound = this;
-							var $NodeList = $(this.parentNode).find("> *" + selector[key]);
-
-							var found = false;
-
-							$NodeList.each(function(){
-
-								if( this === toFound ) found = true;
-
-							});
-
-							if( found === false ) returned = false;
-
-						}
-						else {
-
-							returned = false;
-
-						};
 
 					};
-				
-				};
 
-			});
+				});
+				
+			};
 
 			return returned;
 
@@ -381,7 +311,7 @@
 
 					var f = this.events[originalAction].push(evt) - 1;
 
-					window.addEventListener ? this.addEventListener(action, this.events[originalAction][f].fn, useCapture) : this.attachEvent(action, fn, useCapture);
+					this.addEventListener(action, this.events[originalAction][f].fn, useCapture);
 
 				}
 				else if( isFunction(Jo.specialEvents[action]) && !Jo.support.events(action) ){
@@ -395,14 +325,14 @@
 
 					var f = this.events[originalAction].push(evt) - 1;
 
-					window.addEventListener ? this.addEventListener(action, this.events[originalAction][f].fn, useCapture) : this.attachEvent("on" + action, fn, useCapture);
+					this.addEventListener(action, this.events[originalAction][f].fn, useCapture);
 
 				}
 				else {
 
 					var f = this.events[originalAction].push(evt) - 1;
 
-					window.addEventListener ? this.addEventListener(action, this.events[originalAction][f].fn, useCapture) : this.attachEvent("on" + action, fn, useCapture);
+					this.addEventListener(action, this.events[originalAction][f].fn, useCapture);
 	
 				};
 
@@ -420,7 +350,11 @@
 
 			};
 
-			if( isEmpty(useCapture) ) useCapture = false;
+			if( isEmpty(useCapture) ){
+
+				useCapture = false;
+
+			};
 
 			return this.each(function(){
 
@@ -430,13 +364,13 @@
 
 						if( isFunction(fn) && this.events[action][i].fn === fn ){
 
-							window.removeEventListener ? this.removeEventListener(this.events[action][i].action, this.events[action][i].fn, useCapture) : this.detachEvent("on" + action, this.events[action], useCapture);
+							this.removeEventListener(this.events[action][i].action, this.events[action][i].fn, useCapture);
 							this.events[action].splice(i, 1);
 
 						}
 						else if( isEmpty(fn) ){
 
-							window.removeEventListener ? this.removeEventListener(this.events[action][i].action, this.events[action][i].fn, useCapture) : this.detachEvent("on" + action, this.events[action], useCapture);
+							this.removeEventListener(this.events[action][i].action, this.events[action][i].fn, useCapture);
 							this.events[action].splice(i, 1);
 
 						};
@@ -478,15 +412,54 @@
 
 			if( isString(name) && !isEmpty(value) ){
 
-				parameter = name;
+				if( !isEmpty(value) ){
 
-				name = new Object();
+					this.each(function(){
 
-				name[parameter] = value;
+						this.setAttribute(name, value);
 
-			};
+					});
 
-			if( isObject(name) ){
+				}
+				else {
+
+					var returned = new Array();
+
+					this.each(function(){
+
+						returned.push(this.getAttribute(name));
+
+					});
+
+					return returned;
+
+				};
+
+			}
+			else if( isArray(name) ){
+
+				var returned = new Object();
+
+				this.each(function(){
+
+					for( var i in name ){
+
+						if( isEmpty(returned[name[i]]) ){
+
+							returned[name[i]] = new Array();
+
+						};
+
+						returned[name[i]].push(this.getAttribute(name[i]));
+
+					};
+
+				});
+
+				return returned;
+
+			}
+			else if( isObject(name) ){
 			
 				for( var i in name ){
 
@@ -529,6 +502,29 @@
 					return returned;
 
 				};
+
+			}
+			else if( isArray(name) ){
+
+				var returned = Object();
+
+				this.each(function(){
+
+					for( var i in name ){
+
+						if( isEmpty(returned[name[i]]) ){
+
+							returned[name[i]] = new Array();
+
+						};
+
+						returned[name[i]].push(window.getComputedStyle(this, null).getPropertyValue(name));
+
+					};
+
+				});
+
+				return returned;
 
 			}
 			else if( isObject(name) ){
@@ -590,6 +586,7 @@
 				});
 
 				this.found = updateNodes(this);
+				this.length = this.found.length;
 
 				return this;
 
@@ -630,6 +627,7 @@
 				});
 
 				this.found = updateNodes(this);
+				this.length = this.found.length;
 
 				return this;
 
@@ -647,6 +645,7 @@
 			});
 
 			this.found = found;
+			this.length = this.found.length;
 
 			return this;
 
@@ -991,6 +990,7 @@
 				Jo(this).remove();
 
 				this.found = new Array();
+				this.length = this.found.length;
 
 				return this;
 
@@ -1035,6 +1035,7 @@
 			});
 
 			this.found = updateNodes(this);
+			this.length = this.found.length;
 
 			return this;
 
@@ -1048,6 +1049,7 @@
 			});
 
 			this.found = new Array();
+			this.length = this.found.length;
 
 			return this;
 
@@ -1073,7 +1075,17 @@
 
 			this.each(function(){
 
-				this.style.display = "";
+				if( !isEmpty(this.dataset.joDisplay) ){
+
+					this.style.display = this.dataset.joDisplay;
+					delete this.dataset.joDisplay;
+
+				}
+				else {
+
+					this.style.display = "";
+
+				};
 
 			});
 
@@ -1082,8 +1094,10 @@
 		},
 		hide: function(){
 
+
 			this.each(function(){
 
+				this.dataset.joDisplay = Jo(this).css("display");
 				this.style.display = "none";
 
 			});
@@ -1093,13 +1107,19 @@
 		}
 	};
 
+	Jo.fn.init.prototype = Jo.fn;
+
 	Joot = Jo(document);
 
 	function isEmpty( source ){
 
 		if( (isObject(source) || isArray(source)) && !isFunction(source) ){
-			
-			for( var length in source ) return false;
+
+			for( var length in source ){
+
+				return false;
+
+			};
 
 			return true;
 
@@ -1120,7 +1140,24 @@
 
 	function isObject( source ){
 
-		return source instanceof Object || typeof source === "object";
+		return source instanceof Object && typeof source === "object";// && (source.constructor === Object ? true : false);
+
+	};
+
+	function isJSON( string ){
+
+		try {
+
+			JSON.parse(string);
+
+		}
+		catch( Exception ){
+
+			return false
+
+		};
+
+		return true;
 
 	};
 
@@ -1187,6 +1224,12 @@
 	function isJo( source ){
 
 		return source instanceof Jo && typeof source === "object";
+
+	};
+
+	function isChildOf( children, parent ){
+
+		return parent.contains ? parent.contains(children) : !!(parent.compareDocumentPosition(children) & 16);
 
 	};
 
@@ -1284,12 +1327,6 @@
 
 	};
 
-	function isChildOf( children, parent ){
-
-		return parent.contains ? parent.contains(children) : !!(parent.compareDocumentPosition(children) & 16);
-
-	};
-
 	Jo.infos = function(){
 
 		console.log({
@@ -1301,28 +1338,31 @@
 
 	};
 
-	Jo.length = function(){
+	Jo.merge = function( returned, hasOwnProperty ){
 
-		return this.found.length;
 
-	};
+		if( isEmpty(returned) ){
 
-	Jo.merge = function( object_1, object_2 ){
+			returned = new Object();
 
-		var returned = isArray(object_1) ? new Array() : new Object();
+		};
 
-		for( var property in object_1 ){
+		for( var i = 1; i < arguments.length; i++ ){
 
-			if( !isEmpty(object_1[property]) && object_1.hasOwnProperty(property) ){
+			for( var key in arguments[i] ){
 
-				if( isObject(object_1[property]) ){
+				if( arguments[i].hasOwnProperty(key) ){
 
-					returned[property] = Jo.merge(isArray(object_1[property]) ? new Array() : new Object(), object_1[property]);
+					if( isObject(arguments[i][key]) && (arguments[i][key].constructor === Object || arguments[i][key].constructor === Array) ){
 
-				}
-				else {
+						Jo.merge(returned[key], arguments[i][key]);
 
-					returned[property] = object_1[property];
+					}
+					else {
+
+						returned[key] = arguments[i][key];
+
+					};
 
 				};
 
@@ -1330,27 +1370,54 @@
 
 		};
 
-		for( var property in object_2 ){
+		return returned;
 
-			if( object_2.hasOwnProperty(property) ){
+	};
 
-				if( !isEmpty(returned[property]) && isObject(object_2[property]) ){
+	Jo.extend = function( returned ){
 
-					if( isObject(returned[property]) ){
+		if( isEmpty(returned) ){
 
-						returned[property] = Jo.merge(returned[property], object_2[property]);
+			returned = new Object();
+
+		};
+
+		for( var i = 1; i < arguments.length; i++ ){
+
+			var obj = arguments[i];
+
+			for( var key in obj ){
+
+				if( obj.hasOwnProperty(key) ){
+
+					if( isArray(obj) ){
+
+						if( isArray(returned) ){
+
+							if( returned.indexOf(obj[key]) < 0 ){
+
+								returned.push(obj[key]);
+
+							};
+
+						}
+						else if( isEmpty(returned[obj[key]]) ){
+
+							returned[obj[key]] = null;
+
+						};
+
+					}
+					else if( isObject(obj[key]) ){
+
+						Jo.merge(returned[key], obj[key]);
 
 					}
 					else {
 
-						returned[property] = Jo.merge(isArray(returned[property]) ? new Array() : new Object(), object_2[property]);
+						returned[key] = obj[key];
 
 					};
-
-				}
-				else {
-
-					returned[property] = object_2[property];
 
 				};
 
@@ -1365,46 +1432,162 @@
 	Jo.ajax = function( settings ){
 
 		settings = Jo.merge({
-			type: "GET"
+			method: "GET",
+			async: true,
+			type: "text/xml"
 		}, settings);
 
-		var request = new XMLHttpRequest();
+		var data;
 
-		request.open(settings.type, settings.url, true);
+		if( settings.method === "POST" ){
 
-		request.onreadystatechange = function(){
+			if( settings.data.constructor === FormData ){
 
-			// uninitialized
-			if( this.readyState === 0 ){
-
-			}
-			// open
-			else if( this.readyState === 1 ){
+				data = settings.data;
 
 			}
-			// sent
-			else if( this.readyState === 2 ){
+			else if( isTag(settings.data) ){
+
+				data = new FormData(settings.data);
 
 			}
-			// receiving
-			else if( this.readyState === 3 ){
+			else if( isJo(settings.data) ){
 
-			}
-			// loaded
-			else if( this.readyState === 4 ){
+				if( settings.data.length === 1 ){
 
-				if( this.status >= 200 && this.status <= 400 ){
-
-					if( isFunction(settings.complete) ){
-
-						settings.complete(this.responseText, this.status);
-
-					};
+					data = new FormData(settings.data.found[0]);
 
 				}
 				else {
 
-					setting.error( this.status );
+					data = new FormData();
+
+					settings.data.find("[name]").each(function(){
+
+						if( $(this).is("[type='file']") ){
+
+							for( var file = 0; file < this.files.length; file++ ){
+
+								data.append(this.getAttribute("name") + "[" + file + "]", this.files[file])
+
+							};
+
+						}
+						else {
+
+							data.append(this.getAttribute("name"), this.value);
+
+						};
+
+					});
+
+				};
+
+			}
+			else if( isObject(settings.data) ){
+
+				data = new FormData();
+
+				for( var key in settings.data ){
+
+					if( settings.data.hasOwnProperty(key) ){
+
+						data.append(key, settings.data[key]);
+
+					};
+
+				};
+
+			};
+
+		}
+		else if( settings.method === "GET" ){
+
+			data = new Array();
+
+			if( isJo(settings.data) || isTag(settings.data) ){
+
+				Jo(settings.data).find("[name]").each(function(){
+
+					data.push(encodeURIComponent(this.getAttribute("name")) + "=" + encodeURIComponent(this.value));
+
+				});
+
+			}
+			else if( isObject(settings.data) ){
+
+				for( var key in settings.data ){
+
+					if( settings.data.hasOwnProperty(key) ){
+
+						data.push(encodeURIComponent(key) + "=" + encodeURIComponent(settings.data[key]));
+
+					};
+
+				};
+
+			};
+
+			settings.url += "?" + data.join("&");
+
+		};
+
+		var request = new XMLHttpRequest();
+
+		request.onreadystatechange = function(){
+
+			if( this.readyState === 0 ){
+
+				if( isFunction(settings.initialize) ){
+
+					settings.initialize(this);
+
+				};
+
+			}
+			else if( this.readyState === 1 ){
+
+				if( isFunction(settings.open) ){
+
+					settings.open(this);
+
+				};
+
+			}
+			else if( this.readyState === 2 ){
+
+				if( isFunction(settings.send) ){
+
+					settings.send(this);
+
+				};
+
+			}
+			else if( this.readyState === 3 ){
+
+				if( isFunction(settings.receive) ){
+
+					settings.receive(this);
+
+				};
+
+			}
+			else if( this.readyState === 4 ){
+
+				if( this.status >= 200 && this.status < 400 ){
+
+					if( isFunction(settings.complete) ){
+
+						settings.complete(this);
+
+						delete this;
+
+					};
+
+				}
+				else if( this.readyState >= 400 ){
+
+					settings.error(this);
 
 				};
 
@@ -1412,11 +1595,753 @@
 
 		};
 
-		request.send();
+		request.upload.onprogress = function( event ){
 
-		delete request;
+			settings.progress(event.loaded, event.total);
+
+		};
+
+		request.onerror = function(){
+
+			settings.error(this);
+
+		};
+
+		request.onabort = function(){
+
+			if( isFunction(settings.abort) ){
+
+				settings.abort(this);
+
+			};
+
+		};
+
+		request.open(settings.method, settings.url, settings.async);
+
+		request.send(data);
+
+		return request;
 
 	};
+
+	Jo.socket = function( settings ){
+
+		return new Jo.socket.fn.init(settings);
+
+	};
+
+	Jo.socket.fn = Jo.socket.prototype = {
+		constructor: Jo.socket,
+		init: function( settings ){
+
+			settings = Jo.merge({
+				secure: false
+			}, settings);
+
+			this.events = new Object();
+
+			this.socket = new WebSocket(settings.secure ? "wss://" : "ws://" + settings.url);
+
+			this.socket.addEventListener("open", function(){
+
+				if( isFunction(settings.open) ){
+
+					settings.open();
+
+				};
+
+			}, false);
+
+			this.socket.addEventListener("close", function(){
+
+				if( isFunction(settings.close) ){
+
+					settings.close();
+
+				};
+
+			}, false);
+
+			this.socket.addEventListener("message", function( message ){
+
+				var data;
+
+				if( isJSON(message.data) ){
+
+					data = JSON.parse(message.data);
+
+				}
+				else {
+
+					data = message.data;
+
+				};
+
+				if( isFunction(settings.receive) ){
+
+					settings.receive(data);
+
+				};
+
+				if( !isEmpty(data.type) && !isEmpty(this.events[data.type]) ){
+
+					for( var fn in this.events[data.type] ){
+
+						this.events[data.type][fn](data.content);
+
+					};
+
+				};
+
+			}.bind(this), false);
+
+			this.socket.addEventListener("error", function(){
+
+				if( isFunction(settings.error) ){
+
+					settings.error();
+
+				};
+
+			}, false);
+
+			return this;
+
+		},
+		send: function( type, data ){
+
+			setTimeout(function(){
+
+				if( this.socket.readyState === 1 ){
+
+					this.socket.send(JSON.stringify({
+						type: type,
+						content: data
+					}));
+
+				}
+				else {
+
+
+					this.send(type, data);
+
+				};
+
+			}.bind(this), 1);
+
+			return this;
+
+		},
+		on: function( action, fn ){
+
+			if( isEmpty(this.events[action]) ){
+
+				this.events[action] = new Array();
+
+			};
+
+			this.events[action].push(fn);
+
+			return this;
+
+		},
+		off: function( action, fn ){
+
+			if( !isEmpty(fn) ){
+
+				for( var f in this.events[action] ){
+
+					if( this.events[action][f] === fn ){
+
+						this.events[action].splice(f, 1);
+
+					};
+
+				};
+
+			}
+			else {
+
+				delete this.events[action];
+
+			};
+
+			return this;
+
+		},
+		close: function( fn ){
+
+			this.socket.close(1000, "closing socket");
+
+			if( isFunction(fn) ){
+
+				fn();
+
+			};
+
+			return this;
+
+		}
+	};
+
+	Jo.socket.fn.init.prototype = Jo.socket.fn;
+
+	Jo.blob = function( settings ){
+
+		var blob = new Blob([], {
+			type: "application/octet-binary"
+		});
+
+		var url = window.URL || window.webkitURL;
+
+		url.createObjectURL(blob);
+
+		// or this :
+
+		var file = new FileReader();
+
+		file.addEventListener("loadend", function(){
+
+		}, false);
+
+		file.readAsArrayBuffer(blob);
+
+	};
+
+	Jo.media = function( settings ){
+
+		return new Jo.media.fn.init(settings);
+
+	};
+
+	Jo.media.fn = Jo.media.prototype = {
+		constructor: Jo.media,
+		init: function( settings ){
+
+			navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+
+			settings = Jo.merge({
+				video: true,
+				audio: true
+			}, settings);
+
+			var media = navigator.getUserMedia({
+				video: true,
+				audio: true
+			}, function( stream ){
+
+				this.stream = stream;
+
+				this.src = window.URL.createObjectURL(this.stream);
+
+				settings.success.call(this, this.src, this.stream);
+
+			}.bind(this), function( code ){
+
+				settings.error.call(this);
+
+			}.bind(this));
+
+		},
+		play: function(){
+
+		},
+		pause: function(){
+
+		},
+		stop: function(){
+
+		}
+	};
+
+	Jo.media.fn.init.prototype = Jo.media.fn;
+
+	Jo.peer = function( settings ){
+
+		return new Jo.peer.fn.init( settings );
+
+	};
+
+	Jo.peer.fn = Jo.peer.prototype = {
+		constructor: Jo.peer,
+		init: function( settings ){
+
+			settings = Jo.merge({
+				config: {
+					iceServers: new Array()
+				},
+				constraints: {
+					mandatory: {
+						OfferToReceiveVideo: true,
+						OfferToReceiveAudio: true
+					}
+				}
+			}, settings);
+
+			window.RTCSessionDescription = (window.mozRTCSessionDescription || window.RTCSessionDescription);
+			window.RTCPeerConnection = (window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.RTCPeerConnection);
+			window.RTCIceCandidate = (window.mozRTCIceCandidate || window.RTCIceCandidate);
+
+			this.peer = new RTCPeerConnection(settings.config);
+
+			this.peer.addEventListener("icecandidate", function( event ){
+
+				console.log("ICE CANDIDATE");
+
+				if( !isEmpty(event.candidate) ){
+
+					settings.socket.send("candidate", event.candidate);
+
+				};
+
+			}, false);
+
+			this.peer.addStream(settings.stream);
+
+			this.peer.addEventListener("addstream", function( event ){
+
+				console.log("ADD STREAM");
+
+				if( isFunction(settings.addStream) ){
+
+					settings.addstream.call(this, window.URL.createObjectURL(event.stream), event.stream);
+
+				};
+
+			}.bind(this), false);
+
+			this.peer.addEventListener("removestream", function( event ){
+
+				console.log("REMOVE STREAM");
+
+			}, false);
+
+			this.peer.createOffer(function( description ){
+
+				this.peer.setLocalDescription(description);
+				settings.socket.send("description", description);
+
+			}.bind(this), function(){
+
+				console.log("CALL FAIL");
+
+			}, settings.constraints);
+
+			settings.socket.socket.addEventListener("message", function( message ){
+
+				var data = JSON.parse(message.data);
+
+				if( data.type === "offer" ){
+
+					console.log("RECEIVE OFFER");
+
+					this.peer.setRemoteDescription(new RTCSessionDescription(data.content));
+
+					this.peer.createAnswer(function( description ){
+
+						this.peer.setLocalDescription(description);
+						settings.socket.send("description", description);
+
+					}.bind(this), function(){
+
+						console.log("ANSWER FAILED");
+
+					}, settings.constraints);
+
+				}
+				else if( data.type === "answer" ){
+
+					console.log("RECEIVE ANSWER");
+
+					this.peer.setRemoteDescription(new RTCSessionDescription(data.content));
+
+				}
+				else if( data.type === "candidate" ){
+
+					console.log("RECEIVE CANDIDATE");
+
+					console.log(data.content);
+
+					this.peer.addIceCandidate(new RTCIceCandidate(data.content));
+
+				}
+				else if( data.type === "close" ){
+
+					console.log("RECEIVE BYE BYE");
+					this.peer.close();
+
+				};
+
+			}.bind(this), false);
+
+		}
+	};
+
+/*
+	Jo.peer.fn = Jo.peer.prototype = {
+		constructor: Jo.peer,
+		init: function( settings ){
+
+			settings = Jo.merge({
+				config: {
+					iceServers: new Array()
+				},
+				constraints: {
+					mandatory: {
+						OfferToReceiveAudio: true,
+						OfferToReceiveVideo: true
+					},
+					optional: [
+						{
+							RtpDataChannels: true,							
+						},
+						{
+							DtlsSrtpKeyAgreement: true
+						}
+					]
+				}
+			}, settings);
+
+			window.RTCPeerConnection = (window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.RTCPeerConnection);
+			window.RTCSessionDescription = (window.mozRTCSessionDescription || window.RTCSessionDescription);
+			window.RTCIceCandidate = (window.mozRTCIceCandidate || window.RTCIceCandidate);
+
+			this.peer = new RTCPeerConnection(settings.config);
+
+			this.peer.createDescription = function( description ){
+
+				console.log("CREATE DESCRIPTION");
+
+				this.peer.setLocalDescription(description);
+
+				settings.socket.send(description.type, JSON.stringify(description));
+
+			}.bind(this);
+
+			this.constraints = settings.constraints;
+
+			this.sources = new Array();
+
+			this.events = new Object();
+
+			this.peer.addEventListener("icecandidate", function( event ){
+				
+				console.log("ICE CANDIDATE");
+
+				if( !isEmpty(event.candidate) ){
+
+					console.log("SEND ICE CANDIDATE", event);
+
+					settings.socket.send("candidate", JSON.stringify({
+						sdpMLineIndex: event.candidate.sdpMLineIndex,
+						sdpMid: event.candidate.sdpMid,
+						candidate: event.candidate.candidate
+					}));
+
+				};
+
+			}, false);
+
+			this.peer.addEventListener("addstream", function( event ){
+
+				console.log("ADD STREAM", event);
+
+				var url = this.sources.push(decodeURIComponent(window.URL.createObjectURL(event.stream))) - 1;
+
+				if( !isEmpty(this.events.stream) ){
+
+					for( var fn in this.events.stream ){
+
+						this.events.stream[fn].call(this, this.sources[url], event.stream);
+
+					};
+
+				};
+
+			}.bind(this), false);
+
+			this.peer.addEventListener("removestream", function( event ){
+
+				console.log("REMOVE STREAM");
+
+			}, false);
+
+			settings.socket.socket.addEventListener("message", function( message ){
+
+				var data = JSON.parse(message.data);
+
+				console.log("SERVER RESPOND AN => ", data.type);
+
+				if( data.content.type === "offer" ){
+
+					console.log("ANSWER OFFER");
+
+					this.peer.setRemoteDescription(new RTCSessionDescription(data.content));
+					this.peer.createAnswer(this.peer.createDescription, function( event ){
+
+						console.log("CONNECTION FAIL", event);
+
+						if( isFunction(settings.error) ){
+
+							settings.error();
+
+						};
+
+					}, this.constraints)
+
+				}
+				else if( data.content.type === "answer" ){
+
+					console.log("ANSWER !")
+
+					this.peer.setRemoteDescription(new RTCSessionDescription(data.content));
+					this.peer.setRemoteDescription(new RTCSessionDescription(data.content));
+
+				}
+				else if( data.content.type === "candidate" ){
+
+					console.log("CANDIDATING");
+
+					this.peer.addIceCandidate(new RTCIceCandidate(data.content));
+
+				};
+
+			}.bind(this), false);
+
+			return this;
+
+		},
+		addStream: function( stream ){
+
+			console.log("ADD STREAM");
+			this.peer.addStream(stream);
+
+			return this;
+
+		},
+		call: function(){
+
+			this.peer.createOffer(this.peer.createDescription, function(){
+
+				console.log("FAIL TO SEND OFFER");
+
+			}.bind(this), this.constraints);
+
+			return this;
+
+		},
+		on: function( action, fn, useCapture ){
+
+			if( isEmpty(useCapture) ){
+
+				useCapture = false;
+
+			};
+
+			if( isEmpty(this.events[action]) ){
+
+				this.events[action] = new Array();
+
+			};
+
+			this.events[action].push(fn);
+
+			return this;
+
+		},
+		off: function( action, fn, useCapture ){
+
+			if( isBoolean(fn) ){
+
+				useCapture = fn;
+				fn = undefined;
+
+			};
+
+			if( isEmpty(useCapture) ){
+
+				useCapture = false;
+
+			};
+
+			if( !isEmpty(fn) ){
+
+				for( var evt in this.events[action] ){
+
+					if( this.events[action][evt] === fn ){
+
+						this.events[action].splice(evt, 1);
+
+					};
+
+				};
+
+			}
+			else {
+
+				delete this.events[action];
+
+			};
+
+			console.log(this.events);
+
+			return this;
+
+		},
+		answer: function(){
+
+		},
+		remove: function(){
+
+		}
+	};
+*/
+	Jo.peer.fn.init.prototype = Jo.peer.fn;
+
+	Jo.worker = function( settings ){
+
+		return new Jo.worker.fn.init(settings);
+
+	};
+
+	Jo.worker.fn = Jo.worker.prototype = {
+		constructor: Jo.worker,
+		init: function( settings ){
+
+			settings = Jo.merge({
+
+			}, settings);
+
+			this.worker = new Worker(settings.url);
+
+			this.events = new Object();
+
+			this.worker.onmessage = function( message ){
+
+				if( isFunction(settings.receive) ){
+
+					settings.receive.call(this, message);
+
+				};
+
+				if( !isEmpty(message.data) && !isEmpty(message.data.type) ){
+
+					for( var action in this.events ){
+
+						if( this.events.hasOwnProperty(action) && action === message.data.type ){
+
+							for( var evt in this.events[action] ){
+
+								this.events[action][evt].call(this, message);
+
+							};
+
+						};
+
+					};
+
+				};
+
+			}.bind(this);
+
+			this.worker.onerror = function( message, file, line ){
+
+				if( isFunction(settings.error) ){
+
+					settings.error.call(this, message, file, line);
+
+				};
+
+			}.bind(this);
+
+			return this;
+
+		},
+		send: function( type, data ){
+
+			this.worker.postMessage({
+				type: type,
+				content: data
+			});
+
+			return this;
+
+		},
+		on: function( action, fn, useCapture ){
+
+			if( isEmpty(useCapture) ){
+
+				useCapture = false;
+
+			};
+
+			if( isEmpty(this.events[action]) ){
+
+				this.events[action] = new Array();
+
+			};
+
+			this.events[action].push(fn);
+
+			return this;
+
+		},
+		off: function( action, fn, useCapture ){
+
+			if( isBoolean(fn) ){
+
+				useCapture = fn;
+				fn = undefined;
+
+			};
+
+			if( isEmpty(useCapture) ){
+
+				useCapture = false;
+
+			};
+
+			if( !isEmpty(fn) ){
+
+				for( var evt in this.events[action] ){
+
+					if( this.events[action][evt] === fn ){
+
+						this.events[action].splice(evt, 1);
+
+					};
+
+				};
+
+			}
+			else {
+
+				delete this.events[action];
+
+			};
+
+			console.log(this.events);
+
+			return this;
+
+		},
+		close: function( fn ){
+
+			this.worker.terminate();
+			
+			if( isFunction(fn) ){
+
+				fn.call(this);
+				
+			};
+			
+			return this;
+
+		}
+	};
+
+	Jo.worker.fn.init.prototype = Jo.worker.fn;
 
 	Jo.support = {
 
@@ -1511,8 +2436,6 @@
 
 	};
 
-	Jo.fn.init.prototype = Jo.fn;
-
 	if( isObject(window) && isObject(window.document) ) window.Jo = window.$ = Jo;
 
-})( window );
+})(window);

@@ -21,6 +21,10 @@
 			height: 100%;
 		}
 
+		body {
+			background-color: #333;
+		}
+
 		h2:after {
 			content: "";
 			display: block;
@@ -33,40 +37,55 @@
 	</style>
 	<script>
 
-		(function(){
-
-			Jo.fn.border = function(){
-
-				return this.each(function(){
-
-					$(this).css({
-						borderWidth: "2px",
-						borderStyle: "solid",
-						borderColor: "black",
-						backgroundColor: "red"
-					});
-
-				});
-
-			};
-
-		})(Jo);
+		var media;
+		var peer;
 
 		var isReady = function(){
 
 			console.log("document is ready");
 
-			$.ajax({
-				url: "test.html",
-				type: "POST",
-				complete: function( response, status ){
+			var arr = ["a", "b", "c", "d"];
 
-					console.log("ajax response", response, status);
+			arr.splice(2, 1);
+			console.log(arr);
+
+			socket = $.socket({
+				url: "192.168.0.24:9000", //window.location.host + ":9000",
+				open: function(){
+					console.log("SOCKET IS OPEN");
+				}
+			});
+
+			media = $.media({
+				video: true,
+				audio: false,
+				success: function( src, stream ){
+
+					Jo("video").item(0).attr("src", src).found[0].play();
+
+					peer = $.peer({
+						socket: socket,
+						config: {
+							iceServers: new Array()
+						},
+						stream: stream,
+						addStream: function( src, stream ){
+
+							Jo("video").item(1).attr("src", src).found[0].play();
+
+						}
+					});
+
+				},
+				error: function( code ){
+
+					console.log("fail", code);
 
 				}
 			});
 
 		};
+
 
 		Jo(document)
 			.on("ready", isReady)
@@ -83,6 +102,8 @@
 </head>
 <body class="test">
 	<header>
+		<video width="200" height="100" autoplay></video>
+		<video width="200" height="100" autoplay></video>
 		<h1><abbr title="JavaScript Overloaded">Jo</abbr></h1>
 		<nav>
 			<ul>
