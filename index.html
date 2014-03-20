@@ -44,6 +44,14 @@
 
 			console.log("document is ready");
 
+			$("header h1, header h1 abbr").animate({
+				height: 200
+			}, {
+				duration: 10000
+			});
+
+			// KEEP INTACT AFTER THIS LINE, TO FINISH
+
 			var arr = ["a", "b", "c", "d"];
 
 			arr.splice(2, 1);

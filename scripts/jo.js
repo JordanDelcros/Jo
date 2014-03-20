@@ -1176,9 +1176,67 @@
 		},
 		animate: function( styles, options ){
 
+			options = Jo.merge({
+				duration: 1000
+			}, options);
+
 			this.each(function(){
 
-				
+				var $this = Jo(this);
+
+				$this.animation = new Object();
+				$this.animation.dates = new Object();
+				$this.animation.properties = new Object();
+
+				for( var property in styles ){
+
+					if( styles.hasOwnProperty(property) ){
+
+						$this.animation.properties[property] = new Object();
+						$this.animation.properties[property].from = $this.css(property)[0];
+						$this.animation.properties[property].to = styles[property];
+
+
+					};
+
+				};
+
+				$this.animation.fn = function( now ){
+
+					$this.animation.dates.now = now;
+
+					for( var property in $this.animation.properties ){
+
+						if( $this.animation.properties.hasOwnProperty(property) ){
+
+							this.style[property] = (($this.animation.dates.now - $this.animation.dates.start) / options.duration * parseInt($this.animation.properties[property].from) % parseInt($this.animation.properties[property].to)) + "px"
+
+						};
+
+					};
+
+					if( $this.animation.dates.now === $this.animation.dates.start + options.duration ){
+
+						console.log("FINISH");
+
+						cancelAnimationFrame($this.animation.id);
+
+					}
+					else {
+
+						$this.animation.id = requestAnimationFrame($this.animation.fn);
+
+					};
+
+				}.bind(this);
+
+				$this.animation.dates.start = performance.now();
+
+				$this.animation.fn();
+
+				console.log($this);
+
+				return this;
 
 			});
 
