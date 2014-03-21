@@ -1177,7 +1177,8 @@
 		animate: function( styles, options ){
 
 			options = Jo.merge({
-				duration: 1000
+				duration: 1000,
+				easing: "linear"
 			}, options);
 
 			this.each(function(){
@@ -1213,7 +1214,24 @@
 
 						if( $this.animation.properties.hasOwnProperty(property) ){
 
-							var value = this.style[property] = parseInt($this.animation.properties[property].from) + (($this.animation.percentage / 100) * parseInt($this.animation.properties[property].from) % parseInt($this.animation.properties[property].to)) + "px";
+							var from = $this.animation.properties[property].from;
+							var to = $this.animation.properties[property].to;
+
+							var value = undefined;
+
+							if( $this.animation.percentage === 100 ){
+
+								value = this.style[property] = to + "px";
+
+							}
+							else {
+
+								value = this.style[property] = Jo.easing[options.easing](null, now, parseInt(from), parseInt(to) - parseInt(from), options.duration) + "px";
+
+							};
+
+							// var value = this.style[property] = parseInt($this.animation.properties[property].from) + (($this.animation.percentage / 100) * parseInt($this.animation.properties[property].from) % parseInt($this.animation.properties[property].to)) + "px";
+							// var spvalue = Jo.easing.easeOutQuad(null, now, parseInt($this.animation.properties[property].from), parseInt($this.animation.properties[property].to) - parseInt($this.animation.properties[property].from), options.duration);
 							// var value = this.style[property] = ((now - $this.animation.dates.start) / options.duration * parseInt($this.animation.properties[property].from) % parseInt($this.animation.properties[property].to)) + "px"
 							// console.log(value, parseInt($this.animation.properties[property].from) % parseInt($this.animation.properties[property].to));
 
@@ -1224,8 +1242,6 @@
 					Jo("#stats").html("<span>percentage " + $this.animation.percentage + "</span><span>value " + value + "</span><span>now " + now + "</span><span>duration " + options.duration + "</span>");
 
 					if( $this.animation.percentage === 100 ){
-
-						console.log("FINISH");
 
 						cancelAnimationFrame($this.animation.id);
 
@@ -1240,8 +1256,6 @@
 
 				$this.animation.fn();
 
-				console.log($this);
-
 				return this;
 
 			});
@@ -1252,6 +1266,87 @@
 	Jo.fn.init.prototype = Jo.fn;
 
 	Joot = Jo(document);
+
+	Jo.easing = {
+		linear: function( x, now, from, to, duration ){
+
+			return from + ((now / duration) * from % to);
+
+		},
+		easeInQuad: function( x, now, from, to, duration ){
+
+			return to * (now /= duration) * now + from;
+
+		},
+		easeOutQuad: function( x, now, from, to, duration ){
+
+			return -to * (now /= duration) * (now - 2) + from;
+
+		},
+		easeInOutQuad: function( x, now, from, to, duration ){
+
+			if( (now /= duration / 2) < 1 ){
+
+				return to / 2 * now * now + from;
+
+			}
+			else {
+
+				return -to / 2 * ((--now) * (now - 2) - 1) + from;
+
+			};
+
+		},
+		easeInCubic: function( x, now, from, to, duration ){
+
+			return to * (now /= duration) * now * now + to;
+
+		},
+		easeOutCubic: function( x, now, from, to, duration ){
+
+			return to * ((now = now / duration - 1) * now * now + 1) + from;
+
+		},
+		easeInOutCubic: function( x, now, from, to, duration ){
+
+			if( (now /= duration / 2) < 1 ){
+
+				return to / 2 * now * now * now + from;
+
+			}
+			else {
+
+				return to / 2 * ((now -= 2) * now * now + 2) + from;
+
+			};
+
+		},
+		// x t b c d
+		easeInQuart: function( x, now, from, to, duration ){
+
+			return to * (now /= duration) * now * now * now + to;
+
+		},
+		easeOutQuart: function( x, now, from, to, duration ){
+
+			return -to * ((now = now / duration - 1) * now * now * now - 1) + from;
+
+		},
+		easeInOutQuart: function( x, now, from, to, duration ){
+
+			if( (now /= duration / 2) < 1 ){
+
+				return to / 2 * now * now * now * now + form;
+
+			}
+			else {
+
+				return -to / 2 * ((now -= 2) * now * now * now - 2) + from;
+
+			};
+
+		}
+	};
 
 	function isEmpty( source ){
 
@@ -2500,7 +2595,6 @@
 	Jo.specialTypes = {
 
 		test: function( tagName ){
-
 
 			for( var type in this.types ){
 

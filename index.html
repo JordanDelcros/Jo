@@ -34,6 +34,12 @@
 			background-color: blue;
 		}
 
+		#stats {
+			position: fixed;
+			top: 0;
+			left: 0;
+		}
+
 		#stats * {
 			display: block;
 		}
@@ -48,18 +54,19 @@
 
 			console.log("document is ready");
 
-			// $("header h1, header h1 abbr")
-			// 	.css({
-			// 		display: "block",
-			// 		position: "absolute",
-			// 		width: "100px",
-			// 		backgroundColor: "white"
-			// 	})
-			// 	.animate({
-			// 		width: 200
-			// 	}, {
-			// 		duration: 10000
-			// 	});
+			$("header h1, header h1 abbr")
+				.css({
+					display: "block",
+					position: "absolute",
+					width: "100px",
+					backgroundColor: "white"
+				})
+				.animate({
+					width: 200
+				}, {
+					duration: 2000,
+					easing: "easeInOutQuad"
+				});
 
 			// KEEP INTACT AFTER THIS LINE, TO FINISH
 
