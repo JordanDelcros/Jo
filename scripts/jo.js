@@ -1185,7 +1185,6 @@
 				var $this = Jo(this);
 
 				$this.animation = new Object();
-				$this.animation.dates = new Object();
 				$this.animation.properties = new Object();
 
 				for( var property in styles ){
@@ -1196,26 +1195,35 @@
 						$this.animation.properties[property].from = $this.css(property)[0];
 						$this.animation.properties[property].to = styles[property];
 
-
 					};
 
 				};
 
 				$this.animation.fn = function( now ){
 
-					$this.animation.dates.now = now;
+					$this.animation.percentage = now / options.duration * 100;
+
+					if( $this.animation.percentage > 100 ){
+
+						$this.animation.percentage = 100;
+
+					};
 
 					for( var property in $this.animation.properties ){
 
 						if( $this.animation.properties.hasOwnProperty(property) ){
 
-							this.style[property] = (($this.animation.dates.now - $this.animation.dates.start) / options.duration * parseInt($this.animation.properties[property].from) % parseInt($this.animation.properties[property].to)) + "px"
+							var value = this.style[property] = parseInt($this.animation.properties[property].from) + (($this.animation.percentage / 100) * parseInt($this.animation.properties[property].from) % parseInt($this.animation.properties[property].to)) + "px";
+							// var value = this.style[property] = ((now - $this.animation.dates.start) / options.duration * parseInt($this.animation.properties[property].from) % parseInt($this.animation.properties[property].to)) + "px"
+							// console.log(value, parseInt($this.animation.properties[property].from) % parseInt($this.animation.properties[property].to));
 
 						};
 
 					};
 
-					if( $this.animation.dates.now === $this.animation.dates.start + options.duration ){
+					Jo("#stats").html("<span>percentage " + $this.animation.percentage + "</span><span>value " + value + "</span><span>now " + now + "</span><span>duration " + options.duration + "</span>");
+
+					if( $this.animation.percentage === 100 ){
 
 						console.log("FINISH");
 
@@ -1229,8 +1237,6 @@
 					};
 
 				}.bind(this);
-
-				$this.animation.dates.start = performance.now();
 
 				$this.animation.fn();
 

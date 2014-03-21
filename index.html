@@ -34,6 +34,10 @@
 			background-color: blue;
 		}
 
+		#stats * {
+			display: block;
+		}
+
 	</style>
 	<script>
 
@@ -44,11 +48,18 @@
 
 			console.log("document is ready");
 
-			$("header h1, header h1 abbr").animate({
-				height: 200
-			}, {
-				duration: 10000
-			});
+			// $("header h1, header h1 abbr")
+			// 	.css({
+			// 		display: "block",
+			// 		position: "absolute",
+			// 		width: "100px",
+			// 		backgroundColor: "white"
+			// 	})
+			// 	.animate({
+			// 		width: 200
+			// 	}, {
+			// 		duration: 10000
+			// 	});
 
 			// KEEP INTACT AFTER THIS LINE, TO FINISH
 
@@ -109,6 +120,7 @@
 	</script>
 </head>
 <body class="test">
+	<div id="stats" style="color:white;"></div>
 	<header>
 		<video width="200" height="100" autoplay></video>
 		<video width="200" height="100" autoplay></video>
