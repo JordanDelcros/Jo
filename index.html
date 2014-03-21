@@ -54,19 +54,25 @@
 
 			console.log("document is ready");
 
-			$("header h1, header h1 abbr")
+			$("header h1 abbr")
 				.css({
 					display: "block",
 					position: "absolute",
 					width: "100px",
 					backgroundColor: "white"
-				})
-				.animate({
-					width: 200
-				}, {
-					duration: 2000,
-					easing: "easeInOutQuad"
 				});
+
+			setTimeout(function(){
+
+				$("header h1 abbr")
+					.animate({
+						width: 1000
+					}, {
+						duration: 5000,
+						easing: "easeOutElastic"
+					});
+				
+			}, 1000);
 
 			// KEEP INTACT AFTER THIS LINE, TO FINISH
 
