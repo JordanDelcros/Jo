@@ -1237,7 +1237,6 @@
 								console.log("easing", Jo.easing[options.easing](null, $this.animation.times.elapsed, options.duration));
 
 								this.style[property] = from + (Jo.easing[options.easing](null, $this.animation.times.elapsed, options.duration) * (to - from)) + "px";
-								// this.style[property] = Jo.easing[options.easing](null, $this.animation.times.elapsed, from, to - from, options.duration) + "px";
 
 							};
 
@@ -1279,105 +1278,105 @@
 			return elapsed / duration * 1 % 1;
 
 		},
-		easeInQuad: function( x, elapsed, from, to, duration ){
+		easeInQuad: function( x, elapsed, duration ){
 
-			return to * (elapsed /= duration) * elapsed + from;
-
-		},
-		easeOutQuad: function( x, elapsed, from, to, duration ){
-
-			return -to * (elapsed /= duration) * (elapsed - 2) + from;
+			return 1 * (elapsed /= duration) * elapsed;
 
 		},
-		easeInOutQuad: function( x, elapsed, from, to, duration ){
+		easeOutQuad: function( x, elapsed, duration ){
+
+			return -1 * (elapsed /= duration) * (elapsed - 2);
+
+		},
+		easeInOutQuad: function( x, elapsed, duration ){
 
 			if( (elapsed /= duration / 2) < 1 ){
 
-				return to / 2 * elapsed * elapsed + from;
+				return 1 / 2 * elapsed * elapsed;
 
 			}
 			else {
 
-				return -to / 2 * ((--elapsed) * (elapsed - 2) - 1) + from;
+				return -1 / 2 * ((--elapsed) * (elapsed - 2) - 1);
 
 			};
 
 		},
-		easeInCubic: function( x, elapsed, from, to, duration ){
+		easeInCubic: function( x, elapsed, duration ){
 
-			return to * (elapsed /= duration) * elapsed * elapsed + to;
-
-		},
-		easeOutCubic: function( x, elapsed, from, to, duration ){
-
-			return to * ((elapsed = elapsed / duration - 1) * elapsed * elapsed + 1) + from;
+			return 1 * (elapsed /= duration) * elapsed * elapsed;
 
 		},
-		easeInOutCubic: function( x, elapsed, from, to, duration ){
+		easeOutCubic: function( x, elapsed, duration ){
+
+			return 1 * ((elapsed = elapsed / duration - 1) * elapsed * elapsed + 1);
+
+		},
+		easeInOutCubic: function( x, elapsed, duration ){
 
 			if( (elapsed /= duration / 2) < 1 ){
 
-				return to / 2 * elapsed * elapsed * elapsed + from;
+				return 1 / 2 * elapsed * elapsed * elapsed;
 
 			}
 			else {
 
-				return to / 2 * ((elapsed -= 2) * elapsed * elapsed + 2) + from;
+				return 1 / 2 * ((elapsed -= 2) * elapsed * elapsed + 2);
 
 			};
 
 		},
-		easeInQuart: function( x, elapsed, from, to, duration ){
+		easeInQuart: function( x, elapsed, duration ){
 
-			return to * (elapsed /= duration) * elapsed * elapsed * elapsed + to;
-
-		},
-		easeOutQuart: function( x, elapsed, from, to, duration ){
-
-			return -to * ((elapsed = elapsed / duration - 1) * elapsed * elapsed * elapsed - 1) + from;
+			return 1 * (elapsed /= duration) * elapsed * elapsed * elapsed;
 
 		},
-		easeInOutQuart: function( x, elapsed, from, to, duration ){
+		easeOutQuart: function( x, elapsed, duration ){
+
+			return -1 * ((elapsed = elapsed / duration - 1) * elapsed * elapsed * elapsed - 1);
+
+		},
+		easeInOutQuart: function( x, elapsed, duration ){
 
 			if( (elapsed /= duration / 2) < 1 ){
 
-				return to / 2 * elapsed * elapsed * elapsed * elapsed + form;
+				return 1 / 2 * elapsed * elapsed * elapsed * elapsed;
 
 			}
 			else {
 
-				return -to / 2 * ((elapsed -= 2) * elapsed * elapsed * elapsed - 2) + from;
+				return -1 / 2 * ((elapsed -= 2) * elapsed * elapsed * elapsed - 2);
 
 			};
 
 		},
-		easeInQuint: function( x, elapsed, from, to, duration ){
+		easeInQuint: function( x, elapsed, duration ){
 
-			return to * (elapsed /= duration) * elapsed * elapsed * elapsed * elapsed + from;
+			return 1 * (elapsed /= duration) * elapsed * elapsed * elapsed * elapsed;
 
 		},
-		easeOutQuint: function( x, elapsed, from, to, duration ){
+		easeOutQuint: function( x, elapsed, duration ){
 
-			return to * ((elapsed = elapsed / duration - 1) * elapsed * elapsed * elapsed * elapsed + 1) + from;
+			return 1 * ((elapsed = elapsed / duration - 1) * elapsed * elapsed * elapsed * elapsed + 1);
 	
 		},
-		easeInOutQuint: function( x, elapsed, from, to, duration ){
+		easeInOutQuint: function( x, elapsed, duration ){
 
 			if( (elapsed /= duration / 2) < 1 ){
 
-				return to / 2 * elapsed * elapsed * elapsed * elapsed * elapsed + from;
+				return 1 / 2 * elapsed * elapsed * elapsed * elapsed * elapsed;
 			
 			}
 			else {
 
-				return to / 2 * ((elapsed -= 2) * elapsed * elapsed * elapsed * elapsed + 2) + from;
+				return 1 / 2 * ((elapsed -= 2) * elapsed * elapsed * elapsed * elapsed + 2);
 
 			};
 
 		},
-		easeInSine: function( x, elapsed, from, to, duration ){
+		easeInSine: function( x, elapsed, duration ){
 
-			return -to * Math.cos(elapsed / duration * (Math.PI / 2)) + to + from;
+			return -1 * Math.cos(elapsed / duration * (Math.PI / 2)) + 1;
 
 		},
 		easeOutSine: function( x, elapsed, from, to, duration ){
