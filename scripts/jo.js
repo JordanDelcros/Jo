@@ -1234,14 +1234,12 @@
 							}
 							else {
 
-								this.style[property] = Jo.easing[options.easing](null, $this.animation.times.elapsed, from, to - from, options.duration) + "px";
+								console.log("easing", Jo.easing[options.easing](null, $this.animation.times.elapsed, options.duration));
+
+								this.style[property] = from + (Jo.easing[options.easing](null, $this.animation.times.elapsed, options.duration) * (to - from)) + "px";
+								// this.style[property] = Jo.easing[options.easing](null, $this.animation.times.elapsed, from, to - from, options.duration) + "px";
 
 							};
-
-							// var value = this.style[property] = parseInt($this.animation.properties[property].from) + (($this.animation.percentage / 100) * parseInt($this.animation.properties[property].from) % parseInt($this.animation.properties[property].to)) + "px";
-							// var spvalue = Jo.easing.easeOutQuad(null, now, parseInt($this.animation.properties[property].from), parseInt($this.animation.properties[property].to) - parseInt($this.animation.properties[property].from), options.duration);
-							// var value = this.style[property] = ((now - $this.animation.dates.start) / options.duration * parseInt($this.animation.properties[property].from) % parseInt($this.animation.properties[property].to)) + "px"
-							// console.log(value, parseInt($this.animation.properties[property].from) % parseInt($this.animation.properties[property].to));
 
 						};
 
@@ -1276,9 +1274,9 @@
 	Joot = Jo(document);
 
 	Jo.easing = {
-		linear: function( x, elapsed, from, to, duration ){
-		
-			return from + (elapsed / duration * (to - from) % (to - from));
+		linear: function( x, elapsed, duration ){
+
+			return elapsed / duration * 1 % 1;
 
 		},
 		easeInQuad: function( x, elapsed, from, to, duration ){
@@ -1450,21 +1448,21 @@
 			};
 
 		},
-		easeInElastic: function( x, elapsed, from, to, duration ){
+		easeInElastic: function( x, elapsed, duration ){
 
 			var s = 1.70158;
 			var p = 0;
-			var a = to;
+			var a = 1;
 
 			if( elapsed == 0 ){
 
-				return from;
+				return 0;
 
 			};
 
 			if( (elapsed /= duration) == 1 ){
 
-				return from + to;
+				return 1;
 
 			};
 
@@ -1474,43 +1472,43 @@
 
 			};
 
-			if( a < Math.abs(to) ){
+			if( a < Math.abs(1) ){
 
-				a = to;
+				a = 1;
 				var s = p / 4;
 
 			}
 			else {
 
-				var s = p / (2 * Math.PI) * Math.asin(to / a);
+				var s = p / (2 * Math.PI) * Math.asin(1 / a);
 
 			};
 
-			return -(a * Math.pow(2, 10 * (elapsed -= 1)) * Math.sin( (elapsed * duration - s) * (2 * Math.PI) / p)) + from;
+			return -(a * Math.pow(2, 10 * (elapsed -= 1)) * Math.sin( (elapsed * duration - s) * (2 * Math.PI) / p));
 
 		},
 		// x:x   t:elapsed   b:from   c:to    d:duration
-		easeOutElastic: function( x, elapsed, from, to, duration ){
+		easeOutElastic: function( x, elapsed, duration ){
 
 			var s = 1.70158;
 			var p = 0;
-			var a = to;
+			var a = 1;
 
-			if( elapsed == 0 ) return from;
+			if( elapsed == 0 ) return 0;
 
-			if( (elapsed /= duration) == 1 ) return from + to;
+			if( (elapsed /= duration) == 1 ) return 1;
 
 			if( !p ) p = duration * 0.3;
 
-			if( a < Math.abs(to) ){
+			if( a < Math.abs(1) ){
 
-				a = to;
+				a = 1;
 				var s = p / 4;
 
 			}
-			else var s = p / (2 * Math.PI) * Math.asin(to / a);
+			else var s = p / (2 * Math.PI) * Math.asin(1 / a);
 
-			return a * Math.pow(2, -10 * elapsed) * Math.sin( (elapsed * duration - s) * (2 * Math.PI) / p ) + to + from;
+			return a * Math.pow(2, -10 * elapsed) * Math.sin( (elapsed * duration - s) * (2 * Math.PI) / p ) + 1;
 
 		},
 		easeInOutElastic: function( x, elapsed, from, to, duration ){
@@ -1565,6 +1563,298 @@
 		
 		}
 	};
+
+
+	//Jo.easing = {
+	// 	linear: function( x, elapsed, from, to, duration ){
+		
+	// 		return from + (elapsed / duration * (to - from) % (to - from));
+
+	// 	},
+	// 	easeInQuad: function( x, elapsed, from, to, duration ){
+
+	// 		return to * (elapsed /= duration) * elapsed + from;
+
+	// 	},
+	// 	easeOutQuad: function( x, elapsed, from, to, duration ){
+
+	// 		return -to * (elapsed /= duration) * (elapsed - 2) + from;
+
+	// 	},
+	// 	easeInOutQuad: function( x, elapsed, from, to, duration ){
+
+	// 		if( (elapsed /= duration / 2) < 1 ){
+
+	// 			return to / 2 * elapsed * elapsed + from;
+
+	// 		}
+	// 		else {
+
+	// 			return -to / 2 * ((--elapsed) * (elapsed - 2) - 1) + from;
+
+	// 		};
+
+	// 	},
+	// 	easeInCubic: function( x, elapsed, from, to, duration ){
+
+	// 		return to * (elapsed /= duration) * elapsed * elapsed + to;
+
+	// 	},
+	// 	easeOutCubic: function( x, elapsed, from, to, duration ){
+
+	// 		return to * ((elapsed = elapsed / duration - 1) * elapsed * elapsed + 1) + from;
+
+	// 	},
+	// 	easeInOutCubic: function( x, elapsed, from, to, duration ){
+
+	// 		if( (elapsed /= duration / 2) < 1 ){
+
+	// 			return to / 2 * elapsed * elapsed * elapsed + from;
+
+	// 		}
+	// 		else {
+
+	// 			return to / 2 * ((elapsed -= 2) * elapsed * elapsed + 2) + from;
+
+	// 		};
+
+	// 	},
+	// 	easeInQuart: function( x, elapsed, from, to, duration ){
+
+	// 		return to * (elapsed /= duration) * elapsed * elapsed * elapsed + to;
+
+	// 	},
+	// 	easeOutQuart: function( x, elapsed, from, to, duration ){
+
+	// 		return -to * ((elapsed = elapsed / duration - 1) * elapsed * elapsed * elapsed - 1) + from;
+
+	// 	},
+	// 	easeInOutQuart: function( x, elapsed, from, to, duration ){
+
+	// 		if( (elapsed /= duration / 2) < 1 ){
+
+	// 			return to / 2 * elapsed * elapsed * elapsed * elapsed + form;
+
+	// 		}
+	// 		else {
+
+	// 			return -to / 2 * ((elapsed -= 2) * elapsed * elapsed * elapsed - 2) + from;
+
+	// 		};
+
+	// 	},
+	// 	easeInQuint: function( x, elapsed, from, to, duration ){
+
+	// 		return to * (elapsed /= duration) * elapsed * elapsed * elapsed * elapsed + from;
+
+	// 	},
+	// 	easeOutQuint: function( x, elapsed, from, to, duration ){
+
+	// 		return to * ((elapsed = elapsed / duration - 1) * elapsed * elapsed * elapsed * elapsed + 1) + from;
+	
+	// 	},
+	// 	easeInOutQuint: function( x, elapsed, from, to, duration ){
+
+	// 		if( (elapsed /= duration / 2) < 1 ){
+
+	// 			return to / 2 * elapsed * elapsed * elapsed * elapsed * elapsed + from;
+			
+	// 		}
+	// 		else {
+
+	// 			return to / 2 * ((elapsed -= 2) * elapsed * elapsed * elapsed * elapsed + 2) + from;
+
+	// 		};
+
+	// 	},
+	// 	easeInSine: function( x, elapsed, from, to, duration ){
+
+	// 		return -to * Math.cos(elapsed / duration * (Math.PI / 2)) + to + from;
+
+	// 	},
+	// 	easeOutSine: function( x, elapsed, from, to, duration ){
+
+	// 		return to * Math.sin(elapsed / duration * (Math.PI / 2)) + from;
+
+	// 	},
+	// 	easeInOutSine: function( x, elapsed, from, to, duration ){
+
+	// 		return -to / 2 * (Math.cos(Math.PI * elapsed / duration) - 1) + from;
+
+	// 	},
+	// 	easeInExpo: function( x, elapsed, from, to, duration ){
+
+	// 		return (elapsed == 0) ? from : to * Math.pow(2, 10 * (elapsed / duration - 1)) + from;
+
+	// 	},
+	// 	easeOutExpo: function( x, elapsed, from, to, duration ){
+
+	// 		return (elapsed == duration) ? from + to : to * (-Math.pow(2, -10 * elapsed / duration) + 1) + from;
+
+	// 	},
+	// 	easeInOutExpo: function( x, elapsed, from, to, duration ){
+
+	// 		if( elapsed == 0 ){
+
+	// 			return from;
+
+	// 		}
+	// 		else if( elapsed == duration ){
+
+	// 			return from + to;
+
+	// 		}
+	// 		else if( (elapsed /= duration / 2) < 1 ){
+
+	// 			return to / 2 * Math.pow(2, 10 * (elapsed - 1)) + from;
+
+	// 		}
+	// 		else {
+
+	// 			return to / 2 * (-Math.pow(2, -10 * --elapsed) + 2) + from;
+
+	// 		};
+
+	// 	},
+	// 	easeInCirc: function( x, elapsed, from, to, duration ){
+
+	// 		return -to * (Math.sqrt(1 - (elapsed /= duration) * elapsed) - 1) + from;
+
+	// 	},
+	// 	easeOutCirc: function( x, elapsed, from, to, duration ){
+
+	// 		return to * Math.sqrt(1 - (elapsed = elapsed / duration - 1) * elapsed) + from;
+
+	// 	},
+	// 	easeInOutCirc: function( x, elapsed, from, to, duration ){
+
+	// 		if( (elapsed /= duration / 2) < 1){
+
+	// 			return -to / 2 * (Math.sqrt(1 - elapsed * elapsed) - 1) + from;
+
+	// 		}
+	// 		else {
+
+	// 			return to / 2 * (Math.sqrt(1 - (elapsed -= 2) * elapsed) + 1) + from;
+
+	// 		};
+
+	// 	},
+	// 	easeInElastic: function( x, elapsed, from, to, duration ){
+
+	// 		var s = 1.70158;
+	// 		var p = 0;
+	// 		var a = to;
+
+	// 		if( elapsed == 0 ){
+
+	// 			return from;
+
+	// 		};
+
+	// 		if( (elapsed /= duration) == 1 ){
+
+	// 			return from + to;
+
+	// 		};
+
+	// 		if( !p ){
+
+	// 			p = duration * 0.3;
+
+	// 		};
+
+	// 		if( a < Math.abs(to) ){
+
+	// 			a = to;
+	// 			var s = p / 4;
+
+	// 		}
+	// 		else {
+
+	// 			var s = p / (2 * Math.PI) * Math.asin(to / a);
+
+	// 		};
+
+	// 		return -(a * Math.pow(2, 10 * (elapsed -= 1)) * Math.sin( (elapsed * duration - s) * (2 * Math.PI) / p)) + from;
+
+	// 	},
+	// 	// x:x   t:elapsed   b:from   c:to    d:duration
+	// 	easeOutElastic: function( x, elapsed, from, to, duration ){
+
+	// 		var s = 1.70158;
+	// 		var p = 0;
+	// 		var a = to;
+
+	// 		if( elapsed == 0 ) return from;
+
+	// 		if( (elapsed /= duration) == 1 ) return from + to;
+
+	// 		if( !p ) p = duration * 0.3;
+
+	// 		if( a < Math.abs(to) ){
+
+	// 			a = to;
+	// 			var s = p / 4;
+
+	// 		}
+	// 		else var s = p / (2 * Math.PI) * Math.asin(to / a);
+
+	// 		return a * Math.pow(2, -10 * elapsed) * Math.sin( (elapsed * duration - s) * (2 * Math.PI) / p ) + to + from;
+
+	// 	},
+	// 	easeInOutElastic: function( x, elapsed, from, to, duration ){
+
+	// 		var s=1.70158;var p=0;var a=c;
+	// 		if (t==0) return b;  if ((t/=d/2)==2) return b+c;  if (!p) p=d*(.3*1.5);
+	// 		if (a < Math.abs(c)) { a=c; var s=p/4; }
+	// 		else var s = p/(2*Math.PI) * Math.asin (c/a);
+	// 		if (now < 1) return -.5*(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
+	// 		return a*Math.pow(2,-10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )*.5 + c + b;
+
+	// 	},
+	// 	easeInBack: function (x, t, b, c, d, s) {
+
+	// 		if (s == undefined) s = 1.70158;
+	// 		return c*(t/=d)*t*((s+1)*t - s) + b;
+
+	// 	},
+	// 	easeOutBack: function (x, t, b, c, d, s) {
+	// 		if (s == undefined) s = 1.70158;
+	// 		return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b;
+
+	// 	},
+	// 	easeInOutBack: function (x, t, b, c, d, s) {
+	// 		if (s == undefined) s = 1.70158; 
+	// 		if ((t/=d/2) < 1) return c/2*(t*t*(((s*=(1.525))+1)*t - s)) + b;
+	// 		return c/2*((t-=2)*t*(((s*=(1.525))+1)*t + s) + 2) + b;
+
+	// 	},
+	// 	easeInBounce: function( x, now, from, to, duration ){
+
+	// 		return c - jQuery.easing.easeOutBounce (x, d-t, 0, c, d) + b;
+
+	// 	},
+	// 	easeOutBounce: function( x, now, from, to, duration ){
+
+	// 		if ((t/=d) < (1/2.75)) {
+	// 			return c*(7.5625*t*t) + b;
+	// 		} else if (t < (2/2.75)) {
+	// 			return c*(7.5625*(t-=(1.5/2.75))*t + .75) + b;
+	// 		} else if (t < (2.5/2.75)) {
+	// 			return c*(7.5625*(t-=(2.25/2.75))*t + .9375) + b;
+	// 		} else {
+	// 			return c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b;
+	// 		}
+
+	// 	},
+	// 	easeInOutBounce: function( x, now, from, to, duration ){
+
+	// 		if (t < d/2) return jQuery.easing.easeInBounce (x, t*2, 0, c, d) * .5 + b;
+	// 		return jQuery.easing.easeOutBounce (x, t*2-d, 0, c, d) * .5 + c*.5 + b;
+		
+	// 	}
+	// };
 
 	function isEmpty( source ){
 
