@@ -1194,7 +1194,7 @@
 
 						$this.animation.properties[property] = {
 							from: {
-								origin: ".1%",//$this.css(property)[0],
+								origin: $this.css(property)[0],
 								values: new Array()
 							},
 							to: {
@@ -1203,11 +1203,19 @@
 							}
 						};
 
+						// ! get difference, compare if to is slower than from
+
 						var isAnimatable = new RegExp("((\\.?\\d+(\\.\\d+)?)+(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%))+", "gi");
 
 						if( isAnimatable.test($this.animation.properties[property].from.origin) ){
 
 							$this.animation.properties[property].from.origin.replace(isAnimatable, function( match ){
+								console.log(match)
+								if( match === "auto" ){
+
+									console.log("AUTO");
+
+								};
 
 								$this.animation.properties[property].from.values.push(parseFloat(match));
 

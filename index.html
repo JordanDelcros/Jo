@@ -32,8 +32,6 @@
 		li {
 			display: block;
 			margin: 10px 0;
-			width: 10px;
-			height: 40px;
 			background-color: white;
 		}
 
@@ -55,6 +53,16 @@
 					backgroundColor: "white"
 				});
 
+			var easings = ["linear", "easeOutQuad", "easeOutCubic", "easeOutQuart", "easeOutExpo", "easeOutCirc", "easeOutElastic", "easeOutBack", "easeOutBounce"];
+			// var easings = ["linear", "easeInQuad", "easeOutQuad", "easeInOutQuad", "easeInCubic", "easeOutCubic", "easeInOutCubic", "easeInQuart", "easeOutQuart", "easeInOutQuart", "easeInQuint", "easeOutQuint", "easeInOutQuint", "easeInSine", "easeOutSine", "easeInOutSine", "easeInExpo", "easeOutExpo", "easeInOutExpo", "easeInCirc", "easeOutCirc", "easeInOutCirc", "easeInElastic", "easeOutElastic", "easeInOutElastic", "easeInBack", "easeOutBack", "easeInOutBack", "easeInBounce", "easeOutBounce", "easeInOutBounce"];
+
+			for( var easing = 0; easing < easings.length; easing++ ){
+
+				var li = document.createElement("li");
+				$("ul").insertEnd(li);
+
+			};
+
 			setTimeout(function(){
 
 				var easings = ["linear", "easeOutQuad", "easeOutCubic", "easeOutQuart", "easeOutExpo", "easeOutCirc", "easeOutElastic", "easeOutBack", "easeOutBounce"];
@@ -62,12 +70,11 @@
 
 				for( var easing = 0; easing < easings.length; easing++ ){
 
-					var li = document.createElement("li");
-					$("ul").insertEnd(li);
-
-					$(li)
+					$("ul li")
+						.item(easing)
 						.animate({
-							width: "50%"
+							width: "50%",
+							height: "65px"
 						}, {
 							duration: 2000,
 							easing: easings[easing]
@@ -75,7 +82,7 @@
 
 				};
 				
-			}, 1000);
+			}, 2000);
 
 			// KEEP INTACT AFTER THIS LINE, TO FINISH
 
