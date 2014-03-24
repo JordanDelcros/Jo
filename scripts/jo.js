@@ -2,8 +2,8 @@
 * @package Jo (JavaScript overloaded)
 * @author Jordan Delcros <www.jordan-delcros.com>
 */
-"use strict";
 (function( window, undefined ){
+	"use strict";
 
 	var Joot;
 
@@ -1898,8 +1898,7 @@
 
 	};
 
-	Jo.merge = function( returned, hasOwnProperty ){
-
+	Jo.merge = function( returned ){
 
 		if( isEmpty(returned) ){
 
