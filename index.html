@@ -25,23 +25,16 @@
 			background-color: #333;
 		}
 
-		h2:after {
-			content: "";
-			display: block;
-			position: relative;
-			width: 100%;
-			height: 20px;
-			background-color: blue;
+		ul, li {
+			list-style: none;
 		}
 
-		#stats {
-			position: fixed;
-			top: 0;
-			left: 0;
-		}
-
-		#stats * {
+		li {
 			display: block;
+			margin: 10px 0;
+			width: 10px;
+			height: 40px;
+			background-color: white;
 		}
 
 	</style>
@@ -58,19 +51,29 @@
 				.css({
 					display: "block",
 					position: "absolute",
-					width: "100px",
+					width: "10%",
 					backgroundColor: "white"
 				});
 
 			setTimeout(function(){
 
-				$("header h1 abbr")
-					.animate({
-						width: 1000
-					}, {
-						duration: 2000,
-						easing: "easeInOutBounce"
-					});
+				var easings = ["linear", "easeOutQuad", "easeOutCubic", "easeOutQuart", "easeOutExpo", "easeOutCirc", "easeOutElastic", "easeOutBack", "easeOutBounce"];
+				// var easings = ["linear", "easeInQuad", "easeOutQuad", "easeInOutQuad", "easeInCubic", "easeOutCubic", "easeInOutCubic", "easeInQuart", "easeOutQuart", "easeInOutQuart", "easeInQuint", "easeOutQuint", "easeInOutQuint", "easeInSine", "easeOutSine", "easeInOutSine", "easeInExpo", "easeOutExpo", "easeInOutExpo", "easeInCirc", "easeOutCirc", "easeInOutCirc", "easeInElastic", "easeOutElastic", "easeInOutElastic", "easeInBack", "easeOutBack", "easeInOutBack", "easeInBounce", "easeOutBounce", "easeInOutBounce"];
+
+				for( var easing = 0; easing < easings.length; easing++ ){
+
+					var li = document.createElement("li");
+					$("ul").insertEnd(li);
+
+					$(li)
+						.animate({
+							width: "50%"
+						}, {
+							duration: 2000,
+							easing: easings[easing]
+						});
+
+				};
 				
 			}, 1000);
 
@@ -133,26 +136,12 @@
 	</script>
 </head>
 <body class="test">
-	<div id="stats" style="color:white;"></div>
 	<header>
-		<video width="200" height="100" autoplay></video>
-		<video width="200" height="100" autoplay></video>
-		<h1><abbr title="JavaScript Overloaded">Jo</abbr></h1>
-		<nav>
-			<ul>
-				<li><a href="#what">What ?</a></li>
-				<li><a href="#what">Why ?</a></li>
-			</ul>
-		</nav>
+		<ul id="easings"></ul>
 	</header>
 	<main>
-		<section id="what">
-			<h2>What ?</h2>
-		</section>
-		<section id="why">
-			<h2>Why ?</h2>
-		</section>
+		<video width="200" height="100" autoplay></video>
+		<video width="200" height="100" autoplay></video>
 	</main>
-	<h3>putain</h3>
 </body>
 </html>

@@ -1192,9 +1192,40 @@
 
 					if( styles.hasOwnProperty(property) ){
 
-						$this.animation.properties[property] = new Object();
-						$this.animation.properties[property].from = $this.css(property)[0];
-						$this.animation.properties[property].to = styles[property];
+						$this.animation.properties[property] = {
+							from: {
+								origin: ".1%",//$this.css(property)[0],
+								values: new Array()
+							},
+							to: {
+								origin: styles[property],
+								values: new Array()
+							}
+						};
+
+						var isAnimatable = new RegExp("((\\.?\\d+(\\.\\d+)?)+(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%))+", "gi");
+
+						if( isAnimatable.test($this.animation.properties[property].from.origin) ){
+
+							$this.animation.properties[property].from.origin.replace(isAnimatable, function( match ){
+
+								$this.animation.properties[property].from.values.push(parseFloat(match));
+
+							});
+
+						};
+
+						if( isAnimatable.test(styles[property]) ){
+
+							$this.animation.properties[property].model = styles[property].replace(isAnimatable, function( match ){
+
+								$this.animation.properties[property].to.values.push(parseFloat(match));
+
+								return match.replace(parseFloat(match), "#" + ($this.animation.properties[property].to.values.length - 1));
+
+							});
+
+						};
 
 					};
 
@@ -1210,11 +1241,11 @@
 
 					$this.animation.times.elapsed = now - $this.animation.times.start;
 
-					$this.animation.percentage = $this.animation.times.elapsed / options.duration * 100;
+					$this.animation.percentage = $this.animation.times.elapsed / options.duration;
 
-					if( $this.animation.percentage > 100 ){
+					if( $this.animation.times.elapsed > options.duration ){
 
-						$this.animation.percentage = 100;
+						$this.animation.times.elapsed = options.duration;
 
 					};
 
@@ -1222,29 +1253,21 @@
 
 						if( $this.animation.properties.hasOwnProperty(property) ){
 
-							var from = parseInt($this.animation.properties[property].from);
-							var to = parseInt($this.animation.properties[property].to);
+							$this.animation.properties[property].progress = $this.animation.properties[property].model;
 
-							var value = undefined;
+							for( var value = 0; value < $this.animation.properties[property].to.values.length; value++ ){
 
-							if( $this.animation.percentage === 100 ){
-
-								value = this.style[property] = to + "px";
-
-							}
-							else {
-
-								console.log("easing", Jo.easing[options.easing]($this.animation.times.elapsed, options.duration));
-
-								this.style[property] = from + (Jo.easing[options.easing]($this.animation.times.elapsed, options.duration) * (to - from)) + "px";
+								$this.animation.properties[property].progress = $this.animation.properties[property].progress.replace("#" + value, $this.animation.properties[property].from.values[value] + (Jo.easing[options.easing]($this.animation.times.elapsed, options.duration) * ($this.animation.properties[property].to.values[value] - $this.animation.properties[property].from.values[value])));
 
 							};
+
+							this.style[property] = $this.animation.properties[property].progress;
 
 						};
 
 					};
 
-					if( $this.animation.percentage === 100 ){
+					if( $this.animation.times.elapsed === options.duration ){
 
 						cancelAnimationFrame($this.animation.id);
 
@@ -1275,7 +1298,16 @@
 	Jo.easing = {
 		linear: function( elapsed, duration ){
 
-			return (elapsed / duration * 1) % 1;
+			if( elapsed === duration ){
+
+				return 1;
+
+			}
+			else {
+
+				return (elapsed / duration) % 1;
+
+			};
 
 		},
 		easeInQuad: function( elapsed, duration ){
@@ -1668,7 +1700,7 @@
 
 	function isObject( source ){
 
-		return source instanceof Object && typeof source === "object";// && (source.constructor === Object ? true : false);
+		return source instanceof Object && typeof source === "object";
 
 	};
 
