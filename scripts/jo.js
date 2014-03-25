@@ -1210,6 +1210,9 @@
 							}
 						};
 
+						//! for 'to', get values as object containing number and type (%, px, em);
+						//! coputedStyleWidthInPX / window.width = expectedPercentage
+
 						if( $this.animation.properties[property].from.origin === "auto" ){
 
 							var computed = getComputedStyle(this, null).getPropertyValue(property);
