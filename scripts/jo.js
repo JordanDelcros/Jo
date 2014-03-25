@@ -564,7 +564,13 @@
 
 					this.each(function(){
 
+						var display = getComputedStyle(this, null).getPropertyValue("display");
+
+						this.style.display = "none";
+
 						returned.push(window.getComputedStyle(this, null).getPropertyValue(property));
+
+						this.style.display = display;
 
 					});
 
@@ -1199,23 +1205,24 @@
 							},
 							to: {
 								origin: styles[property],
-								values: new Array()
+								values: new Array(),
+								differences: new Array()
 							}
 						};
 
-						// ! get difference, compare if to is slower than from
+						if( $this.animation.properties[property].from.origin === "auto" ){
+
+							var computed = getComputedStyle(this, null).getPropertyValue(property);
+
+							$this.animation.properties[property].from.origin = computed;
+
+						};
 
 						var isAnimatable = new RegExp("((\\.?\\d+(\\.\\d+)?)+(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%))+", "gi");
 
 						if( isAnimatable.test($this.animation.properties[property].from.origin) ){
 
 							$this.animation.properties[property].from.origin.replace(isAnimatable, function( match ){
-								console.log(match)
-								if( match === "auto" ){
-
-									console.log("AUTO");
-
-								};
 
 								$this.animation.properties[property].from.values.push(parseFloat(match));
 
@@ -1233,11 +1240,27 @@
 
 							});
 
+							for( var value = 0; value < $this.animation.properties[property].to.values.length; value++ ){
+
+								var difference = Math.abs($this.animation.properties[property].from.values[value] - $this.animation.properties[property].to.values[value]);
+
+								if( $this.animation.properties[property].from.values[value] > $this.animation.properties[property].to.values[value] ){
+
+									difference = -difference;
+
+								};
+
+								$this.animation.properties[property].to.differences.push(difference);
+
+							};
+
 						};
 
 					};
 
 				};
+
+				console.log($this.animation)
 
 				$this.animation.fn = function( now ){
 
@@ -1248,8 +1271,6 @@
 					};
 
 					$this.animation.times.elapsed = now - $this.animation.times.start;
-
-					$this.animation.percentage = $this.animation.times.elapsed / options.duration;
 
 					if( $this.animation.times.elapsed > options.duration ){
 
@@ -1265,7 +1286,7 @@
 
 							for( var value = 0; value < $this.animation.properties[property].to.values.length; value++ ){
 
-								$this.animation.properties[property].progress = $this.animation.properties[property].progress.replace("#" + value, $this.animation.properties[property].from.values[value] + (Jo.easing[options.easing]($this.animation.times.elapsed, options.duration) * ($this.animation.properties[property].to.values[value] - $this.animation.properties[property].from.values[value])));
+								$this.animation.properties[property].progress = $this.animation.properties[property].progress.replace("#" + value, $this.animation.properties[property].from.values[value] + (Jo.easing[options.easing]($this.animation.times.elapsed, options.duration) * $this.animation.properties[property].to.differences[value]));
 
 							};
 
