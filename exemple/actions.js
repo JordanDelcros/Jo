@@ -30,7 +30,7 @@ var isReady = function(){
 			$("ul li")
 				.item(easing)
 				.animate({
-					width: "5em"
+					width: "500px"
 				}, {
 					duration: 2000,
 					easing: easings[easing]

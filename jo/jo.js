@@ -1169,7 +1169,6 @@
 		},
 		hide: function(){
 
-
 			this.each(function(){
 
 				this.dataset.joDisplay = Jo(this).css("display");
@@ -1223,7 +1222,7 @@
 							$this.animation.properties[property].model = styles[property].replace(isAnimatable, function( match ){
 
 								var number = parseFloat(match);
-								var type = match.match(new RegExp("em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%", "gi"))[0];
+								var type = match.match(regexp.getStyleValueType)[0];
 
 								if( type === "em" ){
 
@@ -1249,7 +1248,7 @@
 									type: type
 								});
 
-								return match.replace(parseFloat(match), "#" + ($this.animation.properties[property].to.values.length - 1));
+								return "#" + ($this.animation.properties[property].to.values.length - 1);
 
 							}.bind(this));
 
@@ -1261,17 +1260,15 @@
 
 								var index = $this.animation.properties[property].from.values.push(new Object());
 
-								var getType = new RegExp("em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%", "gi");
-
 								var number = parseFloat(match);
-								var type = match.match(getType)[0]
+								var type = match.match(regexp.getStyleValueType)[0]
 
 								if( $this.animation.properties[property].to.values[index - 1].type !== type ){
 
 									var converted = Jo.convertUnit(this, property, $this.animation.properties[property].to.values[index - 1].type);
 
 									number = parseFloat(converted);
-									type = converted.match(getType)[0];
+									type = converted.match(regexp.getStyleValueType)[0];
 
 								};
 
@@ -1322,15 +1319,24 @@
 
 						if( $this.animation.properties.hasOwnProperty(property) ){
 
-							$this.animation.properties[property].progress = $this.animation.properties[property].model;
+							if( $this.animation.times.elapsed < options.duration ){
 
-							for( var value = 0; value < $this.animation.properties[property].to.values.length; value++ ){
+								$this.animation.properties[property].progress = $this.animation.properties[property].model;
 
-								$this.animation.properties[property].progress = $this.animation.properties[property].progress.replace("#" + value, $this.animation.properties[property].from.values[value].number + (Jo.easing[options.easing]($this.animation.times.elapsed, options.duration) * $this.animation.properties[property].to.differences[value]));
+								for( var value = 0; value < $this.animation.properties[property].to.values.length; value++ ){
+
+									$this.animation.properties[property].progress = $this.animation.properties[property].progress.replace("#" + value, $this.animation.properties[property].from.values[value].number + (Jo.easing[options.easing]($this.animation.times.elapsed, options.duration) * $this.animation.properties[property].to.differences[value]) + $this.animation.properties[property].to.values[value].type);
+
+								};
+
+								this.style[property] = $this.animation.properties[property].progress;
+
+							}
+							else {
+
+								this.style[property] = $this.animation.properties[property].to.origin;
 
 							};
-
-							this.style[property] = $this.animation.properties[property].progress;
 
 						};
 
@@ -1353,6 +1359,8 @@
 
 				requestAnimationFrame($this.animation.fn);
 
+				console.log($this.animation)
+
 				return this;
 
 			});
@@ -1373,7 +1381,7 @@
 		var returned = origin;
 
 		var originValue = parseFloat(origin);
-		var originType = origin.match(new RegExp("em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%", "gi"))[0];
+		var originType = origin.match(regexp.getStyleValueType)[0];
 
 		if( originType !== newType ){
 
@@ -1998,6 +2006,10 @@
 
 		return found;
 
+	};
+
+	var regexp = {
+		getStyleValueType: new RegExp("em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%", "gi")
 	};
 
 	Jo.infos = function(){
