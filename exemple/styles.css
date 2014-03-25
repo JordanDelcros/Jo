@@ -1,0 +1,36 @@
+@charset "utf-8";
+
+* {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	color: inherit;
+}
+
+html {
+	font-size: 10px;
+}
+
+html,
+body,
+header,
+main,
+section {
+	height: 100%;
+}
+
+body {
+	background-color: #333;
+}
+
+ul, li {
+	list-style: none;
+}
+
+li {
+	display: block;
+	width: 2pt;
+	height: 60px;
+	margin: 10px 0;
+	background-color: white;
+}

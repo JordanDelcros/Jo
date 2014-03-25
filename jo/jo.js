@@ -1209,61 +1209,98 @@
 								differences: new Array()
 							}
 						};
-
-						//! for 'to', get values as object containing number and type (%, px, em);
-						//! coputedStyleWidthInPX / window.width = expectedPercentage
-
+/**/
 						if( $this.animation.properties[property].from.origin === "auto" ){
 
-							var computed = getComputedStyle(this, null).getPropertyValue(property);
-
-							$this.animation.properties[property].from.origin = computed;
+							$this.animation.properties[property].from.origin = getComputedStyle(this, null).getPropertyValue(property);
 
 						};
 
 						var isAnimatable = new RegExp("((\\.?\\d+(\\.\\d+)?)+(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%))+", "gi");
 
-						if( isAnimatable.test($this.animation.properties[property].from.origin) ){
-
-							$this.animation.properties[property].from.origin.replace(isAnimatable, function( match ){
-
-								$this.animation.properties[property].from.values.push(parseFloat(match));
-
-							});
-
-						};
-
 						if( isAnimatable.test(styles[property]) ){
 
 							$this.animation.properties[property].model = styles[property].replace(isAnimatable, function( match ){
 
-								$this.animation.properties[property].to.values.push(parseFloat(match));
+								var number = parseFloat(match);
+								var type = match.match(new RegExp("em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%", "gi"))[0];
 
-								return match.replace(parseFloat(match), "#" + ($this.animation.properties[property].to.values.length - 1));
+								if( type === "em" ){
 
-							});
+									number = number * parseFloat($this.parent().css("font-size"));
+									type = "px";
 
-							for( var value = 0; value < $this.animation.properties[property].to.values.length; value++ ){
+								}
+								else if( type === "rem" || type === "pt" ){
 
-								var difference = Math.abs($this.animation.properties[property].from.values[value] - $this.animation.properties[property].to.values[value]);
+									number = number * parseFloat(Jo("html").css("font-size"));
+									type = "px";
 
-								if( $this.animation.properties[property].from.values[value] > $this.animation.properties[property].to.values[value] ){
+								}
+								else if( type === "pt" ){
 
-									difference = -difference;
+									number = number * 96 / 72;
+									type = "px";
 
 								};
 
-								$this.animation.properties[property].to.differences.push(difference);
+								$this.animation.properties[property].to.values.push({
+									number: number,
+									type: type
+								});
+
+								return match.replace(parseFloat(match), "#" + ($this.animation.properties[property].to.values.length - 1));
+
+							}.bind(this));
+
+						};
+
+						if( isAnimatable.test($this.animation.properties[property].from.origin) ){
+
+							$this.animation.properties[property].from.origin.replace(isAnimatable, function( match ){
+
+								var index = $this.animation.properties[property].from.values.push(new Object());
+
+								var getType = new RegExp("em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%", "gi");
+
+								var number = parseFloat(match);
+								var type = match.match(getType)[0]
+
+								if( $this.animation.properties[property].to.values[index - 1].type !== type ){
+
+									var converted = Jo.convertUnit(this, property, $this.animation.properties[property].to.values[index - 1].type);
+
+									number = parseFloat(converted);
+									type = converted.match(getType)[0];
+
+								};
+
+								$this.animation.properties[property].from.values[index - 1].number = number;
+								$this.animation.properties[property].from.values[index - 1].type = type;
+
+							}.bind(this));
+
+						};
+
+						for( var value = 0; value < $this.animation.properties[property].to.values.length; value++ ){
+
+							var difference = Math.abs($this.animation.properties[property].from.values[value].number - $this.animation.properties[property].to.values[value].number);
+
+							if( $this.animation.properties[property].from.values[value].number > $this.animation.properties[property].to.values[value].number ){
+
+								difference = -difference;
 
 							};
 
+							$this.animation.properties[property].to.differences.push(difference);
+
 						};
+
+/**/
 
 					};
 
 				};
-
-				console.log($this.animation)
 
 				$this.animation.fn = function( now ){
 
@@ -1289,7 +1326,7 @@
 
 							for( var value = 0; value < $this.animation.properties[property].to.values.length; value++ ){
 
-								$this.animation.properties[property].progress = $this.animation.properties[property].progress.replace("#" + value, $this.animation.properties[property].from.values[value] + (Jo.easing[options.easing]($this.animation.times.elapsed, options.duration) * $this.animation.properties[property].to.differences[value]));
+								$this.animation.properties[property].progress = $this.animation.properties[property].progress.replace("#" + value, $this.animation.properties[property].from.values[value].number + (Jo.easing[options.easing]($this.animation.times.elapsed, options.duration) * $this.animation.properties[property].to.differences[value]));
 
 							};
 
@@ -1326,6 +1363,50 @@
 	Jo.fn.init.prototype = Jo.fn;
 
 	Joot = Jo(document);
+
+	Jo.convertUnit = function( element, property, newType ){
+
+		console.log("CONVERT UNIT", element, origin, newType);
+
+		var origin = getComputedStyle(element, null).getPropertyValue(property);
+
+		var returned = origin;
+
+		var originValue = parseFloat(origin);
+		var originType = origin.match(new RegExp("em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%", "gi"))[0];
+
+		if( originType !== newType ){
+
+			if( newType === "%" ){
+
+				if( originType === "px" ){
+
+					returned = parseFloat(origin) / parseFloat(window.outerWidth) * 100 + "%";
+
+				}
+				else if( originType === "em" ){
+
+					returned = parseFloat(getComputedStyle(element.parentNode, null).getPropertyValue("font-size"));
+
+				}
+				else if( originType === "rem" ){
+
+					returned = getComputedStyle()
+
+				};
+
+			};
+
+			return returned;
+
+		}
+		else {
+
+			return returned;
+
+		};
+
+	};
 
 	Jo.easing = {
 		linear: function( elapsed, duration ){
