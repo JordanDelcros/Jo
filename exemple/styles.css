@@ -29,8 +29,10 @@ ul, li {
 
 li {
 	display: block;
-	width: 50%;
+	width: 10%;
 	height: 60px;
 	margin: 10px 0;
-	background-color: white;
+	background-color: green;
+	background-image: url("img/thick.png");
+	background-size: 50px 50px;
 }

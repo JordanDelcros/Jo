@@ -1190,6 +1190,8 @@
 
 				var $this = Jo(this);
 
+				console.log($this);
+
 				$this.animation = new Object();
 				$this.animation.properties = new Object();
 
@@ -1197,9 +1199,11 @@
 
 					if( styles.hasOwnProperty(property) ){
 
+						var propertyUncamelize = camelize(property);
+
 						$this.animation.properties[property] = {
 							from: {
-								origin: $this.css(property)[0],
+								origin: $this.css(propertyUncamelize)[0],
 								values: new Array()
 							},
 							to: {
@@ -1208,21 +1212,18 @@
 								differences: new Array()
 							}
 						};
-/**/
+
 						if( $this.animation.properties[property].from.origin === "auto" ){
 
 							$this.animation.properties[property].from.origin = getComputedStyle(this, null).getPropertyValue(property);
 
 						};
 
-						var isAnimatable = new RegExp("((\\.?\\d+(\\.\\d+)?)+(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%))+", "gi");
-
-						if( isAnimatable.test(styles[property]) ){
-
-							$this.animation.properties[property].model = styles[property].replace(isAnimatable, function( match ){
+						$this.animation.properties[property].model = $this.animation.properties[property].to.origin
+							.replace(regexp.containLength, function( match ){
 
 								var number = parseFloat(match);
-								var type = match.match(regexp.getStyleValueType)[0];
+								var type = match.match(regexp.styleValueType)[0];
 
 								if( type === "em" ){
 
@@ -1230,7 +1231,7 @@
 									type = "px";
 
 								}
-								else if( type === "rem" || type === "pt" ){
+								else if( type === "rem" ){
 
 									number = number * parseFloat(Jo("html").css("font-size"));
 									type = "px";
@@ -1250,36 +1251,117 @@
 
 								return "#" + ($this.animation.properties[property].to.values.length - 1);
 
-							}.bind(this));
+							})
+							.replace(regexp.containHexColor, function( match, red, green, blue ){
 
-						};
+								if( red.length === 1 ){
 
-						if( isAnimatable.test($this.animation.properties[property].from.origin) ){
+									red = red + red;
 
-							$this.animation.properties[property].from.origin.replace(isAnimatable, function( match ){
+								};
+
+								if( green.length === 1 ){
+
+									green = green + green;
+
+								};
+
+								if( blue.length === 1 ){
+
+									blue = blue + blue;
+
+								};
+
+								return "rgba(" + parseInt(red, 16) + ", " + parseInt(green, 16) + ", " + parseInt(blue, 16) + ", 1)";
+
+							})
+							.replace(regexp.containRGBColor, function( match, red, green, blue, alpha ){
+
+								if( isEmpty(alpha) ){
+
+									alpha = 1;
+
+								};
+
+								var redIndex = $this.animation.properties[property].to.values.push({
+									number: parseInt(red),
+									precision: "integer"
+								});
+
+								var greenIndex = $this.animation.properties[property].to.values.push({
+									number: parseInt(green),
+									precision: "integer"
+								});
+
+								var blueIndex = $this.animation.properties[property].to.values.push({
+									number: parseInt(blue),
+									precision: "integer"
+								});
+
+								var alphaIndex = $this.animation.properties[property].to.values.push({
+									number: parseFloat(alpha)
+								});
+
+								return "rgba(#" + (redIndex - 1) + ", #" + (greenIndex - 1) + ", #" + (blueIndex - 1) + ", #" + (alphaIndex - 1) + ")";
+
+							});
+
+						$this.animation.properties[property].from.origin
+							.replace(regexp.containLength, function( match ){
 
 								var index = $this.animation.properties[property].from.values.push(new Object());
 
 								var number = parseFloat(match);
-								var type = match.match(regexp.getStyleValueType)[0]
+								var type = match.match(regexp.styleValueType)[0]
 
 								if( $this.animation.properties[property].to.values[index - 1].type !== type ){
 
 									var converted = Jo.convertUnit(this, property, $this.animation.properties[property].to.values[index - 1].type);
 
 									number = parseFloat(converted);
-									type = converted.match(regexp.getStyleValueType)[0];
+									type = converted.match(regexp.styleValueType)[0];
 
 								};
 
 								$this.animation.properties[property].from.values[index - 1].number = number;
 								$this.animation.properties[property].from.values[index - 1].type = type;
 
-							}.bind(this));
+								return false;
 
-						};
+							}.bind(this))
+							.replace(regexp.containRGBColor, function( match, red, green, blue, alpha ){
+
+								if( isEmpty(alpha) ){
+
+									alpha = 1;
+
+								};
+
+								var redIndex = $this.animation.properties[property].from.values.push({
+									number: parseInt(red),
+									precision: "integer"
+								});
+
+								var greenIndex = $this.animation.properties[property].from.values.push({
+									number: parseInt(green),
+									precision: "integer"
+								});
+
+								var blueIndex = $this.animation.properties[property].from.values.push({
+									number: parseInt(blue),
+									precision: "integer"
+								});
+
+								var alphaIndex = $this.animation.properties[property].from.values.push({
+									number: parseFloat(alpha)
+								});
+
+								return false;
+
+							});
 
 						for( var value = 0; value < $this.animation.properties[property].to.values.length; value++ ){
+
 
 							var difference = Math.abs($this.animation.properties[property].from.values[value].number - $this.animation.properties[property].to.values[value].number);
 
@@ -1292,8 +1374,6 @@
 							$this.animation.properties[property].to.differences.push(difference);
 
 						};
-
-/**/
 
 					};
 
@@ -1325,7 +1405,21 @@
 
 								for( var value = 0; value < $this.animation.properties[property].to.values.length; value++ ){
 
-									$this.animation.properties[property].progress = $this.animation.properties[property].progress.replace("#" + value, $this.animation.properties[property].from.values[value].number + (Jo.easing[options.easing]($this.animation.times.elapsed, options.duration) * $this.animation.properties[property].to.differences[value]) + $this.animation.properties[property].to.values[value].type);
+									var valueString = $this.animation.properties[property].from.values[value].number + (Jo.easing[options.easing]($this.animation.times.elapsed, options.duration) * $this.animation.properties[property].to.differences[value]);
+
+									if( $this.animation.properties[property].from.values[value].precision === "integer" ){
+
+										valueString = parseInt(valueString);
+
+									};
+
+									if( !isEmpty($this.animation.properties[property].to.values[value].type) ){
+
+										valueString += $this.animation.properties[property].to.values[value].type;
+
+									};
+
+									$this.animation.properties[property].progress = /**/ $this.animation.properties[property].progress.replace("#" + value, valueString);
 
 								};
 
@@ -1359,8 +1453,6 @@
 
 				requestAnimationFrame($this.animation.fn);
 
-				console.log($this.animation)
-
 				return this;
 
 			});
@@ -1374,14 +1466,14 @@
 
 	Jo.convertUnit = function( element, property, newType ){
 
-		console.log("CONVERT UNIT", element, origin, newType);
+		// console.log("CONVERT UNIT", element, origin, newType);
 
 		var origin = getComputedStyle(element, null).getPropertyValue(property);
 
 		var returned = origin;
 
 		var originValue = parseFloat(origin);
-		var originType = origin.match(regexp.getStyleValueType)[0];
+		var originType = origin.match(regexp.styleValueType)[0];
 
 		if( originType !== newType ){
 
@@ -2008,8 +2100,18 @@
 
 	};
 
+	function camelize( text ){
+
+		return text.replace(new RegExp("([a-z])([A-Z])", "g"), "$1-$2").toLowerCase();
+
+	};
+
 	var regexp = {
-		getStyleValueType: new RegExp("em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%", "gi")
+		containLength: new RegExp("((\\.?\\d+(\\.\\d+)?)+(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%))+", "gi"), //new RegExp("((\\.?\\d+(\\.\\d+)?)+(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%))+", "gi"),
+		containRGBColor: new RegExp("rgba?\\(([0-9]{1,3})[,\\s]{1,}([0-9]{1,3})[,\\s]{1,}([0-9]{1,3})[,\\s]{0,}([0-1]{1}\\.?[0-9]*)?\\)", "gi"),
+		// containRGBColor: new RegExp("(rgb\\([0-9]{1,3},\\s[0-9]{1,3},[0-9]{1,3}\\))|(rgba\\([0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-1](\\.[0-9]{1,})?\\))", "gi"),
+		containHexColor: new RegExp("^#([a-f0-9]{1,2})([a-f0-9]{1,2})([a-f0-9]{1,2})$", "gi"),
+		styleValueType: new RegExp("em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%", "gi")
 	};
 
 	Jo.infos = function(){
