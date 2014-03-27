@@ -1190,8 +1190,6 @@
 
 				var $this = Jo(this);
 
-				console.log($this);
-
 				$this.animation = new Object();
 				$this.animation.properties = new Object();
 
@@ -1243,8 +1241,6 @@
 									type = "px";
 
 								};
-
-								console.log(number, $this.animation.properties[property].to.values);
 
 								var index = $this.animation.properties[property].to.values.push({
 									number: number,
@@ -1333,13 +1329,7 @@
 										number = number / parseFloat(window.outerWidth) * 100;
 										type = "%";
 
-									}
-									// else if( toType === "em" ){
-
-									// 	number = "";
-									// 	type = "em";
-
-									// };
+									};
 
 								};
 
