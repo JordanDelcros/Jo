@@ -9,13 +9,16 @@ var isReady = function(){
 		width: "500px",
 		height: "500px",
 		backgroundColor: "rgba(0,0,0,0.5)"
-	})
+	});
 
-	var x = 0;
+	var boxCount = 0;
+	var $stat = $("div#boxs");
 
-	for( var i = 0; i < 1000; i++ ){
+	var fn = function(){
 
-		setTimeout(function(){
+		for( var i = 0; i < 5; i++ ){
+
+			boxCount++;
 
 			var $li = $(document.createElement("li"));
 
@@ -27,21 +30,30 @@ var isReady = function(){
 				top: (parseInt($ul.css("height")) / 2 - parseInt($li.css("height")) / 2) + "px"
 			});
 
-			x++;
-
-			if( x > parseInt($ul.css("width")) ) x = 0;
+			$stat.replace("<span>" + boxCount + "</span>");
 
 			$li.animate({
-				top: "0px",
-				left: x + "px"
+				top: (Math.floor(Math.random() * 500) + 1) + "px",
+				left: (Math.floor(Math.random() * 500) + 1) + "px",
+				opacity: 0.5
 			}, {
-				duration: 1000,
-				easing: "easeOutBounce"
+				duration: 2000,
+				easing: "easeOutElastic",
+				complete: function(){
+
+					$(this).remove();
+					boxCount--;
+
+				}
 			});
 
-		}, 500 * i );
+		};
 
-	};
+		requestAnimationFrame(fn);
+
+	}
+
+	requestAnimationFrame(fn);
 	
 
 	// KEEP INTACT AFTER THIS LINE, TO FINISH

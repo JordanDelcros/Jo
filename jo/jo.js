@@ -1193,6 +1193,8 @@
 				$this.animation = new Object();
 				$this.animation.properties = new Object();
 
+				console.log($this.animation);
+
 				for( var property in styles ){
 
 					if( styles.hasOwnProperty(property) ){
@@ -1205,7 +1207,7 @@
 								values: new Array()
 							},
 							to: {
-								origin: styles[property],
+								origin: styles[property].toString(),
 								values: new Array(),
 								differences: new Array()
 							}
@@ -1217,11 +1219,12 @@
 
 						};
 
-						$this.animation.properties[property].model = $this.animation.properties[property].to.origin
-							.replace(regexp.containLength, function( match ){
+						console.log(property, $this.animation.properties[property].to.origin, regexp.containLength.test($this.animation.properties[property].to.origin));
 
-								var number = parseFloat(match);
-								var type = match.match(regexp.styleValueType)[0];
+						$this.animation.properties[property].model = $this.animation.properties[property].to.origin
+							.replace(regexp.containLength, function( match, number, type ){
+
+								var number = parseFloat(number);
 
 								if( type === "em" ){
 
@@ -1306,12 +1309,11 @@
 							});
 
 						$this.animation.properties[property].from.origin
-							.replace(regexp.containLength, function( match ){
+							.replace(regexp.containLength, function( match, number, type ){
 
 								var index = $this.animation.properties[property].from.values.push(new Object());
 
-								var number = parseFloat(match);
-								var type = match.match(regexp.styleValueType)[0]
+								number = parseFloat(match);
 
 								if( type !== $this.animation.properties[property].to.values[index - 1].type ){
 
@@ -1449,6 +1451,12 @@
 					if( $this.animation.times.elapsed === options.duration ){
 
 						cancelAnimationFrame($this.animation.id);
+
+						if( isFunction(options.complete) ){
+
+							options.complete.call(this);
+
+						};
 
 					}
 					else {
@@ -2073,11 +2081,23 @@
 	};
 
 	var regexp = {
-		containLength: new RegExp("((\\.?\\d+(\\.\\d+)?)+(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%))+", "gi"), //new RegExp("((\\.?\\d+(\\.\\d+)?)+(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%))+", "gi"),
+		containLength: new RegExp("(\\d*\\.?\\d+)(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%)?", "gi"),
 		containRGBColor: new RegExp("rgba?\\(([0-9]{1,3})[,\\s]{1,}([0-9]{1,3})[,\\s]{1,}([0-9]{1,3})[,\\s]{0,}([0-1]{1}\\.?[0-9]*)?\\)", "gi"),
-		// containRGBColor: new RegExp("(rgb\\([0-9]{1,3},\\s[0-9]{1,3},[0-9]{1,3}\\))|(rgba\\([0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-1](\\.[0-9]{1,})?\\))", "gi"),
-		containHexColor: new RegExp("^#([a-f0-9]{1,2})([a-f0-9]{1,2})([a-f0-9]{1,2})$", "gi"),
-		styleValueType: new RegExp("em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%", "gi")
+		containHexColor: new RegExp("^#([a-f0-9]{1,2})([a-f0-9]{1,2})([a-f0-9]{1,2})$", "gi")
+	};
+
+	var prefix = function(){
+
+		var styles = getComputedStyle(document.documentElement, null);
+
+		var match = Array.prototype.slice.call(styles).join("").match(new RegExp("-(webkit|moz|ms)-", "gi"))[0];
+
+		return {
+			dom: ("Webkit|Moz|MS|O").match(new RegExp("")),
+			css: "-" + match + "-",
+			js: match[0].toUpperCase() + match.substr(1)
+		};
+
 	};
 
 	Jo.infos = function(){
