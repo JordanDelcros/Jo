@@ -37,7 +37,7 @@ var isReady = function(){
 				left: (Math.floor(Math.random() * 500) + 1) + "px",
 				opacity: 0.5
 			}, {
-				duration: 2000,
+				duration: 1000,
 				easing: "easeOutElastic",
 				complete: function(){
 
