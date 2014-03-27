@@ -30,13 +30,18 @@ var isReady = function(){
 			$("ul li")
 				.item(easing)
 				.animate({
-					width: "50%",
+					width: "50em",
 					height: "50px",
-					// backgroundSize: "10px 10px",
+					backgroundSize: "30px 30px",
 					backgroundColor: "rgba(10,100,255,0.5)"
 				}, {
 					duration: 1000,
-					easing: easings[easing]
+					easing: easings[easing],
+					complete: function(){
+
+						console.log("I'M completly animated", this);
+
+					}
 				});
 
 		};

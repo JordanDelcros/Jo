@@ -29,7 +29,7 @@ ul, li {
 
 li {
 	display: block;
-	width: 10%;
+	width: 50px;
 	height: 60px;
 	margin: 10px 0;
 	background-color: green;

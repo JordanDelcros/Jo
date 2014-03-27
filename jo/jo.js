@@ -564,7 +564,7 @@
 
 					this.each(function(){
 
-						var display = getComputedStyle(this, null).getPropertyValue("display");
+						var display = window.getComputedStyle(this, null).getPropertyValue("display");
 
 						this.style.display = "none";
 
@@ -1215,7 +1215,7 @@
 
 						if( $this.animation.properties[property].from.origin === "auto" ){
 
-							$this.animation.properties[property].from.origin = getComputedStyle(this, null).getPropertyValue(property);
+							$this.animation.properties[property].from.origin = window.getComputedStyle(this, null).getPropertyValue(property);
 
 						};
 
@@ -1227,7 +1227,7 @@
 
 								if( type === "em" ){
 
-									number = number * parseFloat($this.parent().css("font-size"));
+									number = number * parseFloat($this.parent().css("font-size")[0]);
 									type = "px";
 
 								}
@@ -1244,12 +1244,15 @@
 
 								};
 
-								$this.animation.properties[property].to.values.push({
+								console.log(number, $this.animation.properties[property].to.values);
+
+								var index = $this.animation.properties[property].to.values.push({
 									number: number,
 									type: type
 								});
 
-								return "#" + ($this.animation.properties[property].to.values.length - 1);
+
+								return "#" + (index - 1);
 
 							})
 							.replace(regexp.containHexColor, function( match, red, green, blue ){
@@ -1314,12 +1317,29 @@
 								var number = parseFloat(match);
 								var type = match.match(regexp.styleValueType)[0]
 
-								if( $this.animation.properties[property].to.values[index - 1].type !== type ){
+								if( type !== $this.animation.properties[property].to.values[index - 1].type ){
 
-									var converted = Jo.convertUnit(this, property, $this.animation.properties[property].to.values[index - 1].type);
+									var toNumber = $this.animation.properties[property].to.values[index - 1].number;
+									var toType = $this.animation.properties[property].to.values[index - 1].type;
 
-									number = parseFloat(converted);
-									type = converted.match(regexp.styleValueType)[0];
+									if( toType === "px" ){
+
+										number = parseFloat(window.getComputedStyle(this, null).getPropertyValue(property));
+										type = "px";
+
+									}
+									else if( toType === "%" ){
+
+										number = number / parseFloat(window.outerWidth) * 100;
+										type = "%";
+
+									}
+									// else if( toType === "em" ){
+
+									// 	number = "";
+									// 	type = "em";
+
+									// };
 
 								};
 
@@ -1463,50 +1483,6 @@
 	Jo.fn.init.prototype = Jo.fn;
 
 	Joot = Jo(document);
-
-	Jo.convertUnit = function( element, property, newType ){
-
-		// console.log("CONVERT UNIT", element, origin, newType);
-
-		var origin = getComputedStyle(element, null).getPropertyValue(property);
-
-		var returned = origin;
-
-		var originValue = parseFloat(origin);
-		var originType = origin.match(regexp.styleValueType)[0];
-
-		if( originType !== newType ){
-
-			if( newType === "%" ){
-
-				if( originType === "px" ){
-
-					returned = parseFloat(origin) / parseFloat(window.outerWidth) * 100 + "%";
-
-				}
-				else if( originType === "em" ){
-
-					returned = parseFloat(getComputedStyle(element.parentNode, null).getPropertyValue("font-size"));
-
-				}
-				else if( originType === "rem" ){
-
-					returned = getComputedStyle()
-
-				};
-
-			};
-
-			return returned;
-
-		}
-		else {
-
-			return returned;
-
-		};
-
-	};
 
 	Jo.easing = {
 		linear: function( elapsed, duration ){
