@@ -36,3 +36,8 @@ li {
 	background-image: url("img/thick.png");
 	background-size: 50px 50px;
 }
+
+#stats {
+	color: white;
+	font-size: 40px;
+}

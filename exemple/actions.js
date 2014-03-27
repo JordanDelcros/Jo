@@ -12,11 +12,11 @@ var isReady = function(){
 	});
 
 	var boxCount = 0;
-	var $stat = $("div#boxs");
+	var $stat = $("div#stats");
 
 	var fn = function(){
 
-		for( var i = 0; i < 5; i++ ){
+		for( var i = 0; i < 1; i++ ){
 
 			boxCount++;
 
@@ -30,7 +30,7 @@ var isReady = function(){
 				top: (parseInt($ul.css("height")) / 2 - parseInt($li.css("height")) / 2) + "px"
 			});
 
-			$stat.replace("<span>" + boxCount + "</span>");
+			$stat.replace(boxCount);
 
 			$li.animate({
 				top: (Math.floor(Math.random() * 500) + 1) + "px",
@@ -43,6 +43,7 @@ var isReady = function(){
 
 					$(this).remove();
 					boxCount--;
+					$stat.replace(boxCount);
 
 				}
 			});

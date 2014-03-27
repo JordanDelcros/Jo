@@ -1060,24 +1060,24 @@
 		},
 		replace: function( html ){
 
-			if( isEmpty(html) ){
+			Jo(this).node().remove();
 
-				Jo(this).remove();
+			if( isString(html) || isNumber(html) ){
 
-				this.found = new Array();
-				this.length = this.found.length;
+				if( isNumber(html) ){
 
-				return this;
+					html = html.toString();
 
-			}
-			else if( isString(html) ){
+				};
 
 				var temporaryNode = document.createElement("div");
 				temporaryNode.innerHTML = html;
 
+
 				html = temporaryNode.childNodes;
 
 				temporaryNode.remove();
+				console.log(html);
 
 			}
 			else if( isNode(html) ){
@@ -1103,7 +1103,7 @@
 
 				for( var node = 0; node < html.length; node++ ){
 
-					this.appendChild(html[node].cloneNode(true));
+					Jo(this).insertEnd(html[node].cloneNode(true));
 
 				};
 
@@ -1193,8 +1193,6 @@
 				$this.animation = new Object();
 				$this.animation.properties = new Object();
 
-				console.log($this.animation);
-
 				for( var property in styles ){
 
 					if( styles.hasOwnProperty(property) ){
@@ -1218,8 +1216,6 @@
 							$this.animation.properties[property].from.origin = window.getComputedStyle(this, null).getPropertyValue(property);
 
 						};
-
-						console.log(property, $this.animation.properties[property].to.origin, regexp.containLength.test($this.animation.properties[property].to.origin));
 
 						$this.animation.properties[property].model = $this.animation.properties[property].to.origin
 							.replace(regexp.containLength, function( match, number, type ){
