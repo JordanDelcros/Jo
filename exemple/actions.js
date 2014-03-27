@@ -5,48 +5,44 @@ var isReady = function(){
 
 	console.log("document is ready");
 
-	$("header h1 abbr")
-		.css({
-			display: "block",
-			position: "absolute",
-			width: "10%",
-			backgroundColor: "white"
-		});
+	var $ul = $("ul").css({
+		width: "500px",
+		height: "500px",
+		backgroundColor: "rgba(0,0,0,0.5)"
+	})
 
-	var easings = ["linear", "easeOutQuad", "easeOutCubic", "easeOutQuart", "easeOutExpo", "easeOutCirc", "easeOutElastic", "easeOutBack", "easeOutBounce"];
-	// var easings = ["linear", "easeInQuad", "easeOutQuad", "easeInOutQuad", "easeInCubic", "easeOutCubic", "easeInOutCubic", "easeInQuart", "easeOutQuart", "easeInOutQuart", "easeInQuint", "easeOutQuint", "easeInOutQuint", "easeInSine", "easeOutSine", "easeInOutSine", "easeInExpo", "easeOutExpo", "easeInOutExpo", "easeInCirc", "easeOutCirc", "easeInOutCirc", "easeInElastic", "easeOutElastic", "easeInOutElastic", "easeInBack", "easeOutBack", "easeInOutBack", "easeInBounce", "easeOutBounce", "easeInOutBounce"];
+	var x = 0;
 
-	for( var easing = 0; easing < easings.length; easing++ ){
+	for( var i = 0; i < 1000; i++ ){
 
-		var li = document.createElement("li");
-		$("ul").insertEnd(li);
+		setTimeout(function(){
+
+			var $li = $(document.createElement("li"));
+
+			$ul.insertEnd($li);
+
+			$li.css({
+				position: "absolute",
+				left: (parseInt($ul.css("width")) / 2 - parseInt($li.css("width")) / 2) + "px",
+				top: (parseInt($ul.css("height")) / 2 - parseInt($li.css("height")) / 2) + "px"
+			});
+
+			x++;
+
+			if( x > parseInt($ul.css("width")) ) x = 0;
+
+			$li.animate({
+				top: "0px",
+				left: x + "px"
+			}, {
+				duration: 1000,
+				easing: "easeOutBounce"
+			});
+
+		}, 500 * i );
 
 	};
-
-	setTimeout(function(){
-
-		for( var easing = 0; easing < easings.length; easing++ ){
-
-			$("ul li")
-				.item(easing)
-				.animate({
-					width: "50em",
-					height: "50px",
-					backgroundSize: "30px 30px",
-					backgroundColor: "rgba(10,100,255,0.5)"
-				}, {
-					duration: 1000,
-					easing: easings[easing],
-					complete: function(){
-
-						console.log("I'M completly animated", this);
-
-					}
-				});
-
-		};
-		
-	}, 2000);
+	
 
 	// KEEP INTACT AFTER THIS LINE, TO FINISH
 
