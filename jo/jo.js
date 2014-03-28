@@ -551,6 +551,12 @@
 
 				if( !isEmpty(value) ){
 
+					if( isNumber(value) ){
+
+						value = value.toString() + "px";
+
+					};
+
 					this.each(function(){
 
 						this.style[property] = value;
@@ -606,7 +612,11 @@
 
 				this.each(function(){
 
-					for( var parameter in property ) this.style[parameter] = property[parameter];
+					for( var parameter in property ){
+
+						this.style[parameter] = property[parameter];
+
+					};
 
 				});
 
@@ -1077,7 +1087,6 @@
 				html = temporaryNode.childNodes;
 
 				temporaryNode.remove();
-				console.log(html);
 
 			}
 			else if( isNode(html) ){
@@ -1205,7 +1214,7 @@
 								values: new Array()
 							},
 							to: {
-								origin: styles[property].toString(),
+								origin: styles[property],
 								values: new Array(),
 								differences: new Array()
 							}
@@ -1213,7 +1222,21 @@
 
 						if( $this.animation.properties[property].from.origin === "auto" ){
 
-							$this.animation.properties[property].from.origin = window.getComputedStyle(this, null).getPropertyValue(property);
+							var origin = window.getComputedStyle(this, null).getPropertyValue(property);
+
+							if( origin = "auto" ){
+
+								origin = this["offset" + property[0].toUpperCase() + property.substr(1)] + "px";
+
+							};
+
+							$this.animation.properties[property].from.origin = origin;
+
+						};
+
+						if( isNumber($this.animation.properties[property].to.origin) ){
+
+							$this.animation.properties[property].from.origin = $this.animation.properties[property].from.origin.toString() + "px";
 
 						};
 
@@ -1369,7 +1392,6 @@
 							});
 
 						for( var value = 0; value < $this.animation.properties[property].to.values.length; value++ ){
-
 
 							var difference = Math.abs($this.animation.properties[property].from.values[value].number - $this.animation.properties[property].to.values[value].number);
 

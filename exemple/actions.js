@@ -7,16 +7,48 @@ var isReady = function(){
 
 	var $ul = $("ul").css({
 		width: "500px",
-		height: "500px",
+		height: window.innerHeight,
 		backgroundColor: "rgba(0,0,0,0.5)"
 	});
 
 	var boxCount = 0;
 	var $stat = $("div#stats");
 
+	var createNode = function(){
+
+		setTimeout(function(){
+
+			var $li = $("<li/>");
+
+			$ul.insertEnd($li);
+
+			$li.animate({
+				top: (Math.floor(Math.random() * 500) + 1) + "px",
+				left: (Math.floor(Math.random() * 500) + 1) + "px"
+			}, {
+				duration: 1000,
+				easing: "easeOutElastic",
+				complete: function(){
+
+					$(this).remove();
+					createNode();
+
+				}
+			});
+
+		}, 100);
+
+	};
+
+	for( var n = 0; n < 100; n++ ){
+
+		createNode();
+
+	};
+/*
 	var fn = function(){
 
-		for( var i = 0; i < 1; i++ ){
+		for( var i = 0; i < 2‡; i++ ){
 
 			boxCount++;
 
@@ -55,7 +87,8 @@ var isReady = function(){
 	}
 
 	requestAnimationFrame(fn);
-	
+
+*/
 
 	// KEEP INTACT AFTER THIS LINE, TO FINISH
 
