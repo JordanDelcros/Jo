@@ -5,38 +5,30 @@ var isReady = function(){
 
 	console.log("document is ready");
 
-	var $ul = $("ul").css({
-		width: "500px",
-		height: window.innerHeight,
-		backgroundColor: "rgba(0,0,0,0.5)"
-	});
+	var $ul = $("ul");
 
 	var boxCount = 0;
 	var $stat = $("div#stats");
 
 	var createNode = function(){
 
-		setTimeout(function(){
+		var $li = $("<li/>");
 
-			var $li = $("<li/>");
+		$ul.insertEnd($li);
 
-			$ul.insertEnd($li);
+		$li.animate({
+			top: (Math.floor(Math.random() * window.innerHeight) + 1) + "px",
+			left: (Math.floor(Math.random() * window.innerWidth) + 1) + "px"
+		}, {
+			duration: 1000,
+			easing: "easeOutElastic",
+			complete: function(){
 
-			$li.animate({
-				top: (Math.floor(Math.random() * 500) + 1) + "px",
-				left: (Math.floor(Math.random() * 500) + 1) + "px"
-			}, {
-				duration: 1000,
-				easing: "easeOutElastic",
-				complete: function(){
+				$(this).remove();
+				createNode();
 
-					$(this).remove();
-					createNode();
-
-				}
-			});
-
-		}, 100);
+			}
+		});
 
 	};
 
@@ -45,51 +37,8 @@ var isReady = function(){
 		createNode();
 
 	};
+
 /*
-	var fn = function(){
-
-		for( var i = 0; i < 2‡; i++ ){
-
-			boxCount++;
-
-			var $li = $(document.createElement("li"));
-
-			$ul.insertEnd($li);
-
-			$li.css({
-				position: "absolute",
-				left: (parseInt($ul.css("width")) / 2 - parseInt($li.css("width")) / 2) + "px",
-				top: (parseInt($ul.css("height")) / 2 - parseInt($li.css("height")) / 2) + "px"
-			});
-
-			$stat.replace(boxCount);
-
-			$li.animate({
-				top: (Math.floor(Math.random() * 500) + 1) + "px",
-				left: (Math.floor(Math.random() * 500) + 1) + "px",
-				opacity: 0.5
-			}, {
-				duration: 1000,
-				easing: "easeOutElastic",
-				complete: function(){
-
-					$(this).remove();
-					boxCount--;
-					$stat.replace(boxCount);
-
-				}
-			});
-
-		};
-
-		requestAnimationFrame(fn);
-
-	}
-
-	requestAnimationFrame(fn);
-
-*/
-
 	// KEEP INTACT AFTER THIS LINE, TO FINISH
 
 	var arr = ["a", "b", "c", "d"];
@@ -132,6 +81,14 @@ var isReady = function(){
 		}
 	});
 
+	console.log('resize?');
+
+*/
+
+	$(window)
+		.on("resize", resize)
+		.trigger("resize");
+
 };
 
 
@@ -145,3 +102,15 @@ Jo(function($){
 	console.log("function (window) ready !");
 
 });
+
+function resize(){
+
+	console.log("resize");
+
+	$("ul").css({
+		width: "100%",
+		height: window.innerHeight + "px",
+		backgroundColor: "rgba(0,0,0,0.5)"
+	});
+
+};

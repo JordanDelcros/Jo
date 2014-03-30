@@ -75,6 +75,11 @@
 				this.found.push(selector);
 
 			}
+			else if( isWindow(selector) ){
+
+				this.found.push(window);
+
+			}
 			else if( isJo(selector) ){
 
 				this.found = selector.found;
@@ -267,6 +272,7 @@
 			});
 
 			this.found = found;
+			this.length = this.found.length;
 
 			return this;
 
@@ -286,6 +292,7 @@
 			});
 
 			this.found = found;
+			this.length = this.found.length;
 
 			return this;
 
@@ -368,7 +375,7 @@
 					fn: fn
 				};
 
-				if( !isFunction(Jo.specialEvents[action]) && !Jo.support.events(action) ){
+				if( !isFunction(Jo.specialEvents[action]) && !Jo.support.events(this, action) ){
 
 					var customEvent = new CustomEvent(action, {
 						detail: {},
@@ -383,7 +390,7 @@
 					this.addEventListener(action, this.events[originalAction][f].fn, useCapture);
 
 				}
-				else if( isFunction(Jo.specialEvents[action]) && !Jo.support.events(action) ){
+				else if( isFunction(Jo.specialEvents[action]) && !Jo.support.events(this, action) ){
 
 					var specialEvent = Jo.specialEvents[action].call(this, fn);
 
@@ -457,7 +464,7 @@
 
 				if( !isEmpty(this.events) && !isEmpty(this.events[action]) ){
 
-					if( !isFunction(Jo.specialEvents[action]) && !Jo.support.events(action) ){
+					if( !isFunction(Jo.specialEvents[action]) && !Jo.support.events(this, action) ){
 
 						this.dispatchEvent(this.events[action].action);
 
@@ -551,12 +558,6 @@
 
 				if( !isEmpty(value) ){
 
-					if( isNumber(value) ){
-
-						value = value.toString() + "px";
-
-					};
-
 					this.each(function(){
 
 						this.style[property] = value;
@@ -599,7 +600,7 @@
 
 						};
 
-						returned[property[i]].push(window.getComputedStyle(this, null).getPropertyValue(property));
+						returned[property[i]].push(Jo(this).css(property));
 
 					};
 
@@ -614,7 +615,7 @@
 
 					for( var parameter in property ){
 
-						this.style[parameter] = property[parameter];
+						Jo(this).css(parameter, property[parameter]);
 
 					};
 
@@ -1159,7 +1160,7 @@
 
 			this.each(function(){
 
-				if( !isEmpty(this.dataset.joDisplay) ){
+				if( !isEmpty(this.dataset.joDisplay) && this.dataset.joDisplay !== "none" ){
 
 					this.style.display = this.dataset.joDisplay;
 					delete this.dataset.joDisplay;
@@ -1186,6 +1187,49 @@
 			});
 
 			return this;
+
+		},
+		fadeIn: function( options ){
+
+			options = Jo.merge({
+				duration: 1000,
+				easing: "linear",
+				complete: function(){}
+			}, options);
+
+			this
+				.css("opacity", 0)
+				.show()
+				.animate({
+					opacity: 1
+				}, {
+					duration: options.duration,
+					easing: options.easing,
+					complete: options.complete
+				});
+
+			return this;
+
+		},
+		fadeOut: function( options ){
+
+			options = Jo.merge({
+				duration: 1000,
+				easing: "linear"
+			}, options);
+
+			this
+				.animate({
+					opacity: 0
+				}, {
+					duration: options.duration,
+					easing: options.easing,
+					coplete: function(){
+
+						Jo(this).hide();
+
+					}
+				});
 
 		},
 		animate: function( styles, options ){
@@ -1236,7 +1280,7 @@
 
 						if( isNumber($this.animation.properties[property].to.origin) ){
 
-							$this.animation.properties[property].from.origin = $this.animation.properties[property].from.origin.toString() + "px";
+							$this.animation.properties[property].to.origin = $this.animation.properties[property].to.origin.toString();
 
 						};
 
@@ -1453,12 +1497,12 @@
 
 								};
 
-								this.style[property] = $this.animation.properties[property].progress;
+								$this.css(property, $this.animation.properties[property].progress);
 
 							}
 							else {
 
-								this.style[property] = $this.animation.properties[property].to.origin;
+								$this.css(property, $this.animation.properties[property].to.origin);
 
 							};
 
@@ -1983,6 +2027,12 @@
 	function isNodeList( source ){
 
 		return source instanceof HTMLCollection || source instanceof NodeList;
+
+	};
+
+	function isWindow( source ){
+
+		return source instanceof Window;
 
 	};
 
@@ -3135,11 +3185,18 @@
 
 	Jo.support = {
 
-		events: function( event ){
+		events: function( element, event ){
 
-			if( event in document || "on" + event in document ) return true;
+			if( event in element || "on" + event in element ){
 
-			return false;
+				return true;
+
+			}
+			else {
+
+				return false;
+
+			};
 
 		}
 
