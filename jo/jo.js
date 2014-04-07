@@ -243,6 +243,50 @@
 			return $this;
 
 		},
+		parents: function( selector ){
+
+			var $this = Jo(this);
+
+			var found = new Array();
+
+			$this.each(function(){
+
+				var element = this;
+
+				while( element.parentNode ){
+
+					element = element.parentNode;
+
+					if( !isEmpty(element) ){
+
+
+						if( !isEmpty(selector) ){
+
+							if( Jo(element).is(selector) ){
+
+								found.push(element);
+
+							};
+
+						}
+						else {
+
+							found.push(element);
+
+						};
+
+					};
+
+				};
+
+			});
+
+			$this.found = found;
+			$this.length = $this.found.length;
+
+			return $this;
+
+		},
 		item: function( number ){
 
 			if( number <= this.found.length ){
@@ -259,9 +303,11 @@
 		},
 		prev: function(){
 
+			var $this = Jo(this);
+
 			var found = new Array();
 
-			this.each(function(){
+			$this.each(function(){
 
 				if( this.previousElementSibling ){
 
@@ -271,17 +317,19 @@
 
 			});
 
-			this.found = found;
-			this.length = this.found.length;
+			$this.found = found;
+			$this.length = $this.found.length;
 
-			return this;
+			return $this;
 
 		},
 		next: function(){
 
+			var $this = Jo(this);
+
 			var found = new Array();
 
-			this.each(function(){
+			$this.each(function(){
 
 				if( this.nextElementSibling ){
 
@@ -291,10 +339,10 @@
 
 			});
 
-			this.found = found;
-			this.length = this.found.length;
+			$this.found = found;
+			$this.length = $this.found.length;
 
-			return this;
+			return $this;
 
 		},
 		each: function( fn ){
@@ -345,7 +393,9 @@
 
 				this.each(function(){
 
-					if( isFalse((this.matches || this.matchesSelector || this.msMatchesSelector || this.mozMatchesSelector || this.webkitMatchesSelector || this.oMatchesSelector).call(this, selector)) ){
+					this.matches = (this.matches || this.matchesSelector || this.msMatchesSelector || this.mozMatchesSelector || this.webkitMatchesSelector || this.oMatchesSelector || function(){ return false });
+
+					if( isFalse(this.matches.call(this, selector)) ){
 
 						returned = false;
 
@@ -575,9 +625,17 @@
 
 						this.style.display = "none";
 
-						returned.push(window.getComputedStyle(this, null).getPropertyValue(property));
+						var found = window.getComputedStyle(this, null).getPropertyValue(property);
 
 						this.style.display = display;
+
+						if( found === "auto" ){
+
+							found = window.getComputedStyle(this, null).getPropertyValue(property);
+
+						};
+
+						returned.push(found);
 
 					});
 
@@ -1246,15 +1304,17 @@
 				$this.animation = new Object();
 				$this.animation.properties = new Object();
 
+				console.log($this.animation);
+
 				for( var property in styles ){
 
 					if( styles.hasOwnProperty(property) ){
 
-						var propertyUncamelize = camelize(property);
+						var propertyUncamelized = camelize(property);
 
 						$this.animation.properties[property] = {
 							from: {
-								origin: $this.css(propertyUncamelize)[0],
+								origin: $this.css(propertyUncamelized)[0],
 								values: new Array()
 							},
 							to: {
@@ -1266,15 +1326,7 @@
 
 						if( $this.animation.properties[property].from.origin === "auto" ){
 
-							var origin = window.getComputedStyle(this, null).getPropertyValue(property);
-
-							if( origin = "auto" ){
-
-								origin = this["offset" + property[0].toUpperCase() + property.substr(1)] + "px";
-
-							};
-
-							$this.animation.properties[property].from.origin = origin;
+							$this.animation.properties[property].from.origin = this["offset" + property[0].toUpperCase() + property.substr(1)] + "px";
 
 						};
 
@@ -2149,7 +2201,8 @@
 	};
 
 	var regexp = {
-		containLength: new RegExp("(\\d*\\.?\\d+)(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%)?", "gi"),
+		// containLength: new RegExp("(\\d*\\.?\\d+)(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%)?", "gi"), //!!! < ?
+		containLength: new RegExp("(\\d*\\.?\\d+)(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%)", "gi"),
 		containRGBColor: new RegExp("rgba?\\(([0-9]{1,3})[,\\s]{1,}([0-9]{1,3})[,\\s]{1,}([0-9]{1,3})[,\\s]{0,}([0-1]{1}\\.?[0-9]*)?\\)", "gi"),
 		containHexColor: new RegExp("^#([a-f0-9]{1,2})([a-f0-9]{1,2})([a-f0-9]{1,2})$", "gi")
 	};

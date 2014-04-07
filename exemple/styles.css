@@ -38,7 +38,7 @@ li {
 	margin: -30px 0 0 -30px;
 	width: 60px;
 	height: 60px;
-	background-color: green;
+	background-color: rgba(0,255,0,1);
 	background-image: url("img/thick.png");
 	background-size: 50px 50px;
 }

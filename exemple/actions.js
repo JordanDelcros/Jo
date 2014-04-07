@@ -18,9 +18,11 @@ var isReady = function(){
 
 		$li.animate({
 			top: (Math.floor(Math.random() * window.innerHeight) + 1) + "px",
-			left: (Math.floor(Math.random() * window.innerWidth) + 1) + "px"
+			left: (Math.floor(Math.random() * window.innerWidth) + 1) + "px",
+			backgroundColor: "rgba(255,0,100,0.5)",
+			backgroundSize: "20px 20px"
 		}, {
-			duration: 1000,
+			duration: 10000,
 			easing: "easeOutElastic",
 			complete: function(){
 
