@@ -1304,8 +1304,6 @@
 				$this.animation = new Object();
 				$this.animation.properties = new Object();
 
-				console.log($this.animation);
-
 				for( var property in styles ){
 
 					if( styles.hasOwnProperty(property) ){
