@@ -21,9 +21,10 @@ var isReady = function(){
 			left: (Math.floor(Math.random() * window.innerWidth) + 1) + "px",
 			backgroundColor: "rgba(255,0,100,0.5)",
 			backgroundSize: "20px 20px",
-			borderRadius: "25px"
+			borderRadius: "30px",
+			transform: "rotate(180deg)"
 		}, {
-			duration: 10000,
+			duration: 5000,
 			easing: "easeOutElastic",
 			complete: function(){
 
