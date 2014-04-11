@@ -610,6 +610,12 @@
 
 					this.each(function(){
 
+						if( isEmpty(window.getComputedStyle(this, null).getPropertyValue(property)) ){
+
+							property = prefix.js + property[0].toUpperCase() + property.substr(1);
+
+						};
+
 						this.style[property] = value;
 
 					});
@@ -621,21 +627,30 @@
 
 					this.each(function(){
 
+						if( isEmpty(window.getComputedStyle(this, null).getPropertyValue(property)) ){
+
+							property = prefix.css + property;
+
+						};
+
 						var display = window.getComputedStyle(this, null).getPropertyValue("display");
+
+						var removeDisplay = false;
+
+						if( isEmpty(this.style.display) ){
+
+							removeDisplay = true;
+
+						};
 
 						this.style.display = "none";
 
 						var found = window.getComputedStyle(this, null).getPropertyValue(property);
 
-						if( isEmpty(found) ){
 
-							found = window.getComputedStyle(this, null).getPropertyValue(prefix.css + property);
+						this.style.display = isTrue(removeDisplay) ? "" : display;
 
-						};
-
-						this.style.display = display;
-
-						if( found === "auto" ){
+						if( found === "auto" || found === "none" ){
 
 							found = window.getComputedStyle(this, null).getPropertyValue(property);
 
