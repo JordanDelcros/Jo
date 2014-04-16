@@ -222,9 +222,23 @@
 
 				if( !isEmpty(selector) ){
 
-					if( Jo(this.parentNode).is(selector) ){
+					var element = this;
 
-						found.push(this.parentNode);
+					while( element.parentNode ){
+
+						element = element.parentNode;
+
+						if( !isEmpty(element) ){
+
+							if( Jo(element).is(selector) ){
+
+								found.push(element);
+
+								break;
+
+							};
+
+						};
 
 					};
 
@@ -232,50 +246,6 @@
 				else {
 
 					found.push(this.parentNode);
-
-				};
-
-			});
-
-			$this.found = found;
-			$this.length = $this.found.length;
-
-			return $this;
-
-		},
-		parents: function( selector ){
-
-			var $this = Jo(this);
-
-			var found = new Array();
-
-			$this.each(function(){
-
-				var element = this;
-
-				while( element.parentNode ){
-
-					element = element.parentNode;
-
-					if( !isEmpty(element) ){
-
-
-						if( !isEmpty(selector) ){
-
-							if( Jo(element).is(selector) ){
-
-								found.push(element);
-
-							};
-
-						}
-						else {
-
-							found.push(element);
-
-						};
-
-					};
 
 				};
 
