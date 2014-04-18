@@ -769,6 +769,62 @@
 			};
 
 		},
+		data: function( name, value ){
+
+			if( isEmpty(name) ){
+
+				var returned = new Array();
+
+				this.each(function(){
+
+					returned.push(this.data);
+
+				});
+
+				return returned;
+
+			}
+			else if( isEmpty(value) && !isString(value) ){
+
+				var returned = new Array();
+
+				this.each(function(){
+
+					if( !isEmpty(this.data) ){
+
+						returned.push(this.data[name]);
+
+					}
+					else {
+
+						returned.push(undefined);
+
+					};
+
+				});
+
+				return returned;
+
+			}
+			else {
+
+				this.each(function(){
+
+					if( isEmpty(this.data) ){
+
+						this.data = new Object();
+
+					};
+
+					this.data[name] = value;
+
+				});
+
+			};
+
+			return this;
+
+		},
 		clone: function(){
 
 			var found = new Array();
@@ -1209,10 +1265,10 @@
 
 			this.each(function(){
 
-				if( !isEmpty(this.dataset.joDisplay) && this.dataset.joDisplay !== "none" ){
+				if( !isEmpty(Jo(this).data("jo-display")[0]) ){
 
-					this.style.display = this.dataset.joDisplay;
-					delete this.dataset.joDisplay;
+					this.style.display = Jo(this).data("jo-display");
+					delete this.data["jo-display"];
 
 				}
 				else {
@@ -1230,7 +1286,7 @@
 
 			this.each(function(){
 
-				this.dataset.joDisplay = Jo(this).css("display");
+				Jo(this).data("jo-display", this.style.display);
 				this.style.display = "none";
 
 			});
@@ -1242,8 +1298,7 @@
 
 			options = Jo.merge({
 				duration: 1000,
-				easing: "linear",
-				complete: function(){}
+				easing: "linear"
 			}, options);
 
 			this
@@ -1254,7 +1309,15 @@
 				}, {
 					duration: options.duration,
 					easing: options.easing,
-					complete: options.complete
+					complete: function(){
+
+						if( isFunction(options.complete) ){
+
+							options.complete();
+
+						};
+
+					}
 				});
 
 			return this;
@@ -1273,9 +1336,15 @@
 				}, {
 					duration: options.duration,
 					easing: options.easing,
-					coplete: function(){
+					complete: function(){
 
 						Jo(this).hide();
+
+						if( isFunction(options.complete) ){
+
+							options.complete();
+
+						};
 
 					}
 				});
@@ -1593,7 +1662,7 @@
 
 	Joot = Jo(document);
 
-	function isEmpty( source ){
+	function isEmpty( source, checkEmptyString ){
 
 		if( (isObject(source) || isArray(source)) && !isFunction(source) ){
 
