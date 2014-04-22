@@ -1132,7 +1132,7 @@
 				});
 
 			}
-			else if( isNodeList(html) ){
+			else if( isNodeList(html) ){
 
 				var length = html.length;
 
@@ -1726,7 +1726,7 @@
 
 	function isBoolean( source ){
 
-		return typeof source === "boolean" || source === true || source === false;
+		return typeof source === "boolean" || source === true || source === false;
 
 	};
 
