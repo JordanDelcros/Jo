@@ -378,66 +378,87 @@
 			return returned;
 
 		},
-		on: function( action, fn, useCapture ){
+		on: function( actions, fn, useCapture ){
 
-			if( isEmpty(useCapture) ) useCapture = false;
+			actions = actions.split(" ");
 
-			var originalAction = action;
+			if( isEmpty(useCapture) ){
+
+				useCapture = false;
+
+			};
+
+			var originalActions = Jo.merge(new Array(), actions);
 
 			this.each(function(){
 
-				if( !isObject(this.events) ) this.events = new Object();
+				if( !isObject(this.events) ){
 
-				if( !isArray(this.events[originalAction]) ) this.events[originalAction] = new Array();
+					this.events = new Object();
 
-				var evt = {
-					action: action,
-					fn: fn
 				};
 
-				if( !isFunction(Jo.specialEvents[action]) && !Jo.support.events(this, action) ){
+				for( var action in actions ){
 
-					var customEvent = new CustomEvent(action, {
-						detail: {},
-						bubbles: true,
-						cancelable: true
-					});
+					if( !isArray(this.events[originalActions[action][action]]) ){
 
-					evt.action = customEvent;
+						this.events[originalActions[action]] = new Array();
 
-					var f = this.events[originalAction].push(evt) - 1;
+					};
 
-					this.addEventListener(action, this.events[originalAction][f].fn, useCapture);
+					var evt = {
+						action: actions[action],
+						fn: fn
+					};
 
-				}
-				else if( isFunction(Jo.specialEvents[action]) && !Jo.support.events(this, action) ){
+					if( !isFunction(Jo.specialEvents[actions[action]]) && !Jo.support.events(this, actions[action]) ){
 
-					var specialEvent = Jo.specialEvents[action].call(this, fn);
+						var customEvent = new CustomEvent(actions[action], {
+							detail: {},
+							bubbles: true,
+							cancelable: true
+						});
 
-					evt.action = specialEvent.action;
+						evt.action = customEvent;
 
-					action = specialEvent.action;
-					fn = specialEvent.fn;
+						var f = this.events[originalActions[action]].push(evt) - 1;
 
-					var f = this.events[originalAction].push(evt) - 1;
+						this.addEventListener(actions[action], this.events[originalActions[action]][f].fn, useCapture);
 
-					this.addEventListener(action, this.events[originalAction][f].fn, useCapture);
+					}
+					else if( isFunction(Jo.specialEvents[actions[action]]) && !Jo.support.events(this, actions[action]) ){
 
-				}
-				else {
+						var specialEvent = Jo.specialEvents[actions[action]].call(this, fn);
 
-					var f = this.events[originalAction].push(evt) - 1;
+						evt.action = specialEvent.action;
 
-					this.addEventListener(action, this.events[originalAction][f].fn, useCapture);
-	
+						actions[action] = specialEvent.action;
+						fn = specialEvent.fn;
+
+						var f = this.events[originalActions[action]].push(evt) - 1;
+
+						this.addEventListener(actions[action], this.events[originalActions[action]][f].fn, useCapture);
+
+					}
+					else {
+
+						var f = this.events[originalActions[action]].push(evt) - 1;
+
+						this.addEventListener(actions[action], this.events[originalActions[action]][f].fn, useCapture);
+
+					};
+
 				};
+
 
 			});
 
 			return this;
 
 		},
-		off: function( action, fn, useCapture ){
+		off: function( actions, fn, useCapture ){
+
+			actions = actions.split(" ");
 
 			if( isBoolean(fn) ){
 
@@ -454,20 +475,26 @@
 
 			return this.each(function(){
 
-				if( !isEmpty(this.events[action]) ){
+				for( var action in actions ){
 
-					for( var i in this.events[action] ){
 
-						if( isFunction(fn) && this.events[action][i].fn === fn ){
+					if( !isEmpty(this.events[actions[action]]) ){
 
-							this.removeEventListener(this.events[action][i].action, this.events[action][i].fn, useCapture);
-							this.events[action].splice(i, 1);
+						for( var i in this.events[actions[action]] ){
 
-						}
-						else if( isEmpty(fn) ){
+							console.log(actions[action], this.events[actions[action]][i].fn.toString());
+							if( isFunction(fn) && this.events[actions[action]][i].fn === fn ){
 
-							this.removeEventListener(this.events[action][i].action, this.events[action][i].fn, useCapture);
-							this.events[action].splice(i, 1);
+								this.removeEventListener(this.events[actions[action]][i].action, this.events[actions[action]][i].fn, useCapture);
+								this.events[actions[action]].splice(i, 1);
+
+							}
+							else if( isEmpty(fn) ){
+
+								this.removeEventListener(this.events[actions[action]][i].action, this.events[actions[action]][i].fn, useCapture);
+								this.events[actions[action]].splice(i, 1);
+
+							};
 
 						};
 
@@ -475,25 +502,32 @@
 
 				};
 
+
 			});
 
 		},
-		trigger: function( action ){
+		trigger: function( actions ){
+
+			actions = actions.split(" ");
 
 			return this.each(function( event ){
 
-				if( !isEmpty(this.events) && !isEmpty(this.events[action]) ){
+				for( var action in actions ){
 
-					if( !isFunction(Jo.specialEvents[action]) && !Jo.support.events(this, action) ){
+					if( !isEmpty(this.events) && !isEmpty(this.events[actions[action]]) ){
 
-						this.dispatchEvent(this.events[action].action);
+						if( !isFunction(Jo.specialEvents[actions[action]]) && !Jo.support.events(this, actions[action]) ){
 
-					}
-					else {
+							this.dispatchEvent(this.events[actions[action]].action);
 
-						for( var i in this.events[action] ){
+						}
+						else {
 
-							this.events[action][i].fn.call(this, event);
+							for( var i in this.events[actions[action]] ){
+
+								this.events[actions[action]][i].fn.call(this, event);
+
+							};
 
 						};
 
@@ -1365,8 +1399,6 @@
 				$this.animation.options = options;
 				$this.animation.properties = new Object();
 
-				console.log($this.animation);
-
 				for( var property in styles ){
 
 					if( styles.hasOwnProperty(property) ){
@@ -1695,6 +1727,12 @@
 
 	};
 
+	function isArray( source ){
+
+		return source instanceof Array || typeof source === "array";
+
+	};
+
 	function isJSON( string ){
 
 		try {
@@ -1709,12 +1747,6 @@
 		};
 
 		return true;
-
-	};
-
-	function isArray( source ){
-
-		return source instanceof Array || typeof source === "array";
 
 	};
 
@@ -1931,7 +1963,7 @@
 
 	Jo.merge = function( returned ){
 
-		if( isEmpty(returned) ){
+		if( !isArray(returned) && !isObject() ){
 
 			returned = new Object();
 
