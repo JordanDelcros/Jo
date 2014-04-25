@@ -482,7 +482,7 @@
 
 						for( var i in this.events[actions[action]] ){
 
-							console.log(actions[action], this.events[actions[action]][i].fn.toString());
+							// console.log(actions[action], this.events[actions[action]][i].fn.toString());
 							if( isFunction(fn) && this.events[actions[action]][i].fn === fn ){
 
 								this.removeEventListener(this.events[actions[action]][i].action, this.events[actions[action]][i].fn, useCapture);
@@ -954,7 +954,7 @@
 			return this;
 
 		},
-		insertToBefore: function( selector ){
+		insertBeforeTo: function( selector ){
 
 			Jo(selector).insertBefore(this);
 
@@ -1036,7 +1036,7 @@
 			return this;
 
 		},
-		insertToAfter: function( selector ){
+		insertAfterTo: function( selector ){
 
 			Jo(selector).insertAfter(this);
 
@@ -1118,7 +1118,7 @@
 			return this;
 
 		},
-		insertToStart: function( selector ){
+		insertStartTo: function( selector ){
 
 			Jo(selector).insertStart(this);
 
@@ -1201,7 +1201,7 @@
 			return this;
 
 		},
-		insertToEnd: function( selector ){
+		insertEndTo: function( selector ){
 
 			Jo(selector).insertEnd(this);
 
