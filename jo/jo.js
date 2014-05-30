@@ -222,6 +222,43 @@
 
 				if( !isEmpty(selector) ){
 
+					var element = this.parentNode;
+
+					if( !isEmpty(element) ){
+
+						if( Jo(element).is(selector) ){
+
+							found.push(element);
+
+						};
+
+					};
+
+				}
+				else {
+
+					found.push(this.parentNode);
+
+				};
+
+			});
+
+			$this.found = found;
+			$this.length = $this.found.length;
+
+			return $this;
+
+		},
+		parents: function( selector ){
+
+			var $this = Jo(this);
+
+			var found = new Array();
+
+			$this.each(function(){
+
+				if( !isEmpty(selector) ){
+
 					var element = this;
 
 					while( element.parentNode ){
@@ -482,7 +519,6 @@
 
 						for( var i in this.events[actions[action]] ){
 
-							// console.log(actions[action], this.events[actions[action]][i].fn.toString());
 							if( isFunction(fn) && this.events[actions[action]][i].fn === fn ){
 
 								this.removeEventListener(this.events[actions[action]][i].action, this.events[actions[action]][i].fn, useCapture);
@@ -606,6 +642,28 @@
 			return this;
 
 		},
+		width: function( width ){
+
+			if( isEmpty(width) ){
+
+				var returned = new Array();
+
+				this.each(function(){
+
+					returned.push(this.innerWidth);
+
+				});
+
+				return returned;
+
+			}
+			else {
+
+				this.css("width", width);
+
+			};
+
+		},
 		css: function( property, value ){
 
 			if( isString(property) ){
@@ -614,9 +672,19 @@
 
 					this.each(function(){
 
-						if( isEmpty(window.getComputedStyle(this, null).getPropertyValue(property)) ){
+						if( isEmpty(window.getComputedStyle(this, null).getPropertyValue(property)) && !isEmpty(window.getComputedStyle(this, null).getPropertyValue(prefix.css + property)) ){
 
 							property = prefix.js + property[0].toUpperCase() + property.substr(1);
+
+						};
+
+						if( isFalse(window.CSS.supports(property, value)) ){
+
+							if( isTrue(window.CSS.supports(property, value + "px")) ){
+
+								value = value + "px";
+
+							};
 
 						};
 
@@ -631,7 +699,7 @@
 
 					this.each(function(){
 
-						if( isEmpty(window.getComputedStyle(this, null).getPropertyValue(property)) ){
+						if( isEmpty(window.getComputedStyle(this, null).getPropertyValue(property)) && !isEmpty(window.getComputedStyle(this, null).getPropertyValue(prefix.css + property)) ){
 
 							property = prefix.css + property;
 
@@ -650,7 +718,6 @@
 						this.style.display = "none";
 
 						var found = window.getComputedStyle(this, null).getPropertyValue(property);
-
 
 						this.style.display = isTrue(removeDisplay) ? "" : display;
 
@@ -1395,19 +1462,24 @@
 
 				var $this = Jo(this);
 
-				$this.animation = new Object();
-				$this.animation.options = options;
-				$this.animation.properties = new Object();
+				if( isEmpty(this.animation) ){
+
+					this.animation = {
+						options: options,
+						properties: new Object()
+					};
+
+				};
 
 				for( var property in styles ){
 
 					if( styles.hasOwnProperty(property) ){
 
-						var propertyUncamelized = camelize(property);
+						var uncamelizedProperty = uncamelize(property);
 
-						$this.animation.properties[property] = {
+						this.animation.properties[property] = {
 							from: {
-								origin: $this.css(propertyUncamelized)[0],
+								origin: $this.css(uncamelizedProperty)[0],
 								values: new Array()
 							},
 							to: {
@@ -1417,25 +1489,25 @@
 							}
 						};
 
-						if( $this.animation.properties[property].from.origin === "auto" ){
+						if( this.animation.properties[property].from.origin === "auto" && !isEmpty(this[camelize("offset-" + property)]) ){
 
-							$this.animation.properties[property].from.origin = this["offset" + property[0].toUpperCase() + property.substr(1)] + "px";
+							this.animation.properties[property].from.origin = this[camelize("offset-" + property)] + "px";
 
 						}
-						else if( $this.animation.properties[property].from.origin === "none" ){
+						else if( this.animation.properties[property].from.origin === "none" ){
 
-							$this.animation.properties[property].from.origin = "0";
-
-						};
-
-						if( isNumber($this.animation.properties[property].to.origin) ){
-
-							$this.animation.properties[property].to.origin = $this.animation.properties[property].to.origin.toString();
+							this.animation.properties[property].from.origin = "0";
 
 						};
 
-						$this.animation.properties[property].model = $this.animation.properties[property].to.origin
-							.replace(regexp.containLength, function( match, number, type ){
+						if( isNumber(this.animation.properties[property].to.origin) ){
+
+							this.animation.properties[property].to.origin = this.animation.properties[property].to.origin.toString();
+
+						};
+
+						this.animation.properties[property].model = this.animation.properties[property].to.origin
+							.replace(regexp.length, function( match, number, type ){
 
 								var number = parseFloat(number);
 
@@ -1456,9 +1528,14 @@
 									number = number * 96 / 72;
 									type = "px";
 
+								}
+								else if( type === "%" ){
+
+									number = $this.parent().width() / 100 * number
+
 								};
 
-								var index = $this.animation.properties[property].to.values.push({
+								var index = this.animation.properties[property].to.values.push({
 									number: number,
 									type: type
 								});
@@ -1466,8 +1543,8 @@
 
 								return "#" + (index - 1);
 
-							})
-							.replace(regexp.containHexColor, function( match, red, green, blue ){
+							}.bind(this))
+							.replace(regexp.hexColor, function( match, red, green, blue ){
 
 								if( red.length === 1 ){
 
@@ -1490,7 +1567,7 @@
 								return "rgba(" + parseInt(red, 16) + ", " + parseInt(green, 16) + ", " + parseInt(blue, 16) + ", 1)";
 
 							})
-							.replace(regexp.containRGBColor, function( match, red, green, blue, alpha ){
+							.replace(regexp.RGBColor, function( match, red, green, blue, alpha ){
 
 								if( isEmpty(alpha) ){
 
@@ -1498,22 +1575,22 @@
 
 								};
 
-								var redIndex = $this.animation.properties[property].to.values.push({
+								var redIndex = this.animation.properties[property].to.values.push({
 									number: parseInt(red),
 									precision: "integer"
 								});
 
-								var greenIndex = $this.animation.properties[property].to.values.push({
+								var greenIndex = this.animation.properties[property].to.values.push({
 									number: parseInt(green),
 									precision: "integer"
 								});
 
-								var blueIndex = $this.animation.properties[property].to.values.push({
+								var blueIndex = this.animation.properties[property].to.values.push({
 									number: parseInt(blue),
 									precision: "integer"
 								});
 
-								var alphaIndex = $this.animation.properties[property].to.values.push({
+								var alphaIndex = this.animation.properties[property].to.values.push({
 									number: parseFloat(alpha)
 								});
 
@@ -1521,17 +1598,17 @@
 
 							});
 
-						$this.animation.properties[property].from.origin
-							.replace(regexp.containLength, function( match, number, type ){
+						this.animation.properties[property].from.origin
+							.replace(regexp.length, function( match, number, type ){
 
-								var index = $this.animation.properties[property].from.values.push(new Object());
+								var index = this.animation.properties[property].from.values.push(new Object());
 
 								number = parseFloat(match);
 
-								if( type !== $this.animation.properties[property].to.values[index - 1].type ){
+								if( type !== this.animation.properties[property].to.values[index - 1].type ){
 
-									var toNumber = $this.animation.properties[property].to.values[index - 1].number;
-									var toType = $this.animation.properties[property].to.values[index - 1].type;
+									var toNumber = this.animation.properties[property].to.values[index - 1].number;
+									var toType = this.animation.properties[property].to.values[index - 1].type;
 
 									if( toType === "px" ){
 
@@ -1548,13 +1625,13 @@
 
 								};
 
-								$this.animation.properties[property].from.values[index - 1].number = number;
-								$this.animation.properties[property].from.values[index - 1].type = type;
+								this.animation.properties[property].from.values[index - 1].number = number;
+								this.animation.properties[property].from.values[index - 1].type = type;
 
 								return false;
 
 							}.bind(this))
-							.replace(regexp.containRGBColor, function( match, red, green, blue, alpha ){
+							.replace(regexp.RGBColor, function( match, red, green, blue, alpha ){
 
 								if( isEmpty(alpha) ){
 
@@ -1562,22 +1639,22 @@
 
 								};
 
-								var redIndex = $this.animation.properties[property].from.values.push({
+								var redIndex = this.animation.properties[property].from.values.push({
 									number: parseInt(red),
 									precision: "integer"
 								});
 
-								var greenIndex = $this.animation.properties[property].from.values.push({
+								var greenIndex = this.animation.properties[property].from.values.push({
 									number: parseInt(green),
 									precision: "integer"
 								});
 
-								var blueIndex = $this.animation.properties[property].from.values.push({
+								var blueIndex = this.animation.properties[property].from.values.push({
 									number: parseInt(blue),
 									precision: "integer"
 								});
 
-								var alphaIndex = $this.animation.properties[property].from.values.push({
+								var alphaIndex = this.animation.properties[property].from.values.push({
 									number: parseFloat(alpha)
 								});
 
@@ -1585,17 +1662,17 @@
 
 							});
 
-						for( var value = 0; value < $this.animation.properties[property].to.values.length; value++ ){
+						for( var value = 0; value < this.animation.properties[property].to.values.length; value++ ){
 
-							var difference = Math.abs($this.animation.properties[property].from.values[value].number - $this.animation.properties[property].to.values[value].number);
+							var difference = Math.abs(this.animation.properties[property].from.values[value].number - this.animation.properties[property].to.values[value].number);
 
-							if( $this.animation.properties[property].from.values[value].number > $this.animation.properties[property].to.values[value].number ){
+							if( this.animation.properties[property].from.values[value].number > this.animation.properties[property].to.values[value].number ){
 
 								difference = -difference;
 
 							};
 
-							$this.animation.properties[property].to.differences.push(difference);
+							this.animation.properties[property].to.differences.push(difference);
 
 						};
 
@@ -1603,56 +1680,56 @@
 
 				};
 
-				$this.animation.fn = function( now ){
+				this.animation.fn = function( now ){
 
-					if( isEmpty($this.animation.times.start) ){
+					if( isEmpty(this.animation.times.start) ){
 
-						$this.animation.times.start = now;
-
-					};
-
-					$this.animation.times.elapsed = now - $this.animation.times.start;
-
-					if( $this.animation.times.elapsed > options.duration ){
-
-						$this.animation.times.elapsed = options.duration;
+						this.animation.times.start = now;
 
 					};
 
-					for( var property in $this.animation.properties ){
+					this.animation.times.elapsed = now - this.animation.times.start;
 
-						if( $this.animation.properties.hasOwnProperty(property) ){
+					if( this.animation.times.elapsed > options.duration ){
 
-							if( $this.animation.times.elapsed < options.duration ){
+						this.animation.times.elapsed = options.duration;
 
-								$this.animation.properties[property].progress = $this.animation.properties[property].model;
+					};
 
-								for( var value = 0; value < $this.animation.properties[property].to.values.length; value++ ){
+					for( var property in this.animation.properties ){
 
-									var valueString = $this.animation.properties[property].from.values[value].number + (Jo.easing[options.easing]($this.animation.times.elapsed, options.duration) * $this.animation.properties[property].to.differences[value]);
+						if( this.animation.properties.hasOwnProperty(property) ){
 
-									if( $this.animation.properties[property].from.values[value].precision === "integer" ){
+							if( this.animation.times.elapsed < options.duration ){
+
+								this.animation.properties[property].progress = this.animation.properties[property].model;
+
+								for( var value = 0; value < this.animation.properties[property].to.values.length; value++ ){
+
+									var valueString = this.animation.properties[property].from.values[value].number + (Jo.easing[options.easing](this.animation.times.elapsed, options.duration) * this.animation.properties[property].to.differences[value]);
+
+									if( this.animation.properties[property].from.values[value].precision === "integer" ){
 
 										valueString = parseInt(valueString);
 
 									};
 
-									if( !isEmpty($this.animation.properties[property].to.values[value].type) ){
+									if( !isEmpty(this.animation.properties[property].to.values[value].type) ){
 
-										valueString += $this.animation.properties[property].to.values[value].type;
+										valueString += this.animation.properties[property].to.values[value].type;
 
 									};
 
-									$this.animation.properties[property].progress = $this.animation.properties[property].progress.replace("#" + value, valueString);
+									this.animation.properties[property].progress = this.animation.properties[property].progress.replace("#" + value, valueString);
 
 								};
 
-								$this.css(property, $this.animation.properties[property].progress);
+								$this.css(property, this.animation.properties[property].progress);
 
 							}
 							else {
 
-								$this.css(property, $this.animation.properties[property].to.origin);
+								$this.css(property, this.animation.properties[property].to.origin);
 
 							};
 
@@ -1660,9 +1737,9 @@
 
 					};
 
-					if( $this.animation.times.elapsed === options.duration ){
+					if( this.animation.times.elapsed === options.duration ){
 
-						cancelAnimationFrame($this.animation.id);
+						cancelAnimationFrame(this.animation.id);
 
 						if( isFunction(options.complete) ){
 
@@ -1673,15 +1750,15 @@
 					}
 					else {
 
-						$this.animation.id = window.requestAnimationFrame($this.animation.fn);
+						this.animation.id = window.requestAnimationFrame(this.animation.fn);
 
 					};
 
 				}.bind(this);
 
-				$this.animation.times = new Object();
+				this.animation.times = new Object();
 
-				window.requestAnimationFrame($this.animation.fn);
+				window.requestAnimationFrame(this.animation.fn);
 
 				return this;
 
@@ -1922,15 +1999,20 @@
 
 	function camelize( text ){
 
+		return text.replace(new RegExp("([a-z])(-\\s)*([A-Z])", "g"), "$1$3").toLowerCase();
+
+	};
+
+	function uncamelize( text ){
+
 		return text.replace(new RegExp("([a-z])([A-Z])", "g"), "$1-$2").toLowerCase();
 
 	};
 
 	var regexp = {
-		containLength: new RegExp("(\\d*\\.?\\d+)(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%)?", "gi"), //!!! < ?
-		// containLength: new RegExp("(\\d*\\.?\\d+)(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%)", "gi"),
-		containRGBColor: new RegExp("rgba?\\(([0-9]{1,3})[,\\s]{1,}([0-9]{1,3})[,\\s]{1,}([0-9]{1,3})[,\\s]{0,}([0-1]{1}\\.?[0-9]*)?\\)", "gi"),
-		containHexColor: new RegExp("^#([a-f0-9]{1,2})([a-f0-9]{1,2})([a-f0-9]{1,2})$", "gi")
+		length: new RegExp("(\\d*\\.?\\d+)(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%)", "gi"), //!!! < ?
+		RGBColor: new RegExp("rgba?\\(([0-9]{1,3})[,\\s]{1,}([0-9]{1,3})[,\\s]{1,}([0-9]{1,3})[,\\s]{0,}([0-1]{1}\\.?[0-9]*)?\\)", "gi"),
+		hexColor: new RegExp("^#([a-f0-9]{1,2})([a-f0-9]{1,2})([a-f0-9]{1,2})$", "gi")
 	};
 
 	var prefix = function(){
@@ -2832,7 +2914,7 @@
 		init: function( settings ){
 
 			settings = Jo.merge({
-
+				
 			}, settings);
 
 			this.worker = new Worker(settings.url);
@@ -2942,8 +3024,6 @@
 				delete this.events[action];
 
 			};
-
-			console.log(this.events);
 
 			return this;
 
@@ -3247,9 +3327,6 @@
 		},
 		easeInElastic: function( elapsed, duration ){
 
-			var speed = (1 + Math.sqrt(5)) / 2;
-			var progress = 0;
-
 			if( elapsed === 0 ){
 
 				return 0;
@@ -3262,13 +3339,8 @@
 			}
 			else {
 
-				if( progress === 0 ){
-
-					progress = duration * 0.3;
-
-				};
-
-				speed = progress / (2 * Math.PI) * Math.asin(1);
+				var progress = duration * 0.3;
+				var speed = progress / (2 * Math.PI) * Math.asin(1);
 
 				return -(1 * Math.pow(2, 10 * (elapsed -= 1)) * Math.sin((elapsed * duration - speed) * (2 * Math.PI) / progress));
 
@@ -3276,9 +3348,6 @@
 
 		},
 		easeOutElastic: function( elapsed, duration ){
-
-			var speed = (1 + Math.sqrt(5)) / 2;
-			var progress = 0;
 
 			if( elapsed === 0 ){
 
@@ -3292,13 +3361,8 @@
 			}
 			else {
 
-				if( progress === 0 ){
-
-					progress = duration * 0.3;
-
-				};
-
-				speed = progress / (2 * Math.PI) * Math.asin(1);
+				var progress = duration * 0.3;;
+				var speed = progress / (2 * Math.PI) * Math.asin(1);
 
 				return Math.pow(2, -10 * elapsed) * Math.sin((elapsed * duration - speed) * (2 * Math.PI) / progress) + 1;
 
@@ -3307,9 +3371,6 @@
 
 		},
 		easeInOutElastic: function( elapsed, duration ){
-
-			var speed = (1 + Math.sqrt(5)) / 2;
-			var progress = 0;
 
 			if( elapsed === 0){
 
@@ -3323,13 +3384,8 @@
 			}
 			else {
 
-				if( progress === 0 ){
-
-					progress = duration * (0.3 * 1.5);
-
-				};
-
-				speed = progress / (2 * Math.PI) * Math.asin(1);
+				var progress = duration * (0.3 * 1.5);
+				var speed = progress / (2 * Math.PI) * Math.asin(1);
 
 				if( elapsed < 1 ){
 

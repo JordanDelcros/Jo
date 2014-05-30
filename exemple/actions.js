@@ -16,27 +16,36 @@ var isReady = function(){
 
 		$ul.insertEnd($li);
 
-		$li.animate({
-			top: (Math.floor(Math.random() * window.innerHeight) + 1) + "px",
-			left: (Math.floor(Math.random() * window.innerWidth) + 1) + "px",
-			backgroundColor: "rgba(255,0,100,0.5)",
-			backgroundSize: "20px 20px",
-			borderRadius: "30px",
-			transform: "rotate(180deg)"
-		}, {
-			duration: 5000,
-			easing: "easeOutElastic",
-			complete: function(){
+		$li
+			.animate({
+				top: (Math.floor(Math.random() * window.innerHeight) + 1) + "px",
+				left: (Math.floor(Math.random() * window.innerWidth) + 1) + "px",
+				backgroundSize: "20px 20px",
+				borderRadius: "30px",
+				// transform: "rotate(180deg)"
+			}, {
+				// name: "toto",
+				duration: 2000,
+				easing: "easeOutElastic",
+				complete: function(){
 
-				$(this).remove();
-				createNode();
+					$(this).remove();
+					createNode();
 
-			}
-		});
+				}
+			})
+			// .animate({
+			// 	top: 500 + "px",
+			// 	left: 500 + "px"
+			// }, {
+			// 	// name: "toto",
+			// 	duration: 2000,
+			// 	easing: "easeOutElastic"
+			// });
 
 	};
 
-	for( var n = 0; n < 100; n++ ){
+	for( var n = 0; n < 50; n++ ){
 
 		createNode();
 
