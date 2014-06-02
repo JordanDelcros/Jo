@@ -16,40 +16,49 @@ var isReady = function(){
 
 		$ul.insertEnd($li);
 
-		$li
-			.animate({
-				top: (Math.floor(Math.random() * window.innerHeight) + 1) + "px",
-				left: (Math.floor(Math.random() * window.innerWidth) + 1) + "px",
-				backgroundSize: "20px 20px",
-				borderRadius: "30px",
-				// transform: "rotate(180deg)"
-			}, {
-				// name: "toto",
-				duration: 2000,
-				easing: "easeOutElastic",
-				complete: function(){
-
-					$(this).remove();
-					createNode();
-
-				}
-			})
-			// .animate({
-			// 	top: 500 + "px",
-			// 	left: 500 + "px"
-			// }, {
-			// 	// name: "toto",
-			// 	duration: 2000,
-			// 	easing: "easeOutElastic"
-			// });
+		$li.css({
+			top: (Math.floor(((Math.random() * window.innerHeight) + 1) / window.innerHeight * 100)) + "%",
+			left: (Math.floor(((Math.random() * window.innerWidth) + 1) / window.innerWidth * 100)) + "%"
+		});
 
 	};
 
-	for( var n = 0; n < 50; n++ ){
+	for( var n = 0; n < 400; n++ ){
 
 		createNode();
 
 	};
+
+	setTimeout(function(){
+
+		$("ul li")
+		.animate({
+			top: "50%",
+			left: "50%",
+			// backgroundSize: "20px 20px",
+			// borderRadius: "30%",
+			// transform: "rotate(180deg)"
+		}, {
+			// name: "toto",
+			duration: 10000,
+			easing: "easeOutQuad",
+			complete: function(){
+
+				// $(this).remove();
+				// createNode();
+
+			}
+		})
+		// .animate({
+		// 	top: 500 + "px",
+		// 	left: 500 + "px"
+		// }, {
+		// 	// name: "toto",
+		// 	duration: 2000,
+		// 	easing: "easeOutElastic"
+		// });
+
+	}, 1000);
 
 /*
 	// KEEP INTACT AFTER THIS LINE, TO FINISH
