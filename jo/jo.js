@@ -664,8 +664,7 @@
 			};
 
 		},
-		// MORE FASTEST PLZ
-		css: function( property, value ){
+		css: function( property, value, performance ){
 
 			if( isString(property) ){
 
@@ -673,17 +672,21 @@
 
 					this.each(function(){
 
-						if( isEmpty(window.getComputedStyle(this, null).getPropertyValue(property)) && !isEmpty(window.getComputedStyle(this, null).getPropertyValue(prefix.css + property)) ){
+						if( performance !== true ){
 
-							property = prefix.js + property[0].toUpperCase() + property.substr(1);
+							if( isEmpty(window.getComputedStyle(this, null).getPropertyValue(property)) && !isEmpty(window.getComputedStyle(this, null).getPropertyValue(prefix.css + property)) ){
 
-						};
+								property = prefix.js + property[0].toUpperCase() + property.substr(1);
 
-						if( isFalse(window.CSS.supports(property, value)) ){
+							};
 
-							if( isTrue(window.CSS.supports(property, value + "px")) ){
+							if( isFalse(window.CSS.supports(property, value)) ){
 
-								value = value + "px";
+								if( isTrue(window.CSS.supports(property, value + "px")) ){
+
+									value = value + "px";
+
+								};
 
 							};
 
@@ -1455,12 +1458,96 @@
 		animate: function( styles, options ){
 
 			options = Jo.merge({
-				start: Animation.now,
 				duration: 1000,
 				easing: "linear"
 			}, options);
 
-			Animation.add(this, styles, options);
+			var task = {
+				this: this,
+				elements: new Array(),
+				options: options
+			};
+
+			this.each(function(){
+
+				var element = {
+					$element: Jo(this),
+					properties: new Object()
+				};
+
+				for( var property in styles ){
+
+					if( styles.hasOwnProperty(property) ){
+
+						var uncamelizedProperty = uncamelize(property);
+
+						var from = Jo(this).css(property)[0];
+						var to = styles[property];
+						var values = new Array();
+
+						if( from === "auto" && !isEmpty(this[camelize("offset-" + property)]) ){
+
+							from = this[camelize("offset-" + property)] + "px";
+
+						}
+						else if( from === "none" ){
+
+							from = "0";
+
+						};
+
+						if( isNumber(to) ){
+
+							to = to.toString();
+
+						};
+
+						var model = to.replace(new RegExp("(\\d*\\.?\\d+)(%)", "gi"), function( match, number, unit ){
+
+							var index = values.push({
+								from: null,
+								to: parseFloat(number),
+								difference: 0,
+								unit: unit
+							}) - 1;
+
+							return "#" + index;
+
+						});
+
+						var index = 0;
+						from.replace(new RegExp("(\\d*\\.?\\d+)(%)", "gi"), function( match, number, unit ){
+
+							values[index].from = parseFloat(number);
+
+							values[index].difference = Math.abs(number - values[index].to);
+
+							if( number > values[index].to ){
+
+								values[index].difference *= -1;
+
+							};
+
+							return "#" + index;
+
+						});
+
+						element.properties[property] = {
+							model: model,
+							values: values
+						};
+
+					};
+
+				};
+
+				task.elements.push(element);
+
+			});
+
+			Animations.add(task);
+
+			// Jo.animation.add(this, styles, options);
 
 
 /*//
@@ -1780,12 +1867,113 @@
 
 	Jo.fn.init.prototype = Jo.fn;
 
-	Jo.animation = function( FPS ){
+	Jo.animation = function( fps, fn ){
 
-		return new Jo.animation.fn.init(FPS);
+		return new Jo.animation.fn.init(fps, fn);
 
 	};
 
+	Jo.animation.fn = Jo.animation.prototype = {
+		constructor: Jo.animation,
+		init: function( fps, fn ){
+
+			this.fps = fps || 30;
+			this.interval = 1000 / this.fps;
+			this.now = 0;
+			this.then = 0;
+			this.deltaTime = 0;
+
+			this.fn = fn || function(){};
+			this.tasks = new Array();
+
+			function loop( now ){
+
+				this.now = now;
+				this.deltaTime = this.now - this.then;
+
+				if( this.deltaTime > this.interval ){
+
+					this.fn(now);
+
+					this.then = now - (this.deltaTime % this.interval);
+
+				};
+
+				window.requestAnimationFrame(loop.bind(this));
+
+			};
+
+			window.requestAnimationFrame(loop.bind(this));
+
+			return this;
+
+		},
+		add: function( task ){
+
+			this.tasks.push(task);
+
+			return this;
+
+		},
+		remove: function( index ){
+
+			this.tasks.splice(index, 1);
+
+			return this;
+
+		}
+	};
+
+	Jo.animation.fn.init.prototype = Jo.animation.fn;
+
+	var Animations = Jo.animation(30, function( now ){
+
+		for( var task = 0; task < this.tasks.length; task++ ){
+
+			if( isEmpty(this.tasks[task].options.start) ){
+
+				this.tasks[task].options.start = now;
+
+			};
+
+			var elapsedTime = now - this.tasks[task].options.start;
+
+			if( elapsedTime >= this.tasks[task].options.duration ){
+
+				elapsedTime = this.tasks[task].options.duration;
+
+			};
+
+			for( var element = 0; element < this.tasks[task].elements.length; element++ ){
+
+				for( var property in this.tasks[task].elements[element].properties ){
+
+					var model = this.tasks[task].elements[element].properties[property].model;
+
+					for( var value = 0; value < this.tasks[task].elements[element].properties[property].values.length; value++ ){
+
+						model = model.replace("#" + value, (this.tasks[task].elements[element].properties[property].values[value].from + (Jo.easing[this.tasks[task].options.easing](elapsedTime, this.tasks[task].options.duration) * this.tasks[task].elements[element].properties[property].values[value].difference)) + this.tasks[task].elements[element].properties[property].values[value].unit);
+
+					};
+
+					this.tasks[task].elements[element].$element.css(property, model, true);
+
+				};
+
+			};
+
+			if( elapsedTime === this.tasks[task].options.duration ){
+
+				this.tasks[task].options.complete.call(this.tasks[task].this);
+				
+				this.remove(task);
+
+			};
+
+		};
+
+	});
+/*
 	Jo.animation.fn = Jo.animation.prototype = {
 		constructor: Jo.animation,
 		init: function( FPS ){
@@ -1803,14 +1991,18 @@
 		},
 		fn: function( now ){
 
-			window.requestAnimationFrame(this.fn.bind(this));
-
 			this.now = now;
 			this.deltaTime = this.now - this.then;
 
-			// if( this.deltaTime > this.interval ){
+			if( this.deltaTime > this.interval ){
 
 				for( var task = 0; task < this.tasks.length; task++ ){
+
+					if( isEmpty(this.tasks[task].options.start) ){
+
+						this.tasks[task].options.start = now;
+
+					};
 
 					var elapsedTime = now - this.tasks[task].options.start;
 
@@ -1832,14 +2024,13 @@
 
 							};
 
-							// this.tasks[task].elements[element].$element.style[property] = model;
-							this.tasks[task].elements[element].$element.css(property, model);
+							this.tasks[task].elements[element].$element.css(property, model, true);
 
 						};
 
 					};
 
-					if( elapsedTime === this.tasks[task].duration ){
+					if( elapsedTime === this.tasks[task].options.duration ){
 
 						this.tasks[task].options.complete.call(this.tasks[task].this);
 						this.tasks.splice(task, 1);
@@ -1848,9 +2039,11 @@
 
 				};
 
-				// this.then = now - (this.deltaTime % this.interval);
+				this.then = now - (this.deltaTime % this.interval);
 
-			// };
+			};
+
+			window.requestAnimationFrame(this.fn.bind(this));
 
 		},
 		add: function( elements, styles, options ){
@@ -1946,6 +2139,7 @@
 	Jo.animation.fn.init.prototype = Jo.animation.fn;
 
 	var Animation = Jo.animation(30);
+*/
 
 	Joot = Jo(document);
 
