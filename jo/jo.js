@@ -18,15 +18,19 @@
 		constructor: Jo,
 		init: function( selector, context ){
 
-			if( !selector ) return this;
+			if( isEmpty(selector) ){
+
+				return this;
+
+			};
 
 			if( isFunction(selector) ){
 
-				var oldOnLoad = window.onload;
+				var previousOnload = window.onload;
 
 				window.onload = function(){
 					
-					if( isFunction(oldOnLoad) ) oldOnLoad();
+					if( isFunction(previousOnload) ) previousOnload();
 
 					selector.call(this, Jo);
 
@@ -63,9 +67,9 @@
 			}
 			else if( isNodeList(selector) ){
 
-				for( var a = 0; a < selector.length; a++ ){
+				for( var node = 0; node < selector.length; node++ ){
 
-					this.found.push(selector[a]);
+					this.found.push(selector[node]);
 
 				};
 
@@ -1481,7 +1485,7 @@
 
 						var uncamelizedProperty = uncamelize(property);
 
-						var from = Jo(this).css(property)[0];
+						var from = Jo(this).css(uncamelizedProperty)[0];
 						var to = styles[property];
 						var values = new Array();
 
@@ -2381,7 +2385,7 @@
 
 	};
 
-	var regexp = {
+	var regularExpressions = {
 		length: new RegExp("(\\d*\\.?\\d+)(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%)", "gi"), //!!! < ?
 		RGBColor: new RegExp("rgba?\\(([0-9]{1,3})[,\\s]{1,}([0-9]{1,3})[,\\s]{1,}([0-9]{1,3})[,\\s]{0,}([0-1]{1}\\.?[0-9]*)?\\)", "gi"),
 		hexColor: new RegExp("^#([a-f0-9]{1,2})([a-f0-9]{1,2})([a-f0-9]{1,2})$", "gi")
