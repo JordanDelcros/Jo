@@ -1,3 +1,64 @@
+Jo(function( $ ){
+
+	var $ul = $("ul");
+
+	function createNode(){
+
+		$("<li/>")
+			.insertEndTo($ul)
+			.css({
+				top: "50%",
+				left: "50%"
+			})
+			.animate({
+				top: (Math.floor(((Math.random() * window.innerHeight) + 1) / window.innerHeight * 100)) + "%",
+				left: (Math.floor(((Math.random() * window.innerWidth) + 1) / window.innerWidth * 100)) + "%"
+			}, {
+				duration: 10000,
+				easing: "easeOutElastic",
+				complete: function(){
+
+					$(this).remove();
+					createNode();
+
+				}
+			});
+
+	};
+
+	for( var n = 0; n < 100; n++ ){
+
+		createNode();
+	
+	};
+
+});
+
+Jo(function( $ ){
+
+	console.log("function (doc) ready !");
+
+});
+
+$(window)
+	// .on("ready", resize)
+	.on("ready resize", resize)
+	.trigger("resize");
+
+function resize(){
+
+	console.log("resize");
+
+	$("ul").css({
+		width: "100%",
+		height: window.innerHeight + "px",
+		backgroundColor: "rgba(0,0,0,0.5)"
+	});
+
+};
+
+/*
+
 var media;
 var peer;
 
@@ -24,48 +85,43 @@ var isReady = function(){
 
 	};
 
-	for( var n = 0; n < 100; n++ ){
+	for( var n = 0; n < 1000; n++ ){
 
 		createNode();
 
 	};
 
 	$("ul li")
-		.each(function(){
+		.animate({
+			top: (Math.floor(((Math.random() * window.innerHeight) + 1) / window.innerHeight * 100)) + "%",
+			left: (Math.floor(((Math.random() * window.innerWidth) + 1) / window.innerWidth * 100)) + "%",
+			// backgroundSize: "20px 20px",
+			borderRadius: "30px",
+			// transform: "rotate(180deg)"
+		}, {
+			name: "toto",
+			duration: 3000,
+			easing: "easeOutElastic",
+			complete: function(){
+				
+				$(this)
+					.animate({
+						top: (Math.floor(((Math.random() * window.innerHeight) + 1) / window.innerHeight * 100)) + "%",
+						left: (Math.floor(((Math.random() * window.innerWidth) + 1) / window.innerWidth * 100)) + "%"
+					}, {
+						name: "toto",
+						duration: 10000,
+						easing: "easeOutElastic",
+						complete: function(){
 
-			$(this)
-				.animate({
-					top: (Math.floor(((Math.random() * window.innerHeight) + 1) / window.innerHeight * 100)) + "%",
-					left: (Math.floor(((Math.random() * window.innerWidth) + 1) / window.innerWidth * 100)) + "%",
-					// backgroundSize: "20px 20px",
-					borderRadius: "100%",
-					// transform: "rotate(180deg)"
-				}, {
-					name: "toto",
-					duration: 3000,
-					easing: "easeOutElastic",
-					complete: function(){
-						
-						$(this)
-							.animate({
-									top: (Math.floor(((Math.random() * window.innerHeight) + 1) / window.innerHeight * 100)) + "%",
-									left: (Math.floor(((Math.random() * window.innerWidth) + 1) / window.innerWidth * 100)) + "%"
-								}, {
-									name: "toto",
-									duration: 10000,
-									easing: "easeOutElastic",
-									complete: function(){
+							// console.log("complete", Date.now());
+							
+							// createNode();
 
-										console.log("complete", Date.now());
-										
-										// createNode();
+						}
+					});
 
-									}
-								});
-
-					}
-				});
-
+			}
 		});
 
 /*
@@ -115,32 +171,8 @@ var isReady = function(){
 
 */
 
-	$(window)
-		.on("resize", resize)
-		.trigger("resize");
+	
 
-};
+// };
 
 
-Jo(document)
-	.on("ready", isReady)
-	// .off("ready", isReady);
-
-
-Jo(function($){
-
-	console.log("function (window) ready !");
-
-});
-
-function resize(){
-
-	console.log("resize");
-
-	$("ul").css({
-		width: "100%",
-		height: window.innerHeight + "px",
-		backgroundColor: "rgba(0,0,0,0.5)"
-	});
-
-};
