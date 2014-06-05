@@ -112,6 +112,53 @@
 			return $this;
 
 		},
+		node: function( selector, normalize ){
+
+			var $this = Jo(this);
+
+			var found = new Array();
+
+			if( isBoolean(selector) ){
+
+				var normalize = selector;
+
+				selector = undefined;
+
+			};
+
+			if( isEmpty(normalize) ){
+
+				normalize = false;
+
+			};
+
+			$this.each(function(){
+
+				var nodes = this.childNodes;
+
+				for( var node = 0; node < nodes.length; node++ ){
+
+					if( (!isEmpty(selector) && isString(selector) && !Jo(nodes[node]).is(selector)) || (isTrue(normalize) && isText(nodes[node]) && new RegExp("^\\s+$", "g").test(nodes[node].textContent)) ){
+
+						continue;
+
+					}
+					else {
+
+						found.push(nodes[node]);
+
+					};
+
+				};
+
+			});
+
+			$this.found = found;
+			$this.length = $this.found.length;
+
+			return $this;
+
+		},
 		child: function( selector ){
 
 			var $this = Jo(this);
@@ -136,73 +183,6 @@
 					else {
 
 						found.push(childs[child]);
-
-					};
-
-				};
-
-			});
-
-			$this.found = found;
-			$this.length = $this.found.length;
-
-			return $this;
-
-		},
-		node: function( selector, normalize ){
-
-			var $this = Jo(this);
-
-			var found = new Array();
-
-			if( isBoolean(selector) ){
-
-				var normalize = selector;
-
-				selector = undefined;
-
-			};
-
-			if( isEmpty(normalize) ){
-
-				normalize = false;
-
-			};
-
-			if( isTrue(normalize) ){
-
-				$this.each(function(){
-
-					var nodes = this.childNodes;
-
-					for( var node = 0; node < nodes.length; node++ ){
-
-						if( isText(nodes[node]) && new RegExp("^\\s+$", "g").test(nodes[node].textContent) ){
-
-							Jo(nodes[node]).remove();
-
-						};
-
-					};
-
-				});
-
-			};
-
-			$this.each(function(){
-
-				var nodes = this.childNodes;
-
-				for( var node = 0; node < nodes.length; node++ ){
-
-					if( !isEmpty(selector) && isString(selector) && Jo(nodes[node]).is(selector) ){
-
-						found.push(nodes[node]);
-
-					}
-					else if( isEmpty(selector) ){
-
-						found.push(nodes[node]);
 
 					};
 
@@ -312,7 +292,7 @@
 			};
 
 		},
-		prev: function(){
+		prev: function( selector ){
 
 			var $this = Jo(this);
 
@@ -320,9 +300,18 @@
 
 			$this.each(function(){
 
-				if( this.previousElementSibling ){
+				var target = this;
 
-					this.push(this.previousElementSibling);
+				while( !isEmpty(target.previousElementSibling) ){
+
+					target = target.previousElementSibling;
+
+					if( (!isEmpty(selector) && isString(selector) && Jo(target).is(selector)) || isEmpty(selector) ){
+
+						found.push(target);
+						break;
+
+					};
 
 				};
 
@@ -334,7 +323,7 @@
 			return $this;
 
 		},
-		next: function(){
+		next: function( selector ){
 
 			var $this = Jo(this);
 
@@ -342,9 +331,18 @@
 
 			$this.each(function(){
 
-				if( this.nextElementSibling ){
+				var target = this;
 
-					found.push(this.nextElementSibling);
+				while( !isEmpty(target.nextElementSibling) ){
+
+					target = target.nextElementSibling;
+
+					if( (!isEmpty(selector) && isString(selector) && Jo(target).is(selector)) || isEmpty(selector) ){
+
+						found.push(target);
+						break;
+
+					};
 
 				};
 
@@ -358,9 +356,9 @@
 		},
 		each: function( fn ){
 
-			for( var key = 0; key < this.found.length; key++ ){
+			for( var index = 0; index < this.found.length; index++ ){
 
-				fn.call(this.found[key], key);
+				fn.call(this.found[index], index);
 
 			};
 			
@@ -375,7 +373,11 @@
 
 				this.each(function( index ){
 
-					if( this !== selector.found[index] ) returned = false;
+					if( this !== selector.found[index] ){
+
+						returned = false;
+
+					};
 
 				});
 
@@ -384,7 +386,11 @@
 
 				this.each(function(){
 
-					if( this !== selector ) returned = false;
+					if( this !== selector ){
+
+						returned = false;
+
+					};
 
 				});
 
@@ -393,7 +399,11 @@
 
 				this.each(function( index ){
 
-					if( this !== selector[index] ) returned = false;
+					if( this !== selector[index] ){
+
+						returned = false;
+
+					};
 
 				});
 
@@ -406,7 +416,7 @@
 
 					this.matches = (this.matches || this.matchesSelector || this.msMatchesSelector || this.mozMatchesSelector || this.webkitMatchesSelector || this.oMatchesSelector || function(){ return false });
 
-					if( isFalse(this.matches.call(this, selector)) ){
+					if( isFalse(this.matches(selector)) ){
 
 						returned = false;
 
@@ -664,6 +674,28 @@
 			else {
 
 				this.css("width", width);
+
+			};
+
+		},
+		height: function( height ){
+
+			if( isEmpty(height) ){
+
+				var returned = new Array();
+
+				this.each(function(){
+
+					returned.push(this.innerHeight);
+
+				});
+
+				return returned;
+
+			}
+			else {
+
+				this.css("height", height);
 
 			};
 
