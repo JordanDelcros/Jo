@@ -1,63 +1,99 @@
 # Javascript overloaded (beta 1) 
 
-Jo is a Javascript library to make the same as pure JS with less code.
+Jo is a JavaScript library to make the same as pure JS with less code.
 
 ## How to use ?
-Like every Javascript library, link JS file into HTML head or body end
-`<script type="text/javascript src="path/to/Jo.js></script>`
+Like every JavaScript library, simply link the JS file into an HTML `<head>` or `<body>` tag.
+`<script type="text/javascript src="path/to/jo.js></script>`
 
-Now you can use `Jo` or `$` like this `$("section")` to get nodes in the DOM.
+Now you can use `Jo` or `$` like that `$("section")` to get the nodes from the DOM.
 
-Then you can use methods like this one `$("section").css("background-color", "#FF00FF");`.
+Then you can use methods like this one `$("section").css("background-color", "#456DA0");`.
 
-## Methods
+## Documentation
 
-### find( selector )
-Found all tags in each elements.
+### Methods
+
+#### find( _selector_ )
+Found all descendants tags from each element.
+
 Return Jo object.
 - **selector _[string]_** is the selector to found.
 ```js
-  $("section").find("div ul > li a[href^='https://']");
+  $("section").find("div:first-child ul > li > a[href^='http']");
 ```
 
-### child( selector )
-Found all nodes contained as direct childrens.
+#### node( _selector_, _normalize_ )
+Found all descendants nodes into each element.
+Return Jo object.
+- **selector _[string(optional)]_** is the selector to found.
+- **normalize _[boolean(optional)]_** let you choose if undesired whitespaces must be erased. _Default is false_
+```js
+ $("section").node("div:first-child ul > li");
+```
+
+#### child( _selector_ )
+Found all immediate descendants nodes from each element.
 Return Jo object.
 - **selector _[string]_** is the selector to found.
 ```js
   $("section").child("div");
 ```
 
-### node( selector, normalize )
-Found all nodes contained in the selector.
+#### parent( _selector_ )
+Found all immediate ascendants tags from each element.
 Return Jo object.
-- **selector _[string]_** is the selector to found.
-- **normalize _[boolean]_** let you choose if undesired whitespace must be erease. Default is false.
+- **selector _[string(optional)]_** is the selector to found.
 ```js
- $("section").node("div ul:first > li");
+  $("section").parent("div");
 ```
 
-### item( number )
-Select node in the Jo.found array (do not confound with a :nth- selector).
+#### parents( _selector_ )
+Found all ascendants tags from each element.
+Return Jo object.
+- **selector _[string(optional)]_** is the selector to found.
+```js
+  $("div").parents("section, article, footer");
+```
+
+#### item( _index_ )
+Select one element from the Jo.found array (do not confound with th :nth-* selector).
 Return Jo object.
 - **number _[integer]_** is the index to found in the array.
 ```js
-  $("section").find("div").item(0);
+  $("section").item(0);
 ```
 
-### each( fn )
-Execute function for each found node in the Jo.found array (this become the node).
+#### prev( _selector_ )
+Found previous element from each element
+Return Jo object
+- ** selector _[string(optional)]_** is the selector to found
+```js
+  $("ul li:nth-child(4)").prev(":nth-child(2)");
+```
+
+#### next( _selector_ )
+Found previous element from each element
+Return Jo object
+- ** selector _[string(optional)]_** is the selector to found
+```js
+  $("ul li:nth-child(4)").next(":nth-child(6)");
+```
+
+#### each( fn )
+Execute function for each found node in the Jo.found array (this become the current node).
 Return Jo object.
 - **fn _[function]_** is the function to execute. 
 ```js
-  $("section").find("div ul:first > li").each(function(){
+  $("section").find("div ul:first > li").each(function( index ){
   
-    $(this).find("a").css("text-decoration", "underline");
+    $(this).find("a").css("color", "#456DA0");
   
   });
 ```
-### is( selector )
-Compare found nodes in Jo.found array to the selector and return a boolean, true if all match or false if one fail.
+
+#### is( selector )
+Compare found elements in Jo.found array to the selector and return a boolean, true if all match or false if one fail.
 Return boolean.
 - **selector _[string]_** is the selector to found.
 ```js
@@ -73,11 +109,11 @@ Return boolean.
   };
 ```
 
-### on( action, fn, useCapture )
-Add event listener to each node in the Jo.found array.
+#### on( action, fn, useCapture )
+Add event listener to each element.
 Return Jo object
-- **action _[string]_** is the event name to add, it can be a standard event (like "click", "mouseenter", "keyup"...) or a custom event (like "yeah", "catchPokemon", "myEvent"...).
-- **fn _[function]_** is the function to execute when the event happen.
+- **action _[string]_** is the event name to add, it can be a standard event (like "click", "mouseenter", "keyup"...) or a custom event (like "yeah", "catchPokemon", "myEvent"...). You can also add multiple events a time by separating them by a space (like "click yeah catchPokemon"...)
+- **fn _[function]_** is the function to execute when the event happened.
 - **useCapture _[boolean, optional]_** let you choose between capture (true) or bubble (false) event. Default is false.
 ```js
   $("section").find("a").on("click", function(){
@@ -93,13 +129,12 @@ Return Jo object
   }, false);
 ```
 
-### off( action, fn[, useCapture] )
-Remove event listener to each node in the Jo.found array.
+#### off( action, fn[, useCapture] )
+Remove event listener to each element.
 Return Jo object.
-- **action _[string]_** is the event name to remove, it can be a standard event (like "click", "mouseenter", "keyup"...) or a custom event (like "yeah", "catchPokemon", "myEvent"...).
-- **fn _[function, optional]_** is the function to remove, cause the same action can be added multiple time with different functions. If undefined, all event with this action will be removed.
+- **action _[string]_** is the event name to remove, it can be a standard event (like "click", "mouseenter", "keyup"...) or a custom event (like "yeah", "catchPokemon", "myEvent"...). You can also remove multiple events a time by separating them by a space (like "click yeah catchPokemon"...)
+- **fn _[function, optional]_** is the function to remove, cause the same action can be added multiple time with different functions. If undefined, all function for this action will be removed.
 - **useCapture _[boolean, optional]_** let you choose between capture (true) or bubble (false) event. Default is false.
-
 ```js
   var fn = function(){
   
@@ -115,7 +150,7 @@ Return Jo object.
     .on("click", fn, false)
     .on("yeah", function(){
     
-      alert("Yeah! You click me!");
+      alert("Yeah! You click me in time!");
     
     };
   
@@ -127,8 +162,8 @@ Return Jo object.
   
 ```
 
-### trigger( action )
-Trigger the event, it have been called or not.
+#### trigger( action )
+Trigger an event on each elements, it have been called or not.
 Return Jo object.
 - **action _[string]_** the action to trigger.
 ```js
@@ -147,7 +182,7 @@ Return Jo object.
   $("a").trigger("click");
 ```
 
-### attr( name, value )
+#### attr( _name_, _value_ )
 Set or get attributes.
 Return Jo object or string containg attribute value or object containing attributes values.
 - **name _[string|object|array]_** the attribute to set or get. If is an object, set each attributes. If is an array, get each attributes in object.
@@ -162,9 +197,22 @@ Return Jo object or string containg attribute value or object containing attribu
       height: height,
       alt: $("img").item(0).attr("alt")
     });
+    
+  var attrs = $("img").attr(["width", "height", "alt"]);
 ```
 
-### css( name, value )
+#### width( _width_ )
+Set or get width of each element.
+Return Jo object or array containg width integer.
+-**width _[cssSize(optional)]_** is the size in standard css ("10px", 10%, "10em", ...) you want to set to the elements.
+```js
+  var bodyWidth = $("body").width()[0];
+  var sectionWidth = $("section:fist").width()[0];
+  
+  $("section:first").width(bodyWidth / sectionWidth * 100 + "%");
+```
+
+#### css( _name_, _value_ )
 Set or get styles.
 Return Jo object or string containg style value or object containing styles values.
 ```js
@@ -359,15 +407,16 @@ Instantiate WebSocket connection
 #### receive / on
 #### terminate
 
-## To do/see
+## To-do/see
+- in node() method, dont remove undesired nodes, just dont get them in found array
+
 - Blob
 - WebSQL database -> window.openDatabase()
 - geolocation
 - offline application
 - localStorage SessionStorage
-- Workers / Messaging <--- execute un js totalement inaccessible pour l'utilisateur ? So safe :D
 
-- $('html').bind('paste', function(e) {
+- copy/cut/paste $('html').bind('paste', function(e) {
   e.preventDefault();
   var item = (e.clipboardData || e.originalEvent.clipboardData).items[0];
   var type = item.type.split('/').shift();
