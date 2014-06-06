@@ -5,11 +5,11 @@
 (function( window, undefined ){
 	"use strict";
 
-	var Joot;
+	var documentRoot = document;
 
-	var Jo = function( selector, context, Joot ){
+	var Jo = function( selector, context, documentRoot ){
 
-		return new Jo.fn.init(selector, context, Joot);
+		return new Jo.fn.init(selector, context, documentRoot);
 
 	};
 
@@ -847,20 +847,25 @@
 				return returned;
 
 			}
-			else {
+			else if( isString(html) ){
 
 				this.each(function(){
 
 					this.innerHTML = html;
-
+					
 				});
 
-				this.found = updateNodes(this);
-				this.length = this.found.length;
+			}
+			else {
 
-				return this;
+				Jo(this).html("").insertEnd(html);
 
 			};
+
+			this.found = updateNodes(this);
+			this.length = this.found.length;
+
+			return this;
 
 		},
 		text: function( text ){
@@ -1924,7 +1929,7 @@
 		constructor: Jo.animation,
 		init: function( fps, fn ){
 
-			this.fps = fps || 30;
+			this.fps = fps || 30;
 			this.interval = 1000 / this.fps;
 			this.now = 0;
 			this.then = 0;
@@ -2025,7 +2030,7 @@
 
 	});
 
-	Joot = Jo(document);
+	documentRoot = Jo(documentRoot);
 
 	function isEmpty( source ){
 

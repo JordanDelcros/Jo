@@ -14,12 +14,12 @@ Jo(function( $ ){
 				top: (Math.floor(((Math.random() * window.innerHeight) + 1) / window.innerHeight * 100)) + "%",
 				left: (Math.floor(((Math.random() * window.innerWidth) + 1) / window.innerWidth * 100)) + "%"
 			}, {
-				duration: 10000,
-				easing: "easeOutBounce",
+				duration: 5000,
+				easing: "easeOutElastic",
 				complete: function(){
 
-					// $(this).remove();
-					// createNode();
+					$(this).remove();
+					createNode();
 
 				}
 			});

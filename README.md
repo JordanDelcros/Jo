@@ -1,6 +1,6 @@
-# Javascript overloaded (beta 1) 
+# Javascript Overloaded (beta 1) 
 
-Jo is a JavaScript library to make the same as pure JS with less code.
+Jo is a JavaScript framework to make the same as pure JS with less code.
 
 ## How to use ?
 Like every JavaScript library, simply link the JS file into an HTML `<head>` or `<body>` tag.
@@ -204,7 +204,7 @@ Return Jo object or string containg attribute value or object containing attribu
 #### width( _width_ )
 Set or get width of each element.
 Return Jo object or array containg width integer.
--**width _[cssSize(optional)]_** is the size in standard css ("10px", 10%, "10em", ...) you want to set to the elements.
+-**width _[string(optional)]_** is the size in standard css ("10px", 10%, "10em", ...) you want to set to the elements.
 ```js
   var bodyWidth = $("body").width()[0];
   var sectionWidth = $("section:fist").width()[0];
@@ -212,9 +212,23 @@ Return Jo object or array containg width integer.
   $("section:first").width(bodyWidth / sectionWidth * 100 + "%");
 ```
 
-#### css( _name_, _value_ )
+#### height( _height_ )
+Set or get height of each element.
+Return Jo object or array containg height integer.
+-**height _[string(optional)]_** is the size in standard css ("10px", 10%, "10em", ...) you want to set to the elements.
+```js
+  var bodyHeight = $("body").height()[0];
+  var sectionHeight = $("section:fist").height()[0];
+  
+  $("section:first").height(bodyHeight / sectionHeight * 100 + "%");
+```
+
+#### css( _property_, _value_, _unverified_ )
 Set or get styles.
 Return Jo object or string containg style value or object containing styles values.
+-**property _[string|object|array]_** is the property to get/set
+-**value _[string|]_** is the value to set
+-**unverified _[boolean]_** if true, dont check for prefixing (fastest)
 ```js
 
   var border = $("div").css("border");
@@ -230,21 +244,46 @@ Return Jo object or string containg style value or object containing styles valu
 
 ```
 
-### is( selector )
-Compare nodes found in Jo.found array to the CSS selector. Return true if all nodes match or false if only one fail.
+#### is( selector )
+Compare each element to the CSS selector. Return true if all nodes match or false if only one fail.
 Return boolean.
 - **selector _[string]_** is the selector to compare with.
 ```js
-  var divs = $("section div");
+  var $divs = $("section div");
 
-  if( divs.is("div[data-type^='elements'][draggable]:nth-of-type(1)") ){
+  $divs.each(function(){
 
-    divs.css("border", "1px solid green");
+    if( $(this).is("div[data-type^='elements'][draggable]:nth-of-type(1)") ){
 
-  };
+      $(this).css("border", "1px solid green");
+
+    };
+
+  });
 ```
 
-### insertBefore( html )
+#### addClass( class )
+Add a class to each element
+Return Jo object.
+- ** class _[string]_ ** is the class name to add
+```js
+  $("section div ul > li").addClass("firstLayout");
+```
+
+#### removeClass( class )
+Remove a class to each element
+Return Jo object.
+- ** class _[string]_ ** is the class name to remove
+```js
+  $("section div ul > li:nth(2n+1)").removeClass("firstLayout");
+```
+
+#### html( html )
+Get or Set HTML content of each element
+Return Jo object
+- **html _[string|nodeList|node]_**
+
+#### insertBefore( html )
 Add html before (outer) each nodes found in the Jo.found array.
 Return Jo object.
 - **html _[string|node|nodelist|jo]_** is the code to insert before.
