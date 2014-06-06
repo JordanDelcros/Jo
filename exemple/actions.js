@@ -15,18 +15,18 @@ Jo(function( $ ){
 				left: (Math.floor(((Math.random() * window.innerWidth) + 1) / window.innerWidth * 100)) + "%"
 			}, {
 				duration: 10000,
-				easing: "easeOutElastic",
+				easing: "easeOutBounce",
 				complete: function(){
 
-					$(this).remove();
-					createNode();
+					// $(this).remove();
+					// createNode();
 
 				}
 			});
 
 	};
 
-	for( var n = 0; n < 100; n++ ){
+	for( var n = 0; n < 500; n++ ){
 
 		createNode();
 	

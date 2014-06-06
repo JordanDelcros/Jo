@@ -700,29 +700,19 @@
 			};
 
 		},
-		css: function( property, value, performance ){
+		css: function( property, value, unverified ){
 
 			if( isString(property) ){
 
-				if( !isEmpty(value) ){
+				if( isString(value) ){
 
 					this.each(function(){
 
-						if( performance !== true ){
+						if( !isTrue(unverified) ){
 
 							if( isEmpty(window.getComputedStyle(this, null).getPropertyValue(property)) && !isEmpty(window.getComputedStyle(this, null).getPropertyValue(prefix.css + property)) ){
 
 								property = prefix.js + property[0].toUpperCase() + property.substr(1);
-
-							};
-
-							if( isFalse(window.CSS.supports(property, value)) ){
-
-								if( isTrue(window.CSS.supports(property, value + "px")) ){
-
-									value = value + "px";
-
-								};
 
 							};
 
@@ -739,9 +729,13 @@
 
 					this.each(function(){
 
-						if( isEmpty(window.getComputedStyle(this, null).getPropertyValue(property)) && !isEmpty(window.getComputedStyle(this, null).getPropertyValue(prefix.css + property)) ){
+						if( !isTrue(value) ){
 
-							property = prefix.css + property;
+							if( isEmpty(window.getComputedStyle(this, null).getPropertyValue(property)) && !isEmpty(window.getComputedStyle(this, null).getPropertyValue(prefix.css + property)) ){
+
+								property = prefix.css + property;
+
+							};
 
 						};
 
