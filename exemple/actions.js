@@ -20,13 +20,14 @@ Jo(function( $ ){
 
 					$(this).remove();
 					createNode();
+					createNode();
 
 				}
 			});
 
 	};
 
-	for( var n = 0; n < 500; n++ ){
+	for( var n = 0; n < 1; n++ ){
 
 		createNode();
 	
