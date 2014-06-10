@@ -18,75 +18,73 @@
 		constructor: Jo,
 		init: function( selector, context ){
 
-			if( isEmpty(selector) ){
-
-				return this;
-
-			};
-
-			if( isFunction(selector) ){
-
-				var previousOnload = window.onload;
-
-				window.onload = function(){
-					
-					if( isFunction(previousOnload) ) previousOnload();
-
-					selector.call(this, Jo);
-
-				};
-				
-			};
-
 			this.selector = selector;
 			this.found = new Array();
 
-			if( isString(selector) ){
+			if( !isEmpty(selector) ){
 
-				if( new RegExp("^<.+>$", "gi").test(selector) ){
+				if( isFunction(selector) ){
 
-					var temporaryNode = document.createElement("div");
+					var previousOnload = window.onload;
 
-					temporaryNode.innerHTML = selector;
+					window.onload = function(){
+						
+						if( isFunction(previousOnload) ) previousOnload();
 
-					for( var node = 0; node < temporaryNode.childNodes.length; node++ ){
+						selector.call(this, Jo);
 
-						this.found.push(temporaryNode.childNodes[node]);
+					};
+					
+				};
+
+				if( isString(selector) ){
+
+					if( new RegExp("^<.+>$", "gi").test(selector) ){
+
+						var temporaryNode = document.createElement("div");
+
+						temporaryNode.innerHTML = selector;
+
+						for( var node = 0; node < temporaryNode.childNodes.length; node++ ){
+
+							this.found.push(temporaryNode.childNodes[node]);
+
+						};
+
+						temporaryNode.remove();
+
+					}
+					else {
+
+						this.found = getNodes(selector);
+
+					};
+				
+				}
+				else if( isNodeList(selector) ){
+
+					for( var node = 0; node < selector.length; node++ ){
+
+						this.found.push(selector[node]);
 
 					};
 
-					temporaryNode.remove();
+				}
+				else if( isNode(selector) ){
+
+					this.found.push(selector);
 
 				}
-				else {
+				else if( isWindow(selector) ){
 
-					this.found = getNodes(selector);
+					this.found.push(window);
 
-				};
-			
-			}
-			else if( isNodeList(selector) ){
+				}
+				else if( isJo(selector) ){
 
-				for( var node = 0; node < selector.length; node++ ){
-
-					this.found.push(selector[node]);
+					this.found = selector.found;
 
 				};
-
-			}
-			else if( isNode(selector) ){
-
-				this.found.push(selector);
-
-			}
-			else if( isWindow(selector) ){
-
-				this.found.push(window);
-
-			}
-			else if( isJo(selector) ){
-
-				this.found = selector.found;
 
 			};
 
@@ -1504,6 +1502,20 @@
 			//
 			//
 
+			var preparedStyles = new Array();
+
+			for( var property in styles ){
+
+				if( styles.hasOwnProperty(property) ){
+
+					var preparedStyle = prepareCSSStyle(property, styles[property])
+
+					preparedStyles[preparedStyle.property] = preparedStyle.value;
+
+				};
+
+			};
+
 			var task = {
 				this: this,
 				elements: new Array(),
@@ -1517,14 +1529,14 @@
 					properties: new Object()
 				};
 
-				for( var property in styles ){
+				for( var property in preparedStyles ){
 
-					if( styles.hasOwnProperty(property) ){
+					if( preparedStyles.hasOwnProperty(property) ){
 
 						var uncamelizedProperty = uncamelize(property);
 
 						var from = Jo(this).css(uncamelizedProperty)[0];
-						var to = styles[property];
+						var to = preparedStyles[property];
 						var values = new Array();
 
 						if( from === "auto" && !isEmpty(this[camelize("offset-" + property)]) ){
@@ -1978,7 +1990,7 @@
 
 	Jo.animation.fn.init.prototype = Jo.animation.fn;
 
-	var Animations = Jo.animation(30, function( now ){
+	var Animations = Jo.animation(60, function( now ){
 
 		for( var task = 0; task < this.tasks.length; task++ ){
 
@@ -2196,6 +2208,15 @@
 		};
 
 		return returned.join(",");
+
+	};
+
+	function prepareCSSStyle( property, value ){
+
+		return {
+			property: property,
+			value: value
+		};
 
 	};
 
@@ -2687,7 +2708,6 @@
 
 				}
 				else {
-
 
 					this.send(type, data);
 

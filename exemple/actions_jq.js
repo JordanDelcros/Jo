@@ -1,11 +1,11 @@
-Jo(function( $ ){
+jQuery(function( $ ){
 
 	var $ul = $("ul");
 
 	function createNode(){
 
 		$("<li/>")
-			.insertEndTo($ul)
+			.appendTo($ul)
 			.css({
 				top: "50%",
 				left: "50%"
@@ -15,7 +15,7 @@ Jo(function( $ ){
 				left: (Math.floor(((Math.random() * window.innerWidth) + 1) / window.innerWidth * 100)) + "%"
 			}, {
 				duration: 5000,
-				easing: "easeInOutQuad",
+				// easing: "linear",
 				complete: function(){
 
 					// $(this).remove();
@@ -36,7 +36,7 @@ Jo(function( $ ){
 });
 
 
-Jo(function( $ ){
+jQuery(function( $ ){
 
 	console.log("function (doc) ready !");
 
