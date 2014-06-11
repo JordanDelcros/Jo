@@ -16,6 +16,8 @@ Jo(function( $ ){
 
 		var $container = Jo("#container");
 
+		$container.html("");
+
 		function createNode(){
 
 			$("<li/>")
@@ -32,7 +34,7 @@ Jo(function( $ ){
 					easing: "easeInOutQuad",
 					complete: function(){
 
-						Jo(this).remove();
+						// Jo(this).remove();
 						// createNode();
 						// createNode();
 
@@ -53,6 +55,8 @@ Jo(function( $ ){
 
 		var $container = jQuery("#container");
 
+		$container.html("");
+
 		function createJqNode(){
 
 			jQuery("<li/>")
@@ -68,7 +72,7 @@ Jo(function( $ ){
 					duration: 5000,
 					complete: function(){
 
-						jQuery(this).remove();
+						// jQuery(this).remove();
 						// createNode();
 						// createNode();
 
