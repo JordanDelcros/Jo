@@ -1,40 +1,91 @@
 Jo(function( $ ){
 
-	var $ul = $("ul");
+	$("a[href='#jo']").on("click", function(){
 
-	function createNode(){
+		generateJoAnimation();
 
-		$("<li/>")
-			.insertEndTo($ul)
-			.css({
-				top: "50%",
-				left: "50%"
-			})
-			.animate({
-				top: (Math.floor(((Math.random() * window.innerHeight) + 1) / window.innerHeight * 100)) + "%",
-				left: (Math.floor(((Math.random() * window.innerWidth) + 1) / window.innerWidth * 100)) + "%"
-			}, {
-				duration: 5000,
-				easing: "easeInOutQuad",
-				complete: function(){
+	});
 
-					// $(this).remove();
-					// createNode();
-					// createNode();
+	$("a[href='#jquery']").on("click", function(){
 
-				}
-			});
+		generateJqueryAnimation();
+
+	});
+
+	function generateJoAnimation(){
+
+		var $container = Jo("#container");
+
+		function createNode(){
+
+			$("<li/>")
+				.insertEndTo($container)
+				.css({
+					top: "50%",
+					left: "50%"
+				})
+				.animate({
+					top: (Math.floor(((Math.random() * window.innerHeight) + 1) / window.innerHeight * 100)) + "%",
+					left: (Math.floor(((Math.random() * window.innerWidth) + 1) / window.innerWidth * 100)) + "%"
+				}, {
+					duration: 5000,
+					easing: "easeInOutQuad",
+					complete: function(){
+
+						Jo(this).remove();
+						// createNode();
+						// createNode();
+
+					}
+				});
+
+		};
+
+		for( var n = 0; n < 1000; n++ ){
+
+			createNode();
+		
+		};
 
 	};
 
-	for( var n = 0; n < 1000; n++ ){
+	function generateJqueryAnimation(){
 
-		createNode();
-	
+		var $container = jQuery("#container");
+
+		function createJqNode(){
+
+			jQuery("<li/>")
+				.appendTo($container)
+				.css({
+					top: "50%",
+					left: "50%"
+				})
+				.animate({
+					top: (Math.floor(((Math.random() * window.innerHeight) + 1) / window.innerHeight * 100)) + "%",
+					left: (Math.floor(((Math.random() * window.innerWidth) + 1) / window.innerWidth * 100)) + "%"
+				}, {
+					duration: 5000,
+					complete: function(){
+
+						jQuery(this).remove();
+						// createNode();
+						// createNode();
+
+					}
+				})
+
+		};
+
+		for( var n = 0; n < 1000; n++ ){
+
+			createJqNode();
+		
+		};
+
 	};
 
 });
-
 
 Jo(function( $ ){
 
@@ -42,7 +93,7 @@ Jo(function( $ ){
 
 });
 
-$(window)
+Jo(window)
 	// .on("ready", resize)
 	.on("ready resize", resize)
 	.trigger("resize");
@@ -51,7 +102,7 @@ function resize(){
 
 	console.log("resize");
 
-	$("ul").css({
+	Jo("ul").css({
 		width: "100%",
 		height: window.innerHeight + "px",
 		backgroundColor: "rgba(0,0,0,0.5)"
