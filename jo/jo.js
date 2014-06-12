@@ -708,11 +708,7 @@
 
 						if( !isTrue(unverified) ){
 
-							if( isEmpty(window.getComputedStyle(this, null).getPropertyValue(property)) && !isEmpty(window.getComputedStyle(this, null).getPropertyValue(prefix.css + property)) ){
-
-								property = prefix.js + property[0].toUpperCase() + property.substr(1);
-
-							};
+							property = prepareCSSProperty(property);
 
 						};
 
@@ -729,11 +725,7 @@
 
 						if( !isTrue(value) ){
 
-							if( isEmpty(window.getComputedStyle(this, null).getPropertyValue(property)) && !isEmpty(window.getComputedStyle(this, null).getPropertyValue(prefix.css + property)) ){
-
-								property = prefix.css + property;
-
-							};
+							property = prepareCSSProperty(property);
 
 						};
 
@@ -1495,22 +1487,19 @@
 				easing: "linear"
 			}, options);
 
-			// correct styles only ONE TIME, uncamelizing and prefixing
-			//
-			//
-			//
-			//
-			//
-
-			var preparedStyles = new Array();
-
 			for( var property in styles ){
 
 				if( styles.hasOwnProperty(property) ){
 
-					var preparedStyle = prepareCSSStyle(property, styles[property])
+					var preparedProperty = prepareCSSProperty(property, styles[property]);
 
-					preparedStyles[preparedStyle.property] = preparedStyle.value;
+					if( preparedProperty !== property ){
+
+						styles[preparedProperty] = styles[property];
+						delete styles[property];
+
+					};
+
 
 				};
 
@@ -1529,14 +1518,17 @@
 					properties: new Object()
 				};
 
-				for( var property in preparedStyles ){
+				// USE ALREADY DONE AWESOME SOLUTIONS 
+				// http://help.dottoro.com/ljjglctt.php
 
-					if( preparedStyles.hasOwnProperty(property) ){
+				for( var property in styles ){
+
+					if( styles.hasOwnProperty(property) ){
 
 						var uncamelizedProperty = uncamelize(property);
 
 						var from = Jo(this).css(uncamelizedProperty)[0];
-						var to = preparedStyles[property];
+						var to = styles[property];
 						var values = new Array();
 
 						if( from === "auto" && !isEmpty(this[camelize("offset-" + property)]) ){
@@ -2211,47 +2203,52 @@
 
 	};
 
-	function prepareCSSStyle( property, value ){
+	function prepareCSSProperty( property ){
 
-		return {
-			property: property,
-			value: value
+		var styles = window.getComputedStyle(document.body, null);
+
+		if( isEmpty(styles.getPropertyValue(property)) && !isEmpty(styles.getPropertyValue(prefix.css + property)) ){
+
+			property = prefix.css + property;
+
 		};
+
+		return property;
 
 	};
 
-	function getNodes( selector, origin ){	
+	function getNodes( selector, element ){	
 
 		selector = prepareSelector(selector);
 
-		if( isEmpty(origin) ){
+		if( isEmpty(element) ){
 
-			origin = document;
+			element = document;
 
 		};
 
 		var returned = new Array();
-		var originId = origin.id ? origin.id : null;
+		var elementId = element.id ? element.id : null;
 		var removeIdAfter = false;
-		var oldOrigin = origin;
+		var oldElement = element;
 
 		if( new RegExp("^\\s*>", "ig").test(selector) ){
 
-			if( isEmpty(originId) ){
+			if( isEmpty(elementId) ){
 
 				removeIdAfter = true;
-				originId = origin.id = "Jo_" + Math.random().toString(36).substr(2,9) + new Date().getTime().toString(36);
+				elementId = element.id = "Jo_" + Math.random().toString(36).substr(2,9) + new Date().getTime().toString(36);
 
 			};
 
-			selector = "#" + origin.id + selector;
-			origin = document;
+			selector = "#" + element.id + selector;
+			element = document;
 
 		};
 
-		var nodes = origin.querySelectorAll(selector);
+		var nodes = element.querySelectorAll(selector);
 
-		if( removeIdAfter === true ) oldOrigin.removeAttribute("id");
+		if( removeIdAfter === true ) oldElement.removeAttribute("id");
 
 		for( var node = 0; node < nodes.length; node++ ){
 			returned.push(nodes[node]);

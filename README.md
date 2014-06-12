@@ -455,6 +455,26 @@ Instantiate WebSocket connection
 - offline application
 - localStorage SessionStorage
 
+- complex object model
+  Object.defineProperty(
+    Object.prototype, 
+    'renameProperty',
+    {
+        writable : false, // Cannot alter this property
+        enumerable : false, // Will not show up in a for-in loop.
+        configurable : false, // Cannot be deleted via the delete operator
+        value : function (oldName, newName) {
+            // Check for the old property name to 
+            // avoid a ReferenceError in strict mode.
+            if (this.hasOwnProperty(oldName)) {
+                this[newName] = this[oldName];
+                delete this[oldName];
+            }
+            return this;
+        }
+    }
+  );
+
 - copy/cut/paste $('html').bind('paste', function(e) {
   e.preventDefault();
   var item = (e.clipboardData || e.originalEvent.clipboardData).items[0];

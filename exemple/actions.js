@@ -1,8 +1,13 @@
+var joli = 1;
+var jqueryli = 1;
+
 Jo(function( $ ){
 
 	$("a[href='#jo']").on("click", function(){
 
 		generateJoAnimation();
+
+		joli *= 2;
 
 	});
 
@@ -10,25 +15,29 @@ Jo(function( $ ){
 
 		generateJqueryAnimation();
 
+		jqueryli *= 2;
+
 	});
 
 	function generateJoAnimation(){
 
 		var $container = Jo("#container");
 
-		$container.html("");
+		$container.empty();
 
 		function createNode(){
 
-			$("<li/>")
+			Jo("<li/>")
 				.insertEndTo($container)
 				.css({
 					top: "50%",
-					left: "50%"
+					left: "50%",
+					transform: "rotate(10deg)"
 				})
 				.animate({
 					top: (Math.floor(((Math.random() * window.innerHeight) + 1) / window.innerHeight * 100)) + "%",
-					left: (Math.floor(((Math.random() * window.innerWidth) + 1) / window.innerWidth * 100)) + "%"
+					left: (Math.floor(((Math.random() * window.innerWidth) + 1) / window.innerWidth * 100)) + "%",
+					transform: "10deg"
 				}, {
 					duration: 5000,
 					easing: "easeInOutQuad",
@@ -43,7 +52,7 @@ Jo(function( $ ){
 
 		};
 
-		for( var n = 0; n < 1000; n++ ){
+		for( var n = 0; n < joli; n++ ){
 
 			createNode();
 		
@@ -55,7 +64,7 @@ Jo(function( $ ){
 
 		var $container = jQuery("#container");
 
-		$container.html("");
+		$container.empty();
 
 		function createJqNode(){
 
@@ -81,7 +90,7 @@ Jo(function( $ ){
 
 		};
 
-		for( var n = 0; n < 1000; n++ ){
+		for( var n = 0; n < jqueryli; n++ ){
 
 			createJqNode();
 		
