@@ -3,21 +3,16 @@ var jqueryli = 1;
 
 Jo(function( $ ){
 
-	$("a[href='#jo']").on("click", function(){
+	if( window.location.hash === "#jo" ){
 
 		generateJoAnimation();
 
-		joli *= 2;
-
-	});
-
-	$("a[href='#jquery']").on("click", function(){
-
+	}
+	else if( window.location.hash === "#jquery" ){
+	
 		generateJqueryAnimation();
 
-		jqueryli *= 2;
-
-	});
+	};
 
 	function generateJoAnimation(){
 
@@ -35,8 +30,8 @@ Jo(function( $ ){
 					transform: "rotate(10deg)"
 				})
 				.animate({
-					top: (Math.floor(((Math.random() * window.innerHeight) + 1) / window.innerHeight * 100)) + "%",
-					left: (Math.floor(((Math.random() * window.innerWidth) + 1) / window.innerWidth * 100)) + "%",
+					top: (Math.floor(((Math.random() * window.innerHeight) + 1) / window.innerHeight * 100)) + "px",
+					left: (Math.floor(((Math.random() * window.innerWidth) + 1) / window.innerWidth * 100)) + "px",
 					transform: "10deg"
 				}, {
 					duration: 5000,

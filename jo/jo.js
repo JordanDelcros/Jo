@@ -39,19 +39,32 @@
 
 				if( isString(selector) ){
 
-					if( new RegExp("^<.+>$", "gi").test(selector) ){
+					if( selector.charAt(0) === "<" && selector.charAt(selector.length - 1) === ">" ){
 
-						var temporaryNode = document.createElement("div");
+						var singleTag = regularExpressions.singleTag.exec(selector);
 
-						temporaryNode.innerHTML = selector;
+						// console.log(singleTag, selector);
 
-						for( var node = 0; node < temporaryNode.childNodes.length; node++ ){
+						if( !isEmpty(singleTag) && singleTag.length > 0 ){
 
-							this.found.push(temporaryNode.childNodes[node]);
+							this.found.push(document.createElement(singleTag[1]));
+
+						}
+						else {
+
+							var temporaryNode = document.createElement("div");
+
+							temporaryNode.innerHTML = selector;
+
+							for( var node = 0; node < temporaryNode.childNodes.length; node++ ){
+
+								this.found.push(temporaryNode.childNodes[node]);
+
+							};
+
+							temporaryNode.remove();
 
 						};
-
-						temporaryNode.remove();
 
 					}
 					else {
@@ -136,7 +149,7 @@
 
 				for( var node = 0; node < nodes.length; node++ ){
 
-					if( (!isEmpty(selector) && isString(selector) && !Jo(nodes[node]).is(selector)) || (isTrue(normalize) && isText(nodes[node]) && new RegExp("^\\s+$", "g").test(nodes[node].textContent)) ){
+					if( (!isEmpty(selector) && isString(selector) && !Jo(nodes[node]).is(selector)) || (isTrue(normalize) && isText(nodes[node]) && regularExpressions.onlySpaces.test(nodes[node].textContent)) ){
 
 						continue;
 
@@ -290,7 +303,7 @@
 			};
 
 		},
-		prev: function( selector ){
+		previous: function( selector ){
 
 			var $this = Jo(this);
 
@@ -303,6 +316,37 @@
 				while( !isEmpty(target.previousElementSibling) ){
 
 					target = target.previousElementSibling;
+
+					if( (!isEmpty(selector) && isString(selector) && Jo(target).is(selector)) || isEmpty(selector) ){
+
+						found.push(target);
+						break;
+
+					};
+
+				};
+
+			});
+
+			$this.found = found;
+			$this.length = $this.found.length;
+
+			return $this;
+
+		},
+		previousNode: function( selector ){
+
+			var $this = Jo(this);
+
+			var found = new Array();
+
+			$this.each(function(){
+
+				var target = this;
+
+				while( !isEmpty(target.previousElementSibling) ){
+
+					target = target.previousSibling;
 
 					if( (!isEmpty(selector) && isString(selector) && Jo(target).is(selector)) || isEmpty(selector) ){
 
@@ -334,6 +378,37 @@
 				while( !isEmpty(target.nextElementSibling) ){
 
 					target = target.nextElementSibling;
+
+					if( (!isEmpty(selector) && isString(selector) && Jo(target).is(selector)) || isEmpty(selector) ){
+
+						found.push(target);
+						break;
+
+					};
+
+				};
+
+			});
+
+			$this.found = found;
+			$this.length = $this.found.length;
+
+			return $this;
+
+		},
+		nextNode: function( selector ){
+
+			var $this = Jo(this);
+
+			var found = new Array();
+
+			$this.each(function(){
+
+				var target = this;
+
+				while( !isEmpty(target.nextElementSibling) ){
+
+					target = target.nextSibling;
 
 					if( (!isEmpty(selector) && isString(selector) && Jo(target).is(selector)) || isEmpty(selector) ){
 
@@ -706,8 +781,8 @@
 
 					this.each(function(){
 
-						if( !isTrue(unverified) ){
-
+						if( isFalse(unverified) ){
+ 
 							property = prepareCSSProperty(property);
 
 						};
@@ -723,7 +798,7 @@
 
 					this.each(function(){
 
-						if( !isTrue(value) ){
+						if( isFalse(value) ){
 
 							property = prepareCSSProperty(property);
 
@@ -820,6 +895,9 @@
 			});
 
 			return this;
+
+		},
+		toggleClass: function( className ){
 
 		},
 		html: function( html ){
@@ -951,6 +1029,34 @@
 				});
 
 			};
+
+			return this;
+
+		},
+		focus: function( position ){
+
+			this.each(function(){
+
+				if( isNumber(position) ){
+
+					this.focus();
+					
+					var selection = window.getSelection();
+
+					for( var count = 0; count < position; count++ ){
+
+						selection.modify("move", "forward", "character");
+
+					};
+					
+				}
+				else {
+
+					this.focus();
+
+				};
+
+			});
 
 			return this;
 
@@ -1380,9 +1486,9 @@
 
 			this.each(function(){
 
-				while( this.firstChild ){
+				while( this.lastChild ){
 
-					Jo(this.firstChild).remove();
+					this.removeChild(this.lastChild);
 
 				};
 
@@ -1500,7 +1606,6 @@
 
 					};
 
-
 				};
 
 			};
@@ -1518,8 +1623,17 @@
 					properties: new Object()
 				};
 
-				// USE ALREADY DONE AWESOME SOLUTIONS 
+				// USE BUILT-IN AWESOME SOLUTIONS 
 				// http://help.dottoro.com/ljjglctt.php
+
+				//STEPS ?
+				//
+				// Create outer StyleSheet < possible ?
+				// append style
+				// get style as primitive
+				// compare 'to' to 'from'
+				// make diff
+				// animate
 
 				for( var property in styles ){
 
@@ -1548,7 +1662,7 @@
 
 						};
 
-						var model = to.replace(new RegExp("(\\d*\\.?\\d+)(%)", "gi"), function( match, number, unit ){
+						var model = to.replace(regularExpressions.length, function( match, number, unit ){
 
 							var index = values.push({
 								from: null,
@@ -1561,8 +1675,21 @@
 
 						});
 
+						console.log(model);
+
 						var index = 0;
-						from.replace(new RegExp("(\\d*\\.?\\d+)(%)", "gi"), function( match, number, unit ){
+						from.replace(regularExpressions.length, function( match, number, unit ){
+
+							if( unit === values[index].to.unit ){
+
+
+
+							}
+							else if( unit === "%" && values[index].to.unit === "px" ){
+
+								
+
+							};
 
 							values[index].from = parseFloat(number);
 
@@ -1922,6 +2049,8 @@
 	};
 
 	Jo.fn.init.prototype = Jo.fn;
+
+	Jo.convert
 
 	Jo.animation = function( fps, fn ){
 
@@ -2289,16 +2418,18 @@
 	};
 
 	var regularExpressions = {
-		length: new RegExp("(\\d*\\.?\\d+)(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%)", "gi"), //!!! < ?
-		RGBColor: new RegExp("rgba?\\(([0-9]{1,3})[,\\s]{1,}([0-9]{1,3})[,\\s]{1,}([0-9]{1,3})[,\\s]{0,}([0-1]{1}\\.?[0-9]*)?\\)", "gi"),
-		hexColor: new RegExp("^#([a-f0-9]{1,2})([a-f0-9]{1,2})([a-f0-9]{1,2})$", "gi")
+		singleTag: /^<(\w+)\s*\/?>(?:<\/\1>|)$/,
+		onlySpaces: /^\s+$/g,
+		length: /(\d*\.?\d+)(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%)/gi, //!!! < ?
+		RGBColor: /rgba?\(([0-9]{1,3})[,\s]{1,}([0-9]{1,3})[,\s]{1,}([0-9]{1,3})[,\s]{0,}([0-1]{1}\.?[0-9]*)?\)/gi,
+		hexColor: /^#([a-f0-9]{1,2})([a-f0-9]{1,2})([a-f0-9]{1,2})$/gi
 	};
 
 	var prefix = function(){
 
 		var styles = window.getComputedStyle(document.documentElement, "");
 
-		var match = (Array.prototype.slice.call(styles).join("").match(new RegExp("-(moz|webkit|ms)-", "i")) || (styles.OLink === "" && ["", "o"]))[1];
+		var match = (Array.prototype.slice.call(styles).join("").match(/-(moz|webkit|ms)-/i) || (styles.OLink === "" && ["", "o"]))[1];
 
 		var dom = ("WebKit|Moz|MS|O").match(new RegExp("(" + match + ")", "i"))[1];
 		
