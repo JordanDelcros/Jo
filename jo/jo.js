@@ -115,10 +115,86 @@
 			$this.each(function(){
 
 				found = found.concat(getNodes(selector, this));
-	
+
 			});
 
 			$this.found = found;
+
+			return $this;
+
+		},
+		siblings: function( selector ){
+
+			var $this = Jo(this);
+
+			var found = new Array();
+
+			this.each(function(){
+
+				Array.prototype.filter.call(this.parentNode.children, function( child ){
+
+					var $child = Jo(child);
+
+					if( !$child.is(this) ){
+
+						if( !isEmpty(selector) && $child.is(selector) ){
+
+							found.push(child);
+
+						}
+						else {
+
+							found.push(child);
+
+						};
+
+					};
+
+				}.bind(this));
+
+			});
+
+			$this.found = found;
+			$this.length = found.length;
+
+			return $this;
+
+		},
+		siblingsBefore: function(){
+
+			var $this = Jo(this);
+
+			var found = new Array();
+
+			this.each(function(){
+
+				var $target = Jo(this);
+
+				Array.prototype.filter.call(this.parentNode.children, function( child ){
+
+					var $child = Jo(child);
+
+					if( !$child.is($target) && $child.index() < $target.index() ){
+
+						if( !isEmpty(selector) && $child.is(selector) ){
+
+							found.push(child);
+
+						}
+						else {
+
+							found.push(child);
+
+						};
+
+					};
+
+				});
+
+			});
+
+			$this.found = found;
+			$this.length = found.length;
 
 			return $this;
 
@@ -213,6 +289,8 @@
 
 			var found = new Array();
 
+			console.log("PARENT")
+
 			$this.each(function(){
 
 				if( !isEmpty(selector) ){
@@ -244,7 +322,7 @@
 			return $this;
 
 		},
-		parents: function( selector ){
+		parents: function( selector, otherwise ){
 
 			var $this = Jo(this);
 
@@ -252,21 +330,49 @@
 
 			$this.each(function(){
 
+				var element = this;
+
 				if( !isEmpty(selector) ){
 
-					var element = this;
+					if( isTrue(otherwise) ){
 
-					while( element.parentNode ){
+						while( element.parentNode ){
 
-						element = element.parentNode;
+							element = element.parentNode;
 
-						if( !isEmpty(element) ){
+							if( !isEmpty(element) ){
 
-							if( Jo(element).is(selector) ){
+								if( !Jo(element).is(selector) ){
 
-								found.push(element);
+									found.push(element);
 
-								break;
+								}
+								else {
+
+									break;
+
+								};
+
+							};
+
+						};
+
+					}
+					else {
+
+						while( element.parentNode ){
+
+							element = element.parentNode;
+
+							if( !isEmpty(element) ){
+
+								if( Jo(element).is(selector) ){
+
+									found.push(element);
+
+									break;
+
+								};
 
 							};
 
@@ -277,7 +383,17 @@
 				}
 				else {
 
-					found.push(this.parentNode);
+					while( element.parentNode ){
+
+						element = element.parentNode;
+
+						if( !isEmpty(element) ){
+
+							found.push(element);
+
+						};
+
+					};
 
 				};
 
@@ -293,12 +409,18 @@
 
 			if( number <= this.found.length ){
 
+				if( number < 0 ){
+
+					number = this.found.length - number;
+
+				};
+
 				return Jo(this.found[number]);
 
 			}
 			else {
 
-				return this;
+				return Jo();
 
 			};
 
@@ -977,6 +1099,37 @@
 			};
 
 		},
+		value: function( text ){
+
+			if( isEmpty(text) ){
+
+				var returned = new Array();
+
+				this.each(function(){
+
+					returned.push(this.value);
+
+				});
+
+				return returned;
+
+			}
+			else {
+
+				this.each(function(){
+
+					this.value = text;
+
+				});
+
+				this.found = updateNodes(this);
+				this.length = this.found.length;
+
+				return this;
+
+			};
+
+		},
 		data: function( name, value ){
 
 			if( isEmpty(name) ){
@@ -1046,32 +1199,72 @@
 			return returned;
 
 		},
-		focus: function( position ){
+		focus: function( positionStart, positionEnd ){
 
 			this.each(function(){
 
-				if( isNumber(position) ){
+				this.focus();
 
-					this.focus();
-					
-					var selection = window.getSelection();
+				if( isNumber(positionStart) ){
 
-					for( var count = 0; count < position; count++ ){
+					if( !isNumber(positionEnd) ){
 
-						selection.modify("move", "forward", "character");
+						positionEnd = positionStart;
 
 					};
+
+					this.setSelectionRange(positionStart, positionEnd);
 					
-				}
-				else {
-
-					this.focus();
-
 				};
 
 			});
 
 			return this;
+
+		},
+		cursor: function(){
+
+			var returned = new Array();
+
+			this.each(function(){
+
+				var cursor = new Object();
+				var owner = this.ownerDocument || this.document;
+				var view = owner.defaultView || owner.parentWindow;
+
+				cursor.range = view.getSelection().getRangeAt(0);
+
+				var cursorRangeEnd = cursor.range.cloneRange();
+				cursorRangeEnd.selectNodeContents(this);
+				cursorRangeEnd.setEnd(cursor.range.endContainer, cursor.range.endOffset);
+
+				var cursorRangeStart = cursor.range.cloneRange();
+				cursorRangeStart.selectNodeContents(this);
+				cursorRangeStart.setStart(cursor.range.startContainer, cursor.range.startOffset);
+
+				if( isTrue(cursor.range.collapsed) ){
+
+					cursor.collapsed = true;
+					cursor.position = cursor.start = cursor.end = cursorRangeEnd.toString().length;
+					cursor.selected = 0;
+
+				}
+				else {
+
+					var totalLength = $(this).text()[0].length;
+
+					cursor.collapsed = false;
+					cursor.start = totalLength - cursorRangeStart.toString().length;
+					cursor.position = cursor.end = cursorRangeEnd.toString().length;
+					cursor.selected = cursor.end - cursor.start;
+
+				};
+
+				returned.push(cursor);
+
+			});
+
+			return returned;
 
 		},
 		clone: function(){
@@ -1341,8 +1534,6 @@
 
 		},
 		insertEnd: function( html ){
-
-			console.log("insertend", this, html)
 
 			if( isString(html) ){
 
