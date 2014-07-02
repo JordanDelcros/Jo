@@ -958,7 +958,7 @@
 					Jo(this).empty();
 
 					if( Jo(this).is("text") ){
-
+						console.log("texttttttt");
 						this.nodeValue = text;
 
 					}
@@ -1031,6 +1031,19 @@
 			};
 
 			return this;
+
+		},
+		index: function(){
+
+			var returned = new Array();
+
+			this.each(function(){
+
+				returned.push(Array.prototype.indexOf.call(this.parentNode.childNodes, this));
+
+			});
+
+			return returned;
 
 		},
 		focus: function( position ){
@@ -1329,17 +1342,21 @@
 		},
 		insertEnd: function( html ){
 
+			console.log("insertend", this, html)
+
 			if( isString(html) ){
 
 				this.each(function(){
 
 					if( this.insertAdjacentHTML ){
 
+
 						this.insertAdjacentHTML("beforeend", html);
 
 					}
 					else {
 
+						console.log('befend2')
 						var temporaryNode = document.createElement("div");
 
 						temporaryNode.innerHTML = html;
