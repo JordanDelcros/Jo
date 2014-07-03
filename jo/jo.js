@@ -137,9 +137,13 @@
 
 					if( !$child.is(this) ){
 
-						if( !isEmpty(selector) && $child.is(selector) ){
+						if( !isEmpty(selector) ){
 
-							found.push(child);
+							if( $child.is(selector) ){
+
+								found.push(child);
+
+							};
 
 						}
 						else {
@@ -1229,10 +1233,27 @@
 			this.each(function(){
 
 				var cursor = new Object();
-				var owner = this.ownerDocument || this.document;
-				var view = owner.defaultView || owner.parentWindow;
+				var range;
 
-				cursor.range = view.getSelection().getRangeAt(0);
+				if( this.setSelectionRange ){
+
+					range = document.createRange();
+					range.setStart(this.firstChild, this.selectionStart);
+					range.setEnd(this.firstChild, this.selectionEnd);
+
+				}
+				else {
+
+					var owner = this.ownerDocument || this.document;
+					var view = owner.defaultView || owner.parentWindow;
+
+					range = view.getSelection().getRangeAt(0);
+
+				};
+
+				cursor.range = range.cloneRange();
+				cursor.html = cursor.range.cloneContents();
+				cursor.text = cursor.html.textContent;
 
 				var cursorRangeEnd = cursor.range.cloneRange();
 				cursorRangeEnd.selectNodeContents(this);
@@ -1260,6 +1281,8 @@
 
 				};
 
+				console.log(cursor);
+
 				returned.push(cursor);
 
 			});
@@ -1269,6 +1292,8 @@
 		},
 		clone: function(){
 
+			var $this = Jo(this);
+
 			var found = new Array();
 
 			this.each(function(){
@@ -1277,10 +1302,10 @@
 
 			});
 
-			this.found = found;
-			this.length = this.found.length;
+			$this.found = found;
+			$this.length = this.found.length;
 
-			return this;
+			return $this;
 
 		},
 		insertBefore: function( html ){
@@ -1620,19 +1645,13 @@
 		},
 		replace: function( html ){
 
-			Jo(this).node().remove();
+			var $this = Jo(this);
+			var found = new Array();
 
 			if( isString(html) || isNumber(html) ){
 
-				if( isNumber(html) ){
-
-					html = html.toString();
-
-				};
-
 				var temporaryNode = document.createElement("div");
-				temporaryNode.innerHTML = html;
-
+				temporaryNode.innerHTML = html.toString();
 
 				html = temporaryNode.childNodes;
 
@@ -1650,28 +1669,40 @@
 
 			};
 
-			var nodes = new Array();
-
-			for( var node = 0; node < html.length; node++ ){
-
-				nodes.push(html[node]);
-
-			};
-
 			this.each(function(){
 
-				for( var node = 0; node < html.length; node++ ){
+				var reference = this;
 
-					Jo(this).insertEnd(html[node].cloneNode(true));
+				if( html.length === 1 ){
+
+					var node = html[0].cloneNode(true);
+
+					found.push(node);
+
+					this.parentNode.replaceChild(node, this);
 
 				};
 
+				for( var element = 0; element < html.length; element++ ){
+
+					var node = html[element].cloneNode(true);
+
+					found.push(node);
+
+					Jo(reference).insertAfter(node);
+
+					reference = node;
+
+				};
+
+				Jo(this).remove();
+
 			});
 
-			this.found = updateNodes(this);
-			this.length = this.found.length;
+			$this.found = found;
+			$this.length = this.found.length;
 
-			return this;
+			return $this;
 
 		},
 		remove: function(){
