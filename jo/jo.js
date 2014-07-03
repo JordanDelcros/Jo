@@ -1203,6 +1203,25 @@
 			return returned;
 
 		},
+		indexType: function(){
+
+			var returned = new Array();
+
+			this.each(function(){
+
+				var element = this;
+
+				while( element.previousElementSibling ){
+
+					
+
+				};
+
+			});
+
+			return returned;
+
+		},
 		focus: function( positionStart, positionEnd ){
 
 			this.each(function(){
