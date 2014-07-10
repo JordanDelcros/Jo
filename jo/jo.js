@@ -1265,14 +1265,22 @@
 
 					var owner = this.ownerDocument || this.document;
 					var view = owner.defaultView || owner.parentWindow;
+					var selection = view.getSelection();
 
-					range = view.getSelection().getRangeAt(0);
+					range = selection.getRangeAt(0);
+
+					cursor.beforeRange = range.cloneRange();
+					cursor.beforeRange.collapse(true);
+					cursor.beforeRange.setStart(this/*.parentNode*/, 0);
+
+					cursor.beforeHTML = cursor.beforeRange.cloneContents();
+					cursor.beforeText = cursor.beforeRange.toString();
 
 				};
 
 				cursor.range = range.cloneRange();
-				cursor.html = cursor.range.cloneContents();
-				cursor.text = cursor.html.textContent;
+				cursor.selectedHTML = cursor.range.cloneContents();
+				cursor.selectedText = cursor.selectedHTML.textContent;
 
 				var cursorRangeEnd = cursor.range.cloneRange();
 				cursorRangeEnd.selectNodeContents(this);
@@ -1299,8 +1307,6 @@
 					cursor.selected = cursor.end - cursor.start;
 
 				};
-
-				console.log(cursor);
 
 				returned.push(cursor);
 
