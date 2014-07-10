@@ -1211,11 +1211,21 @@
 
 				var element = this;
 
+				var index = 0;
+
 				while( element.previousElementSibling ){
 
-					
+					if( element.nodeName.toLowerCase() === this.nodeName.toLowerCase() ){
+
+						index++;
+
+					};
+
+					element = element.previousElementSibling;
 
 				};
+
+				returned.push(index);
 
 			});
 
@@ -1255,6 +1265,8 @@
 				var range;
 
 				if( this.setSelectionRange ){
+
+					console.dir(this);
 
 					range = document.createRange();
 					range.setStart(this.firstChild, this.selectionStart);
