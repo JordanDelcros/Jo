@@ -119,6 +119,7 @@
 			});
 
 			$this.found = found;
+			$this.length = $this.found.length;
 
 			return $this;
 
@@ -1266,7 +1267,7 @@
 
 				if( this.setSelectionRange ){
 
-					console.dir(this);
+					console.log("jo", this.selectionStart, this.selectionEnd);
 
 					range = document.createRange();
 					range.setStart(this.firstChild, this.selectionStart);
@@ -1283,7 +1284,7 @@
 
 					cursor.beforeRange = range.cloneRange();
 					cursor.beforeRange.collapse(true);
-					cursor.beforeRange.setStart(this/*.parentNode*/, 0);
+					cursor.beforeRange.setStart(this, 0);
 
 					cursor.beforeHTML = cursor.beforeRange.cloneContents();
 					cursor.beforeText = cursor.beforeRange.toString();
