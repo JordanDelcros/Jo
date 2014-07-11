@@ -1267,9 +1267,8 @@
 
 				if( this.setSelectionRange ){
 
-					console.log("jo", this.selectionStart, this.selectionEnd);
-
 					range = document.createRange();
+
 					range.setStart(this.firstChild, this.selectionStart);
 					range.setEnd(this.firstChild, this.selectionEnd);
 
