@@ -1247,7 +1247,16 @@
 
 					};
 
-					this.setSelectionRange(positionStart, positionEnd);
+					if( this.setSelectionRange ){
+
+						this.setSelectionRange(positionStart, positionEnd);
+						
+					}
+					else {
+
+
+
+					};
 					
 				};
 
@@ -1269,8 +1278,23 @@
 
 					range = document.createRange();
 
-					range.setStart(this.firstChild, this.selectionStart);
-					range.setEnd(this.firstChild, this.selectionEnd);
+					var selectionStart = this.selectionStart;
+					var selectionEnd = this.selectionEnd;
+
+					if( selectionStart > this.firstChild.length ){
+
+						selectionStart = this.firstChild.length;
+
+					};
+
+					if( selectionEnd > this.firstChild.length ){
+
+						selectionEnd = this.firstChild.length;
+
+					};
+
+					range.setStart(this.firstChild, selectionStart);
+					range.setEnd(this.firstChild, selectionEnd);
 
 				}
 				else {
@@ -1603,13 +1627,11 @@
 
 					if( this.insertAdjacentHTML ){
 
-
 						this.insertAdjacentHTML("beforeend", html);
 
 					}
 					else {
 
-						console.log('befend2')
 						var temporaryNode = document.createElement("div");
 
 						temporaryNode.innerHTML = html;
@@ -2535,7 +2557,7 @@
 
 	function isTag( source ){
 
-		return isNode(source) && source.nodeType === 1;
+		return source && isNode(source) && source.nodeType === 1;
 
 	};
 
