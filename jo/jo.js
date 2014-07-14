@@ -1276,25 +1276,34 @@
 
 				if( this.setSelectionRange ){
 
-					range = document.createRange();
+					if( !isEmpty(this.firstChild) ){
 
-					var selectionStart = this.selectionStart;
-					var selectionEnd = this.selectionEnd;
+						range = document.createRange();
 
-					if( selectionStart > this.firstChild.length ){
+						var selectionStart = this.selectionStart;
+						var selectionEnd = this.selectionEnd;
 
-						selectionStart = this.firstChild.length;
+						if( selectionStart > this.firstChild.length ){
+
+							selectionStart = this.firstChild.length;
+
+						};
+
+						if( selectionEnd > this.firstChild.length ){
+
+							selectionEnd = this.firstChild.length;
+
+						};
+
+						range.setStart(this.firstChild, selectionStart);
+						range.setEnd(this.firstChild, selectionEnd);
+
+					}
+					else {
+
+						range = document.getSelection().getRangeAt(0);
 
 					};
-
-					if( selectionEnd > this.firstChild.length ){
-
-						selectionEnd = this.firstChild.length;
-
-					};
-
-					range.setStart(this.firstChild, selectionStart);
-					range.setEnd(this.firstChild, selectionEnd);
 
 				}
 				else {
@@ -2463,7 +2472,7 @@
 
 	documentRoot = Jo(documentRoot);
 
-	function isEmpty( source ){
+	function isEmpty( source, emptyString ){
 
 		if( (isObject(source) || isArray(source)) && !isFunction(source) ){
 
@@ -2478,7 +2487,7 @@
 		}
 		else {
 
-			return source === undefined || source === null || source === "";
+			return source === undefined || source === null || (emptyString === true && source === "");
 
 		};
 
@@ -2551,19 +2560,19 @@
 
 	function isNode( source ){
 
-		return source instanceof HTMLElement || source.nodeType;
+		return !isEmpty(source) && (source instanceof HTMLElement || source.nodeType);
 
 	};
 
 	function isTag( source ){
 
-		return source && isNode(source) && source.nodeType === 1;
+		return !isEmpty(source) && isNode(source) && source.nodeType === 1;
 
 	};
 
 	function isText( source ){
 
-		return isNode(source) && source.nodeType === 3;
+		return !isEmpty(source) && isNode(source) && source.nodeType === 3;
 
 	};
 
@@ -2946,18 +2955,21 @@
 
 		var request = new XMLHttpRequest();
 
+		if( settings.type === "text/html" ){
+
+			request.overrideMimeType("text/xml");
+
+		};
+
+		if( request.readyState === 0 ){
+
+			settings.initialize(request);
+
+		};
+
 		request.onreadystatechange = function(){
 
-			if( this.readyState === 0 ){
-
-				if( isFunction(settings.initialize) ){
-
-					settings.initialize(this);
-
-				};
-
-			}
-			else if( this.readyState === 1 ){
+			if( this.readyState === 1 ){
 
 				if( isFunction(settings.open) ){
 
@@ -2986,11 +2998,17 @@
 			}
 			else if( this.readyState === 4 ){
 
+				if( isFunction(settings.complete) ){
+
+					settings.complete(this);
+
+				};
+
 				if( this.status >= 200 && this.status < 400 ){
 
-					if( isFunction(settings.complete) ){
+					if( isFunction(settings.success) ){
 
-						settings.complete(this);
+						settings.success(this);
 
 						delete this;
 
@@ -3007,15 +3025,33 @@
 
 		};
 
+		request.onprogress = function( event ){
+
+			if( isFunction(settings.progress) ){
+
+				settings.progress(event.loaded, event.total);
+
+			};
+
+		};
+
 		request.upload.onprogress = function( event ){
 
-			settings.progress(event.loaded, event.total);
+			if( isFunction(settings) ){
+
+				settings.progress(event.loaded, event.total);
+				
+			};
 
 		};
 
 		request.onerror = function(){
 
-			settings.error(this);
+			if( isFunction(settings.error) ){
+
+				settings.error(this);
+
+			};
 
 		};
 
