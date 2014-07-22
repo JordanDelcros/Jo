@@ -1314,14 +1314,14 @@
 
 					range = selection.getRangeAt(0);
 
-					cursor.beforeRange = range.cloneRange();
-					cursor.beforeRange.collapse(true);
-					cursor.beforeRange.setStart(this, 0);
-
-					cursor.beforeHTML = cursor.beforeRange.cloneContents();
-					cursor.beforeText = cursor.beforeRange.toString();
-
 				};
+
+				cursor.beforeRange = range.cloneRange();
+				cursor.beforeRange.collapse(true);
+				cursor.beforeRange.setStart(this, 0);
+
+				cursor.beforeHTML = cursor.beforeRange.cloneContents();
+				cursor.beforeText = cursor.beforeRange.toString();
 
 				cursor.range = range.cloneRange();
 				cursor.selectedHTML = cursor.range.cloneContents();
