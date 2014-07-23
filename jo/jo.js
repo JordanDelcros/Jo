@@ -35,9 +35,8 @@
 
 					};
 					
-				};
-
-				if( isString(selector) ){
+				}
+				else if( isString(selector) ){
 
 					if( selector.charAt(0) === "<" && selector.charAt(selector.length - 1) === ">" ){
 
@@ -120,6 +119,7 @@
 
 			$this.found = found;
 			$this.length = $this.found.length;
+			$this.selector = selector;
 
 			return $this;
 
@@ -1026,14 +1026,22 @@
 		},
 		toggleClass: function( className ){
 
+			this.each(function(){
+
+
+
+			});
+
 		},
 		html: function( html ){
+
+			var $this = Jo(this);
 
 			if( isEmpty(html) ){
 
 				var returned = new Array();
 
-				this.each(function(){
+				$this.each(function(){
 
 					returned.push(this.innerHTML);
 
@@ -1044,7 +1052,7 @@
 			}
 			else if( isString(html) ){
 
-				this.each(function(){
+				$this.each(function(){
 
 					this.innerHTML = html;
 					
@@ -1053,14 +1061,14 @@
 			}
 			else {
 
-				Jo(this).html("").insertEnd(html);
+				$this.html("").insertEnd(html);
 
 			};
 
-			this.found = updateNodes(this);
-			this.length = this.found.length;
+			$this.found = this.found; //updateNodes($this);
+			$this.length = $this.found.length;
 
-			return this;
+			return $this;
 
 		},
 		text: function( text ){
@@ -1092,11 +1100,12 @@
 					else {
 
 						this.appendChild(document.createTextNode(text));
-					}
+
+					};
 
 				});
 
-				this.found = updateNodes(this);
+				this.found = this.found//updateNodes(this);
 				this.length = this.found.length;
 
 				return this;
@@ -1189,6 +1198,28 @@
 			};
 
 			return this;
+
+		},
+		toString: function(){
+
+			var returned = "";
+
+			this.each(function(){
+
+				if( isText(this) ){
+
+					returned += this.textContent;
+
+				}
+				else {
+
+					returned += this.outerHTML;
+
+				};
+
+			});
+
+			return returned;
 
 		},
 		index: function(){
@@ -1700,7 +1731,6 @@
 
 			};
 
-
 			return this;
 
 		},
@@ -1709,6 +1739,32 @@
 			Jo(selector).insertEnd(this);
 
 			return this;
+
+		},
+		wrap: function( html ){
+
+			var $this = Jo(this);
+			var $wrapper;
+
+			if( isString(html) ){
+
+				$wrapper = Jo(html);
+
+			};
+
+			this.each(function(){
+
+				var $this = Jo(this);
+
+				var $wrapped = $wrapper.clone();
+
+				$this.insertBefore($wrapped);
+
+				$wrapped.html($this);
+
+			});
+
+			return $this;
 
 		},
 		replace: function( html ){
@@ -1737,33 +1793,39 @@
 
 			};
 
-			this.each(function(){
+			console.log("replace", html)
 
-				var reference = this;
+			this.each(function(){
 
 				if( html.length === 1 ){
 
-					var node = html[0].cloneNode(true);
+					console.log("UNIQUE");
 
-					found.push(node);
+					var node = html[0].cloneNode(true);
+					console.log(node);
 
 					this.parentNode.replaceChild(node, this);
 
+				}
+				else {
+
+					var reference = this;
+
+					for( var element = 0; element < html.length; element++ ){
+
+						var node = html[element].cloneNode(true);
+
+						found.push(node);
+
+						Jo(reference).insertAfter(node);
+
+						reference = node;
+
+					};
+
 				};
 
-				for( var element = 0; element < html.length; element++ ){
-
-					var node = html[element].cloneNode(true);
-
-					found.push(node);
-
-					Jo(reference).insertAfter(node);
-
-					reference = node;
-
-				};
-
-				Jo(this).remove();
+				// Jo(this).remove();
 
 			});
 
@@ -2602,24 +2664,29 @@
 
 	function prepareSelector( selector ){
 
-		var returned = selector.replace(/\s+/ig, " ").split(",");
+		var returned = selector.replace(/\s+/gi, " ").split(",");
 
 		for( var key = 0; key < returned.length; key++ ){
 
-			returned[key] = returned[key].split(/\s/ig);
+			returned[key] = returned[key].split(/\s/gi);
 
 			for( var subkey = 0; subkey < returned[key].length; subkey++ ){
 
-				returned[key][subkey] = returned[key][subkey].replace(/([#\.:\[])([^#\.:\[\|\>]+)/ig, function(all, type, curiosity){
+				returned[key][subkey] = returned[key][subkey].replace(/([#\.:\[])([^#\.:\[\|\>]+)/gi, function(all, type, curiosity){
 
-					if( type === "." && new RegExp("\\]$", "ig").test(curiosity) ) return all;
+					if( type === "." &&  /\]$/gi.test(curiosity) ){
+
+						return all;
+
+					};
+
 					return "|" + all;
 
 				}).split("|");
 
 				for( var lastkey = 0; lastkey < returned[key][subkey].length; lastkey++ ){
 
-					returned[key][subkey][lastkey] = returned[key][subkey][lastkey].replace(/^:(first|last|nth|only)(-child|-of-type)?(\([0-9n\+\-]+\))?/ig, function(all, target, type, number){
+					returned[key][subkey][lastkey] = returned[key][subkey][lastkey].replace(/^:(first|last|nth|only)(-child|-of-type)?(\([0-9n\+\-]+\))?/gi, function(all, target, type, number){
 
 						return ":" + target + (isEmpty(type) ? "-child" : type) + (isEmpty(number) ? "" : number);
 
@@ -2667,13 +2734,20 @@
 		var elementId = element.id ? element.id : null;
 		var removeIdAfter = false;
 		var oldElement = element;
+		var searchTextNode = /[\s>~]*text\s*$/gi.test(selector) ? true : false;
 
-		if( new RegExp("^\\s*>", "ig").test(selector) ){
+		if( isTrue(searchTextNode) ){
+
+			selector = selector.replace(/[\s>~]*text\s*$/gi, " *");
+
+		};
+
+		if( /^\s*>/gi.test(selector) ){
 
 			if( isEmpty(elementId) ){
 
 				removeIdAfter = true;
-				elementId = element.id = "Jo_" + Math.random().toString(36).substr(2,9) + new Date().getTime().toString(36);
+				elementId = element.id = "Jo_" + Math.random().toString(36).substr(2, 9) + new Date().getTime().toString(36);
 
 			};
 
@@ -2684,10 +2758,35 @@
 
 		var nodes = element.querySelectorAll(selector);
 
-		if( removeIdAfter === true ) oldElement.removeAttribute("id");
+		if( isTrue(removeIdAfter) ){
+
+			oldElement.removeAttribute("id");
+
+		};
+
+		if( isTrue(searchTextNode) ){
+
+			var elements = nodes;
+			nodes = new Array();
+
+			for( var element = 0; element < elements.length; element++ ){
+
+				var walker = document.createTreeWalker(elements[element], NodeFilter.SHOW_TEXT, null, false);
+
+				while( node = walker.nextNode() ){
+
+					nodes.push(node);
+
+				};
+
+			};
+
+		};
 
 		for( var node = 0; node < nodes.length; node++ ){
+
 			returned.push(nodes[node]);
+
 		};
 
 		return returned;
