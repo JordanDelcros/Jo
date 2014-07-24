@@ -1296,7 +1296,7 @@
 			return this;
 
 		},
-		cursor: function(){
+		cursor: function( x, y ){
 
 			var returned = new Array();
 
@@ -1307,6 +1307,8 @@
 
 				if( this.setSelectionRange ){
 
+					console.log(this, this.setSelectionRange);
+
 					if( !isEmpty(this.firstChild) ){
 
 						range = document.createRange();
@@ -1316,25 +1318,28 @@
 
 						if( selectionStart > this.firstChild.length ){
 
-							selectionStart = this.firstChild.length;
+							selectionStart = this.value.length;
 
 						};
 
 						if( selectionEnd > this.firstChild.length ){
 
-							selectionEnd = this.firstChild.length;
+							selectionEnd = this.value.length;
 
 						};
 
-						range.setStart(this.firstChild, selectionStart);
-						range.setEnd(this.firstChild, selectionEnd);
-
+					console.log("test", cursor);	
 					}
 					else {
 
 						range = document.getSelection().getRangeAt(0);
 
 					};
+
+				}
+				else if( !isEmpty(x) && !isEmpty(y) ){
+
+					range = document.caretRangeFromPoint(x, y);
 
 				}
 				else {
@@ -1358,6 +1363,13 @@
 				cursor.selectedHTML = cursor.range.cloneContents();
 				cursor.selectedText = cursor.selectedHTML.textContent;
 
+				cursor.afterRange = range.cloneRange();
+				cursor.afterRange.collapse(false);
+				cursor.afterRange.setEndAfter(this);
+
+				cursor.afterHTML = cursor.afterRange.cloneContents();
+				cursor.afterText = cursor.afterHTML.textContent;
+
 				var cursorRangeEnd = cursor.range.cloneRange();
 				cursorRangeEnd.selectNodeContents(this);
 				cursorRangeEnd.setEnd(cursor.range.endContainer, cursor.range.endOffset);
@@ -1365,6 +1377,8 @@
 				var cursorRangeStart = cursor.range.cloneRange();
 				cursorRangeStart.selectNodeContents(this);
 				cursorRangeStart.setStart(cursor.range.startContainer, cursor.range.startOffset);
+
+				console.log(cursor)
 
 				if( isTrue(cursor.range.collapsed) ){
 
