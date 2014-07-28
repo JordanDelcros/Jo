@@ -864,7 +864,7 @@
 
 				this.each(function(){
 
-					returned.push(this.innerWidth);
+					returned.push(this.innerWidth || this.clientWidth);
 
 				});
 
