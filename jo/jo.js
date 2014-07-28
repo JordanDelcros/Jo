@@ -1272,20 +1272,38 @@
 
 				if( isNumber(positionStart) ){
 
-					if( !isNumber(positionEnd) ){
-
-						positionEnd = positionStart;
-
-					};
-
 					if( this.setSelectionRange ){
+
+						if( !isNumber(positionEnd) ){
+
+							positionEnd = positionStart;
+
+						};
 
 						this.setSelectionRange(positionStart, positionEnd);
 						
 					}
 					else {
 
+						if( !isNumber(positionEnd) ){
 
+							positionEnd = 0;
+
+						};
+
+						var selection = document.getSelection();
+
+						for( var position = 0; position < positionStart; position++ ){
+
+							selection.modify("move", "forward", "character");
+
+						};
+
+						for( var position = 0; position < positionEnd; position++ ){
+
+							selection.modify("extend", "forward", "character");
+
+						};
 
 					};
 					
@@ -1307,28 +1325,36 @@
 
 				if( this.setSelectionRange ){
 
-					console.log(this, this.setSelectionRange);
+					if( "value" in this ){
 
-					if( !isEmpty(this.firstChild) ){
+						if( isEmpty(this.firstChild) ){
+
+							this.appendChild(document.createTextNode(""));
+
+						};
+
+						this.firstChild.nodeValue = this.value;
 
 						range = document.createRange();
 
 						var selectionStart = this.selectionStart;
 						var selectionEnd = this.selectionEnd;
 
-						if( selectionStart > this.firstChild.length ){
+						if( selectionStart > this.value.length ){
 
 							selectionStart = this.value.length;
 
 						};
 
-						if( selectionEnd > this.firstChild.length ){
+						if( selectionEnd > this.value.length ){
 
 							selectionEnd = this.value.length;
 
 						};
 
-					console.log("test", cursor);	
+						range.setStart(this.firstChild, selectionStart);
+						range.setEnd(this.firstChild, selectionEnd);
+
 					}
 					else {
 
@@ -1377,8 +1403,6 @@
 				var cursorRangeStart = cursor.range.cloneRange();
 				cursorRangeStart.selectNodeContents(this);
 				cursorRangeStart.setStart(cursor.range.startContainer, cursor.range.startOffset);
-
-				console.log(cursor)
 
 				if( isTrue(cursor.range.collapsed) ){
 
