@@ -1292,6 +1292,13 @@
 						};
 
 						var selection = document.getSelection();
+						var range = document.createRange();
+
+						range.setStart(this, 0);
+						range.setEnd(this, 0);
+
+						selection.removeAllRanges();
+						selection.addRange(range);
 
 						for( var position = 0; position < positionStart; position++ ){
 
