@@ -843,6 +843,8 @@
 			
 				for( var i in name ){
 
+					i = i.replace(/^data(?!-)/, "data-");
+
 					this.each(function(){
 
 						this.setAttribute(i, name[i]);
@@ -1002,6 +1004,59 @@
 			return this;
 
 		},
+		scroll: function( x, y ){
+
+			if( !isEmpty(x) ){
+
+				this.each(function(){
+
+					this.scrollLeft = x;
+
+					if( !isEmpty() ){
+
+						this.scrollTop = y;
+
+					};
+
+				});
+
+				return this;
+
+			}
+			else {
+
+				var returned = new Array();
+
+				this.each(function(){
+
+					returned.push({
+						left: this.scrollLeft,
+						top: this.scrollTop
+					});
+
+				});
+
+				return returned;
+
+			};
+
+		},
+		offset: function(){
+
+			var returned = new Array();
+
+			this.each(function(){
+
+				returned.push({
+					left: this.offsetLeft,
+					top: this.offsetTop
+				});
+
+			});
+
+			return returned;
+
+		},
 		addClass: function( className ){
 
 			this.each(function(){
@@ -1024,13 +1079,28 @@
 			return this;
 
 		},
+		hasClass: function( className ){
+
+			var returned = new Array();
+
+			this.each(function(){
+
+				returned.push(this.classList.contains(className));
+
+			});
+
+			return returned;
+
+		},
 		toggleClass: function( className ){
 
 			this.each(function(){
 
-
+				this.classList.toggle(className);
 
 			});
+
+			return this;
 
 		},
 		html: function( html ){
