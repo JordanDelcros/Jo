@@ -3448,27 +3448,38 @@
 
 	Jo.socket.fn.init.prototype = Jo.socket.fn;
 
-	Jo.blob = function( settings ){
+	Jo.blob = function( data, type ){
 
-		var blob = new Blob([], {
-			type: "application/octet-binary"
-		});
-
-		var url = window.URL || window.webkitURL;
-
-		url.createObjectURL(blob);
-
-		// or this :
-
-		var file = new FileReader();
-
-		file.addEventListener("loadend", function(){
-
-		}, false);
-
-		file.readAsArrayBuffer(blob);
+		return new Jo.blob.fn.init(data, type);
 
 	};
+
+	Jo.blob.fn = Jo.blob.prototype = {
+		constructor: Jo.blob,
+		init: function( data, type ){
+
+			if( isFunction(data) ){
+
+				data = "(" + data.toString() + ")()";
+				type = "application/javascript";
+
+			};
+
+			this.blob = new Blob([data], {
+				type: type
+			});
+
+			return this;
+
+		},
+		toURL: function(){
+
+			return window.URL.createObjectURL(this.blob);
+
+		}
+	};
+
+	Jo.blob.fn.init.prototype = Jo.blob.fn;
 
 	Jo.media = function( settings ){
 
@@ -3871,7 +3882,6 @@
 		init: function( settings ){
 
 			settings = Jo.merge({
-				
 			}, settings);
 
 			this.worker = new Worker(settings.url);
