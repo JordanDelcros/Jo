@@ -1160,22 +1160,20 @@
 
 				this.each(function(){
 
-					Jo(this).empty();
-
 					if( Jo(this).is("text") ){
-						console.log("texttttttt");
+
 						this.nodeValue = text;
 
 					}
 					else {
 
-						this.appendChild(document.createTextNode(text));
+						this.innerText = text;
 
 					};
 
 				});
 
-				this.found = this.found//updateNodes(this);
+				this.found = this.found;//updateNodes(this);
 				this.length = this.found.length;
 
 				return this;
@@ -3064,6 +3062,23 @@
 
 	};
 
+	// Jo.ajax = function( settings ){
+
+	// 	return new Jo.ajax.fn.init(settings);
+
+	// };
+
+	// Jo.ajax.fn = Jo.ajax.prototype = {
+	// 	constructor: Jo.ajax,
+	// 	init: function( settings ){
+
+	// 		return this;
+
+	// 	}
+	// };
+
+	// Jo.ajax.fn.init.prototype = Jo.ajax.fn;
+
 	Jo.ajax = function( settings ){
 
 		settings = Jo.merge({
@@ -4418,6 +4433,7 @@
 			else if( elapsed < (2.5 / 2.75) ){
 
 				return 1 * (7.5625 * (elapsed -= (2.25 / 2.75)) * elapsed + 0.9375);
+
 			}
 			else {
 
