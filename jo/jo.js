@@ -38,37 +38,41 @@
 				}
 				else if( isString(selector) ){
 
-					if( selector.charAt(0) === "<" && selector.charAt(selector.length - 1) === ">" ){
+					try {
 
-						var singleTag = regularExpressions.singleTag.exec(selector);
+						this.found = getNodes(selector);
 
-						// console.log(singleTag, selector);
+					}
+					catch( error ){
 
-						if( !isEmpty(singleTag) && singleTag.length > 0 ){
+						// if( selector.charAt(0) === "<" && selector.charAt(selector.length - 1) === ">" ){
 
-							this.found.push(document.createElement(singleTag[1]));
+							var singleTag = regularExpressions.singleTag.exec(selector);
 
-						}
-						else {
+							// console.log(singleTag, selector);
 
-							var temporaryNode = document.createElement("div");
+							if( !isEmpty(singleTag) && singleTag.length > 0 ){
 
-							temporaryNode.innerHTML = selector;
+								this.found.push(document.createElement(singleTag[1]));
 
-							for( var node = 0; node < temporaryNode.childNodes.length; node++ ){
+							}
+							else {
 
-								this.found.push(temporaryNode.childNodes[node]);
+								var temporaryNode = document.createElement("div");
+
+								temporaryNode.innerHTML = selector;
+
+								for( var node = 0; node < temporaryNode.childNodes.length; node++ ){
+
+									this.found.push(temporaryNode.childNodes[node]);
+
+								};
+
+								temporaryNode.remove();
 
 							};
 
-							temporaryNode.remove();
-
-						};
-
-					}
-					else {
-
-						this.found = getNodes(selector);
+						// };
 
 					};
 				
