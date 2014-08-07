@@ -115,6 +115,7 @@
 
 			var found = new Array();
 
+
 			$this.each(function(){
 
 				found = found.concat(getNodes(selector, this));
@@ -2839,19 +2840,26 @@
 
 	function getNodes( selector, element ){	
 
-		selector = prepareSelector(selector);
+		var returned = new Array();
 
 		if( isEmpty(element) ){
 
 			element = document;
 
+		}
+		else if( !isTag(element) ){
+
+			return returned;
+
 		};
 
-		var returned = new Array();
+		selector = prepareSelector(selector);
+
 		var elementId = element.id ? element.id : null;
 		var removeIdAfter = false;
 		var oldElement = element;
-		var searchTextNode = /[\s>~]*text\s*$/gi.test(selector) ? true : false;
+		var searchTextNode = /\btext\b\s*$/.test(selector) ? true : false;
+
 
 		if( isTrue(searchTextNode) ){
 
@@ -2992,7 +3000,7 @@
 
 					if( isObject(arguments[i][key]) && (arguments[i][key].constructor === Object || arguments[i][key].constructor === Array) ){
 
-						Jo.merge(returned[key], arguments[i][key]);
+						returned[key] = Jo.merge(returned[key], arguments[i][key]);
 
 					}
 					else {
@@ -3066,115 +3074,125 @@
 
 	};
 
-	// Jo.ajax = function( settings ){
-
-	// 	return new Jo.ajax.fn.init(settings);
-
-	// };
-
-	// Jo.ajax.fn = Jo.ajax.prototype = {
-	// 	constructor: Jo.ajax,
-	// 	init: function( settings ){
-
-	// 		return this;
-
-	// 	}
-	// };
-
-	// Jo.ajax.fn.init.prototype = Jo.ajax.fn;
-
 	Jo.ajax = function( settings ){
 
-		settings = Jo.merge({
-			method: "GET",
-			async: true,
-			type: "text/xml"
-		}, settings);
+		return new Jo.ajax.fn.init(settings);
 
-		var data;
+	};
 
-		if( settings.method === "POST" ){
+	Jo.ajax.fn = Jo.ajax.prototype = {
+		constructor: Jo.ajax,
+		init: function( settings ){
 
-			if( settings.data.constructor === FormData ){
+			settings = Jo.merge({
+				method: "GET",
+				async: true,
+				type: "text/xml"
+			}, settings);
 
-				data = settings.data;
+			var data = null;
 
-			}
-			else if( isTag(settings.data) ){
+			if( settings.data ){
 
-				data = new FormData(settings.data);
+				if( settings.method === "GET" || settings.type === "jsonp" ){
 
-			}
-			else if( isJo(settings.data) ){
+					data = new Array()
 
-				if( settings.data.length === 1 ){
+					if( settings.data.constructor === FormData ){
 
-					data = new FormData(settings.data.found[0]);
+						data.push(encodeURIComponent("error") + "=" + encodeURIComponent("FormData object cant be send with GET method"));
+
+					}
+					else if( isJo(settings.data) ){
+
+						settings.data.find("[name]").each(function(){
+
+							if( Jo(this).is("[type='file']") ){
+
+								for( var file = 0; file < this.files.length; file++ ){
+
+									data.push(encodeURIComponent(this.getAttribute("name") + "[" + file + "]") + "=" + encodeURIComponent(this.files[file]));
+
+								};
+
+							}
+							else {
+
+								data.push(encodeURIComponent(this.getAttribute("name")) + "=" + encodeURIComponent(this.value));
+
+							};
+
+						});
+
+					}
+					else if( isObject(settings.data) ){
+
+						for( var key in settings.data ){
+
+							if( settings.data.hasOwnProperty(key) ){
+
+								data.push(encodeURIComponent(key) + "=" + encodeURIComponent(settings.data[key]));
+
+							};
+
+						};
+
+					};
 
 				}
 				else {
 
-					data = new FormData();
+					if( settings.data.constructor === FormData ){
 
-					settings.data.find("[name]").each(function(){
+						data = settings.data;
 
-						if( $(this).is("[type='file']") ){
+					}
+					else if( isJo(settings.data) ){
 
-							for( var file = 0; file < this.files.length; file++ ){
+						if( settings.data.is("form") ){
 
-								data.append(this.getAttribute("name") + "[" + file + "]", this.files[file])
-
-							};
+							data = new FormData(settings.data.found[0]);
 
 						}
 						else {
 
-							data.append(this.getAttribute("name"), this.value);
+							data = new FormData();
+
+							settings.data.find("[name]").each(function(){
+
+								if( Jo(this).is("[type='file']") ){
+
+									for( var file = 0; file < this.files.length; file++ ){
+
+										data.append(this.getAttribute("name") + "[" + file + "]", this.files[file]);
+
+									};
+
+								}
+								else {
+
+									data.append(this.getAttribute("name"), this.value);
+
+								};
+
+							});
 
 						};
 
-					});
+					}
+					else if( isObject(settings.data) ){
 
-				};
+						data = new FormData();
 
-			}
-			else if( isObject(settings.data) ){
+						for( var key in settings.data ){
 
-				data = new FormData();
+							if( settings.data.hasOwnProperty(key) ){
 
-				for( var key in settings.data ){
+								data.append(key, settings.data[key]);
 
-					if( settings.data.hasOwnProperty(key) ){
+							};
 
-						data.append(key, settings.data[key]);
-
-					};
-
-				};
-
-			};
-
-		}
-		else if( settings.method === "GET" ){
-
-			data = new Array();
-
-			if( isJo(settings.data) || isTag(settings.data) ){
-
-				Jo(settings.data).find("[name]").each(function(){
-
-					data.push(encodeURIComponent(this.getAttribute("name")) + "=" + encodeURIComponent(this.value));
-
-				});
-
-			}
-			else if( isObject(settings.data) ){
-
-				for( var key in settings.data ){
-
-					if( settings.data.hasOwnProperty(key) ){
-
-						data.push(encodeURIComponent(key) + "=" + encodeURIComponent(settings.data[key]));
+						};
 
 					};
 
@@ -3182,129 +3200,186 @@
 
 			};
 
-			settings.url += "?" + data.join("&");
+			if( settings.type !== "jsonp" ){
 
-		};
+				this.request = new XMLHttpRequest();
 
-		var request = new XMLHttpRequest();
+				this.request.overrideMimeType(settings.type);
 
-		if( settings.type === "text/html" ){
+				if( this.request.readyState === 0 ){
 
-			request.overrideMimeType("text/xml");
-
-		};
-
-		if( request.readyState === 0 ){
-
-			settings.initialize(request);
-
-		};
-
-		request.onreadystatechange = function(){
-
-			if( this.readyState === 1 ){
-
-				if( isFunction(settings.open) ){
-
-					settings.open(this);
+					settings.initialize(this.request);
 
 				};
+
+				this.request.addEventListener("readystatechange", function(){
+
+					if( this.readyState === 1 ){
+
+						if( isFunction(settings.open) ){
+
+							settings.open(this);
+
+						};
+
+					}
+					else if( this.readyState === 2 ){
+
+						if( isFunction(settings.send) ){
+
+							settings.send(this);
+
+						};
+
+					}
+					else if( this.readyState === 3 ){
+
+						if( isFunction(settings.receive) ){
+
+							settings.receive(this);
+
+						};
+
+					}
+					else if( this.readyState === 4 ){
+
+						if( isFunction(settings.complete) ){
+
+							settings.complete(this);
+
+						};
+
+						if( this.status >= 200 && this.status < 400 ){
+
+							if( isFunction(settings.success) ){
+
+								settings.success(this);
+
+								delete this;
+
+							};
+
+						}
+						else if( this.readyState >= 400 ){
+
+							if( isFunction(settings.error) ){
+
+								settings.error(this);
+
+							};
+
+						};
+
+					};
+
+				}, false);
+
+				this.request.addEventListener("progress", function( event ){
+
+					if( isFunction(settings.progress) ){
+
+						settings.progress(event.loaded, event.total);
+
+					};
+
+				}, false);
+
+				this.request.upload.addEventListener("progress", function( event ){
+
+					if( isFunction(settings) ){
+
+						settings.progress(event.loaded, event.total);
+						
+					};
+
+				}, false);
+
+				this.request.addEventListener("error", function(){
+
+					if( isFunction(settings.error) ){
+
+						settings.error(this);
+
+					};
+
+				}, false);
+
+				this.request.addEventListener("abort", function(){
+
+					if( isFunction(settings.abort) ){
+
+						settings.abort(this);
+
+					};
+
+				}, false);
+
+				this.request.open(settings.method, settings.url + (settings.method === "GET" && !isEmpty(data) ? "?" + data.join("&") : ""), settings.async);
+
+				this.sended = true;
+				this.request.send(settings.method === "POST" ? data : null);
 
 			}
-			else if( this.readyState === 2 ){
+			else {
 
-				if( isFunction(settings.send) ){
+				this.request = document.createElement("script");
+				this.request.setAttribute("type", "text/javascript");
 
-					settings.send(this);
-
-				};
-
-			}
-			else if( this.readyState === 3 ){
-
-				if( isFunction(settings.receive) ){
-
-					settings.receive(this);
-
-				};
-
-			}
-			else if( this.readyState === 4 ){
-
-				if( isFunction(settings.complete) ){
-
-					settings.complete(this);
-
-				};
-
-				if( this.status >= 200 && this.status < 400 ){
+				this.request.addEventListener("load", function(){
 
 					if( isFunction(settings.success) ){
 
 						settings.success(this);
 
-						delete this;
+					};
+
+				}, false);
+
+				this.request.addEventListener("error", function(){
+
+					if( isFunction(settings.error) ){
+
+						settings.error(this);
 
 					};
 
-				}
-				else if( this.readyState >= 400 ){
+				}, false);
 
-					settings.error(this);
+				var callback = "jsonp_callback_" + Math.round(100000 * Math.random());
 
-				};
+				window[callback] = function( data ){
 
-			};
+					delete window[callback];
 
-		};
+					document.body.removeChild(this.request);
 
-		request.onprogress = function( event ){
+					if( isFunction(settings.success) ){
 
-			if( isFunction(settings.progress) ){
+						settings.success(data);
 
-				settings.progress(event.loaded, event.total);
+					};
 
-			};
+				}.bind(this);
 
-		};
+				this.request.src = settings.url + "?callback=" + callback + (!isEmpty(data) ? "&" + data.join("&") : "");
 
-		request.upload.onprogress = function( event ){
-
-			if( isFunction(settings) ){
-
-				settings.progress(event.loaded, event.total);
-				
-			};
-
-		};
-
-		request.onerror = function(){
-
-			if( isFunction(settings.error) ){
-
-				settings.error(this);
+				document.body.appendChild(this.request);
 
 			};
 
-		};
+			return this;
 
-		request.onabort = function(){
+		},
+		abort: function(){
 
-			if( isFunction(settings.abort) ){
+			this.request.abort();
 
-				settings.abort(this);
+			return this;
 
-			};
-
-		};
-
-		request.open(settings.method, settings.url, settings.async);
-
-		request.send(data);
-
-		return request;
-
+		}
 	};
+
+	Jo.ajax.fn.init.prototype = Jo.ajax.fn;
 
 	Jo.socket = function( settings ){
 
