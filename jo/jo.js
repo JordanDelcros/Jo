@@ -2948,6 +2948,24 @@
 
 	};
 
+	function quote( quote, text ){
+
+		return quote + text + quote;
+
+	};
+
+	function singleQuote( text ){
+
+		return quote("'", text.replace(/([\'\"])/g, "\\$1"));
+
+	};
+
+	function doubleQuote( text ){
+
+		return quote('"', text.replace(/([\'\"])/g, "\\$1"));
+
+	};
+
 	var regularExpressions = {
 		singleTag: /^<(\w+)\s*\/?>(?:<\/\1>|)$/,
 		onlySpaces: /^\s+$/g,
@@ -2956,7 +2974,7 @@
 		hexColor: /^#([a-f0-9]{1,2})([a-f0-9]{1,2})([a-f0-9]{1,2})$/gi
 	};
 
-	var prefix = function(){
+	var prefix = (function(){
 
 		var styles = window.getComputedStyle(document.documentElement, "");
 
@@ -2971,12 +2989,12 @@
 			js: match[0].toUpperCase() + match.substr(1)
 		};
 
-	}();
+	})();
 
 	Jo.infos = function(){
 
 		console.log({
-			Jo: "0.1",
+			version: "0.1",
 			author: "Jordan Delcros",
 			author_github: "JordanDelcros",
 			author_website: "http://www.jordan-delcros.com"
@@ -2988,7 +3006,16 @@
 
 		if( !isArray(returned) && !isObject(returned) ){
 
-			returned = new Object();
+			if( !isEmpty(arguments[1]) && isArray(arguments[1]) ){
+
+				returned = new Array();
+
+			}
+			else {
+
+				returned = new Object();
+				
+			};
 
 		};
 
@@ -3542,24 +3569,23 @@
 
 	Jo.socket.fn.init.prototype = Jo.socket.fn;
 
-	Jo.blob = function( data, type ){
+	Jo.blob = function( data, type, bypass ){
 
-		return new Jo.blob.fn.init(data, type);
+		return new Jo.blob.fn.init(data, type, bypass);
 
 	};
 
 	Jo.blob.fn = Jo.blob.prototype = {
 		constructor: Jo.blob,
-		init: function( data, type ){
+		init: function( data, type, bypass ){
 
-			if( isFunction(data) ){
+			if( !isArray(data) ){
 
-				data = "(" + data.toString() + ")()";
-				type = "application/javascript";
+				data = [data];
 
 			};
 
-			this.blob = new Blob([data], {
+			this.blob = new Blob(data, {
 				type: type
 			});
 
@@ -3977,6 +4003,26 @@
 
 			settings = Jo.merge({
 			}, settings);
+
+			if( isFunction(settings.code) ){
+
+				if( !isEmpty(settings.parameters) ){
+
+					for( var key = 0; key < settings.parameters.length; key++ ){
+
+						settings.parameters[key] = doubleQuote(settings.parameters[key].toString());
+
+					};
+
+				};
+
+				var code = "(" + settings.code + ")(" + settings.parameters.toString() + ")";
+
+				settings.url = Jo.blob(code, "text/javascript").toURL();
+
+			};
+
+			console.log(settings.url)
 
 			this.worker = new Worker(settings.url);
 
