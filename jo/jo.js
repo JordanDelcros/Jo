@@ -3101,6 +3101,175 @@
 
 	};
 
+	Jo.worker = function( settings ){
+
+		return new Jo.worker.fn.init(settings);
+
+	};
+
+	Jo.worker.fn = Jo.worker.prototype = {
+		constructor: Jo.worker,
+		init: function( settings ){
+
+			settings = Jo.merge({
+			}, settings);
+
+			if( isFunction(settings.code) ){
+
+				if( !isEmpty(settings.parameters) ){
+
+					for( var key = 0; key < settings.parameters.length; key++ ){
+
+						settings.parameters[key] = doubleQuote(settings.parameters[key].toString());
+
+					};
+
+				};
+
+				var code = "(" + settings.code + ")(" + settings.parameters.toString() + ")";
+
+				settings.url = Jo.blob(code, "text/javascript").toURL();
+
+			};
+
+			this.worker = new Worker(settings.url);
+
+			this.events = new Object();
+
+			this.worker.addEventListener("message", function( message ){
+
+				if( isFunction(settings.receive) ){
+
+					settings.receive.call(this, message);
+
+				};
+
+				if( !isEmpty(message.data) ){
+
+					if( !isEmpty(message.data.type) ){
+
+						if( message.data.type === "console" ){
+
+							console[message.data.content.type].apply(console, message.data.content.content);
+
+						};
+
+						for( var action in this.events ){
+
+							if( this.events.hasOwnProperty(action) && action === message.data.type ){
+
+								for( var evt in this.events[action] ){
+
+									this.events[action][evt].call(this, message);
+
+								};
+
+							};
+
+						};
+
+					};
+
+				};
+
+			}.bind(this), false);
+
+			this.worker.addEventListener("error", function( message, file, line ){
+
+				if( isFunction(settings.error) ){
+
+					settings.error.call(this, message, file, line);
+
+				};
+
+			}.bind(this), false);
+
+			return this;
+
+		},
+		send: function( type, data ){
+
+			this.worker.postMessage({
+				type: type,
+				content: data
+			});
+
+			return this;
+
+		},
+		on: function( action, fn, useCapture ){
+
+			if( isEmpty(useCapture) ){
+
+				useCapture = false;
+
+			};
+
+			if( isEmpty(this.events[action]) ){
+
+				this.events[action] = new Array();
+
+			};
+
+			this.events[action].push(fn);
+
+			return this;
+
+		},
+		off: function( action, fn, useCapture ){
+
+			if( isBoolean(fn) ){
+
+				useCapture = fn;
+				fn = undefined;
+
+			};
+
+			if( isEmpty(useCapture) ){
+
+				useCapture = false;
+
+			};
+
+			if( !isEmpty(fn) ){
+
+				for( var evt in this.events[action] ){
+
+					if( this.events[action][evt] === fn ){
+
+						this.events[action].splice(evt, 1);
+
+					};
+
+				};
+
+			}
+			else {
+
+				delete this.events[action];
+
+			};
+
+			return this;
+
+		},
+		close: function( fn ){
+
+			this.worker.terminate();
+			
+			if( isFunction(fn) ){
+
+				fn.call(this);
+				
+			};
+			
+			return this;
+
+		}
+	};
+
+	Jo.worker.fn.init.prototype = Jo.worker.fn;
+
 	Jo.ajax = function( settings ){
 
 		return new Jo.ajax.fn.init(settings);
@@ -3990,167 +4159,6 @@
 	};
 */
 	Jo.peer.fn.init.prototype = Jo.peer.fn;
-
-	Jo.worker = function( settings ){
-
-		return new Jo.worker.fn.init(settings);
-
-	};
-
-	Jo.worker.fn = Jo.worker.prototype = {
-		constructor: Jo.worker,
-		init: function( settings ){
-
-			settings = Jo.merge({
-			}, settings);
-
-			if( isFunction(settings.code) ){
-
-				if( !isEmpty(settings.parameters) ){
-
-					for( var key = 0; key < settings.parameters.length; key++ ){
-
-						settings.parameters[key] = doubleQuote(settings.parameters[key].toString());
-
-					};
-
-				};
-
-				var code = "(" + settings.code + ")(" + settings.parameters.toString() + ")";
-
-				settings.url = Jo.blob(code, "text/javascript").toURL();
-
-			};
-
-			console.log(settings.url)
-
-			this.worker = new Worker(settings.url);
-
-			this.events = new Object();
-
-			this.worker.onmessage = function( message ){
-
-				if( isFunction(settings.receive) ){
-
-					settings.receive.call(this, message);
-
-				};
-
-				if( !isEmpty(message.data) && !isEmpty(message.data.type) ){
-
-					for( var action in this.events ){
-
-						if( this.events.hasOwnProperty(action) && action === message.data.type ){
-
-							for( var evt in this.events[action] ){
-
-								this.events[action][evt].call(this, message);
-
-							};
-
-						};
-
-					};
-
-				};
-
-			}.bind(this);
-
-			this.worker.onerror = function( message, file, line ){
-
-				if( isFunction(settings.error) ){
-
-					settings.error.call(this, message, file, line);
-
-				};
-
-			}.bind(this);
-
-			return this;
-
-		},
-		send: function( type, data ){
-
-			this.worker.postMessage({
-				type: type,
-				content: data
-			});
-
-			return this;
-
-		},
-		on: function( action, fn, useCapture ){
-
-			if( isEmpty(useCapture) ){
-
-				useCapture = false;
-
-			};
-
-			if( isEmpty(this.events[action]) ){
-
-				this.events[action] = new Array();
-
-			};
-
-			this.events[action].push(fn);
-
-			return this;
-
-		},
-		off: function( action, fn, useCapture ){
-
-			if( isBoolean(fn) ){
-
-				useCapture = fn;
-				fn = undefined;
-
-			};
-
-			if( isEmpty(useCapture) ){
-
-				useCapture = false;
-
-			};
-
-			if( !isEmpty(fn) ){
-
-				for( var evt in this.events[action] ){
-
-					if( this.events[action][evt] === fn ){
-
-						this.events[action].splice(evt, 1);
-
-					};
-
-				};
-
-			}
-			else {
-
-				delete this.events[action];
-
-			};
-
-			return this;
-
-		},
-		close: function( fn ){
-
-			this.worker.terminate();
-			
-			if( isFunction(fn) ){
-
-				fn.call(this);
-				
-			};
-			
-			return this;
-
-		}
-	};
-
-	Jo.worker.fn.init.prototype = Jo.worker.fn;
 
 	Jo.support = {
 
