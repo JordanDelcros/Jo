@@ -1,97 +1,71 @@
+// window.onload = function(){
+	// pure js
+// 	var bef = +new Date();
+// 	var container = document.querySelector("#container");
+// 	for( var howMuch = 0; howMuch < 1000; howMuch++ ){
+// 		container.appendChild(document.createElement("li"));
+// 	};
+// 	console.log("pure", +new Date - bef);
+// 	container.innerHTML = "";
+	// jquery
+// 	var bef = +new Date();
+// 	var $container = jQuery("#container");
+// 	for( var howMuch = 0; howMuch < 1000; howMuch++ ){
+// 		jQuery("<li/>").appendTo($container);
+// 	};
+// 	console.log("jquery", +new Date() - bef);
+// 	$container.html("");
+	// jo
+// 	var bef = +new Date();
+// 	var $container = Jo("#container");
+// 	for( var howMuch = 0; howMuch < 1000; howMuch++ ){
+// 		Jo("<li/>").insertEndTo($container);
+// 	};
+// 	console.log("jo", +new Date() - bef);
+// 	$container.empty();
+
+// };
+
+
+
 var joli = 1;
 var jqueryli = 1;
 
+Jo(window)
+	.on("resize ready", resize)
+	.trigger("resize");
+
 Jo(function( $ ){
 
-	if( window.location.hash === "#jo" ){
+	var $container = Jo("#container");
+	var windowWidth = Jo(window).width();
+	var windowHeight = Jo(window).height();
 
-		generateJoAnimation();
+	var bef = +new Date();
+	for( var howMuch = 0; howMuch < 100; howMuch++ ){
 
-	}
-	else if( window.location.hash === "#jquery" ){
-	
-		generateJqueryAnimation();
+		Jo("<li/>")
+			.insertEndTo($container)
+			.css({
+				top: "50%",
+				left: "50%"
+			})
+			.animate({
+				left: (Math.floor(((Math.random() * windowWidth) + 1))) + "px",
+				top: (Math.floor(((Math.random() * windowWidth) + 1))) + "px",
+				// transform: "rotate(190deg)"
+			}, {
+				duration: 5000,
+				easing: "easeOutElastic",
+				complete: function(){
 
-	};
+					console.log("finished!");
 
-	function generateJoAnimation(){
-
-		var $container = Jo("#container");
-
-		$container.empty();
-
-		function createNode(){
-
-			Jo("<li/>")
-				.insertEndTo($container)
-				.css({
-					top: "50%",
-					left: "50%",
-					transform: "rotate(10deg)"
-				})
-				.animate({
-					top: (Math.floor(((Math.random() * window.innerHeight) + 1) / window.innerHeight * 100)) + "px",
-					left: (Math.floor(((Math.random() * window.innerWidth) + 1) / window.innerWidth * 100)) + "px",
-					transform: "10deg"
-				}, {
-					duration: 5000,
-					easing: "easeInOutQuad",
-					complete: function(){
-
-						// Jo(this).remove();
-						// createNode();
-						// createNode();
-
-					}
-				});
-
-		};
-
-		for( var n = 0; n < joli; n++ ){
-
-			createNode();
-		
-		};
+				}
+			});
 
 	};
-
-	function generateJqueryAnimation(){
-
-		var $container = jQuery("#container");
-
-		$container.empty();
-
-		function createJqNode(){
-
-			jQuery("<li/>")
-				.appendTo($container)
-				.css({
-					top: "50%",
-					left: "50%"
-				})
-				.animate({
-					top: (Math.floor(((Math.random() * window.innerHeight) + 1) / window.innerHeight * 100)) + "%",
-					left: (Math.floor(((Math.random() * window.innerWidth) + 1) / window.innerWidth * 100)) + "%"
-				}, {
-					duration: 5000,
-					complete: function(){
-
-						// jQuery(this).remove();
-						// createNode();
-						// createNode();
-
-					}
-				})
-
-		};
-
-		for( var n = 0; n < jqueryli; n++ ){
-
-			createJqNode();
-		
-		};
-
-	};
+	console.log("jo", +new Date() - bef);
 
 });
 
@@ -101,18 +75,13 @@ Jo(function( $ ){
 
 });
 
-Jo(window)
-	// .on("ready", resize)
-	.on("ready resize", resize)
-	.trigger("resize");
-
 function resize(){
 
-	console.log("resize");
+	console.log("resize", $(window).height() + "px");
 
 	Jo("ul").css({
 		width: "100%",
-		height: window.innerHeight + "px",
+		height: $(window).height() + "px",
 		backgroundColor: "rgba(0,0,0,0.5)"
 	});
 

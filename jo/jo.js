@@ -7,6 +7,8 @@
 
 	var documentRoot = document;
 
+	var cache = new Object();
+
 	var Jo = function( selector, context, documentRoot ){
 
 		return new Jo.fn.init(selector, context, documentRoot);
@@ -38,41 +40,35 @@
 				}
 				else if( isString(selector) ){
 
-					try {
+					if( selector.charAt(0) === "<" && selector.charAt(selector.length - 1) === ">" ){
 
-						this.found = getNodes(selector);
+						var singleTag = regularExpressions.singleTag.exec(selector);
 
-					}
-					catch( error ){
+						if( !isEmpty(singleTag) && singleTag.length > 0 ){
 
-						// if( selector.charAt(0) === "<" && selector.charAt(selector.length - 1) === ">" ){
+							this.found.push(document.createElement(singleTag[1]));
 
-							var singleTag = regularExpressions.singleTag.exec(selector);
+						}
+						else {
 
-							// console.log(singleTag, selector);
+							var temporaryNode = document.createElement("div");
 
-							if( !isEmpty(singleTag) && singleTag.length > 0 ){
+							temporaryNode.innerHTML = selector;
 
-								this.found.push(document.createElement(singleTag[1]));
+							for( var node = 0; node < temporaryNode.childNodes.length; node++ ){
 
-							}
-							else {
-
-								var temporaryNode = document.createElement("div");
-
-								temporaryNode.innerHTML = selector;
-
-								for( var node = 0; node < temporaryNode.childNodes.length; node++ ){
-
-									this.found.push(temporaryNode.childNodes[node]);
-
-								};
-
-								temporaryNode.remove();
+								this.found.push(temporaryNode.childNodes[node]);
 
 							};
 
-						// };
+							temporaryNode.remove();
+
+						};
+
+					}
+					else {
+
+						this.found = getNodes(selector);
 
 					};
 				
@@ -915,7 +911,7 @@
 
 					this.each(function(){
 
-						if( isFalse(unverified) ){
+						if( !isTrue(unverified) ){
  
 							property = prepareCSSProperty(property);
 
@@ -932,7 +928,7 @@
 
 					this.each(function(){
 
-						if( isFalse(value) ){
+						if( !isTrue(value) ){
 
 							property = prepareCSSProperty(property);
 
@@ -998,7 +994,17 @@
 
 					for( var parameter in property ){
 
-						Jo(this).css(parameter, property[parameter]);
+						if( property.hasOwnProperty(parameter) ){
+
+							if( !isTrue(value) ){
+
+								parameter = prepareCSSProperty(parameter);
+
+							};
+
+							this.style[parameter] = property[parameter];
+
+						};
 
 					};
 
@@ -2075,10 +2081,14 @@
 		},
 		animate: function( styles, options ){
 
+			var animStart = +new Date();
+
 			options = Jo.merge({
 				duration: 1000,
 				easing: "linear"
 			}, options);
+
+			// ONLY text.replace the "to" var one time ! logic...
 
 			for( var property in styles ){
 
@@ -2110,25 +2120,13 @@
 					properties: new Object()
 				};
 
-				// USE BUILT-IN AWESOME SOLUTIONS 
-				// http://help.dottoro.com/ljjglctt.php
-
-				//STEPS ?
-				//
-				// Create outer StyleSheet < possible ?
-				// append style
-				// get style as primitive
-				// compare 'to' to 'from'
-				// make diff
-				// animate
-
 				for( var property in styles ){
 
 					if( styles.hasOwnProperty(property) ){
 
 						var uncamelizedProperty = uncamelize(property);
 
-						var from = Jo(this).css(uncamelizedProperty)[0];
+						var from = element.$element.css(uncamelizedProperty)[0];
 						var to = styles[property];
 						var values = new Array();
 
@@ -2139,11 +2137,20 @@
 						}
 						else if( from === "none" ){
 
-							from = "0";
+							if( property === "transform" ){
+
+								from = "matrix(1, 0, 0, 1, 0, 0)";
+
+							}
+							else {
+
+								from = "0";
+
+							};
 
 						};
 
-						if( isNumber(to) ){
+						if( !isString(to) ){
 
 							to = to.toString();
 
@@ -2156,49 +2163,29 @@
 								to: parseFloat(number),
 								difference: 0,
 								unit: unit
-							}) - 1;
+							});
 
-							return "#" + index;
+							return "#" + (index - 1);
 
 						});
-
-						console.log(model);
 
 						var index = 0;
 						from.replace(regularExpressions.length, function( match, number, unit ){
 
-							if( unit === values[index].to.unit ){
+							var convertedValue = convertCSSValue(this, property, number, unit, values[index].unit);
 
+							values[index].from = convertedValue;
+							values[index].difference = Math.abs(convertedValue - values[index].to);
 
-
-							}
-							else if( unit === "%" && values[index].to.unit === "px" ){
-
-								
-
-							};
-
-							values[index].from = parseFloat(number);
-
-							values[index].difference = Math.abs(number - values[index].to);
-
-							if( number > values[index].to ){
+							if( convertedValue > values[index].to ){
 
 								values[index].difference *= -1;
 
 							};
 
-							// if 'from' unit is different from 'to', convert the 'from' value (and unit) to the 'to' unit
-							//
-							// % > px < %
-							// em > % = em > px > % 
-							// create process convertion as light as possible
-							//
-							//
+							return "#" + (index - 1);
 
-							return "#" + index;
-
-						});
+						}.bind(this));
 
 						element.properties[property] = {
 							model: model,
@@ -2215,12 +2202,14 @@
 
 			Animations.add(task);
 
+			// console.log("ANIME PREPA END", +new Date() - animStart);
+
 			return this;
 
-			// Jo.animation.add(this, styles, options);
+			/*
 
 
-/*//
+///
 			options = Jo.merge({
 				duration: 1000,
 				easing: "linear"
@@ -2537,8 +2526,6 @@
 
 	Jo.fn.init.prototype = Jo.fn;
 
-	Jo.convert
-
 	Jo.animation = function( fps, fn ){
 
 		return new Jo.animation.fn.init(fps, fn);
@@ -2598,7 +2585,8 @@
 
 	Jo.animation.fn.init.prototype = Jo.animation.fn;
 
-	var Animations = Jo.animation(60, function( now ){
+	var bef = 0;
+	var Animations = Jo.animation(30, function( now ){
 
 		for( var task = 0; task < this.tasks.length; task++ ){
 
@@ -2617,6 +2605,7 @@
 			};
 
 			for( var element = 0; element < this.tasks[task].elements.length; element++ ){
+
 
 				for( var property in this.tasks[task].elements[element].properties ){
 
@@ -2651,345 +2640,6 @@
 	});
 
 	documentRoot = Jo(documentRoot);
-
-	function isEmpty( source, emptyString ){
-
-		if( (isObject(source) || isArray(source)) && !isFunction(source) ){
-
-			for( var length in source ){
-
-				return false;
-
-			};
-
-			return true;
-
-		}
-		else {
-
-			return source === undefined || source === null || (emptyString === true && source === "");
-
-		};
-
-	};
-
-	function isString( source ){
-
-		return source instanceof String || typeof source === "string";
-
-	};
-
-	function isObject( source ){
-
-		return source instanceof Object && typeof source === "object";
-
-	};
-
-	function isArray( source ){
-
-		return source instanceof Array || typeof source === "array";
-
-	};
-
-	function isJSON( string ){
-
-		try {
-
-			JSON.parse(string);
-
-		}
-		catch( Exception ){
-
-			return false
-
-		};
-
-		return true;
-
-	};
-
-	function isNumber( source ){
-
-		return typeof source === "number" || new RegExp("^[\\d\\.]+$", "gi").test(source) || (!isNaN(parseFloat(source)) && isFinite(source));
-
-	};
-
-	function isBoolean( source ){
-
-		return typeof source === "boolean" || source === true || source === false;
-
-	};
-
-	function isTrue( source ){
-
-		return source === true;
-
-	};
-
-	function isFalse( source ){
-
-		return source === false;
-
-	};
-
-	function isFunction( source ){
-
-		return source instanceof Function || typeof source === "function";
-
-	};
-
-	function isNode( source ){
-
-		return !isEmpty(source) && (source instanceof HTMLElement || source.nodeType);
-
-	};
-
-	function isTag( source ){
-
-		return !isEmpty(source) && isNode(source) && source.nodeType === 1;
-
-	};
-
-	function isText( source ){
-
-		return !isEmpty(source) && isNode(source) && source.nodeType === 3;
-
-	};
-
-	function isNodeList( source ){
-
-		return source instanceof HTMLCollection || source instanceof NodeList;
-
-	};
-
-	function isWindow( source ){
-
-		return source instanceof Window;
-
-	};
-
-	function isJo( source ){
-
-		return source instanceof Jo && typeof source === "object";
-
-	};
-
-	function isChildOf( children, parent ){
-
-		return parent.contains ? parent.contains(children) : !!(parent.compareDocumentPosition(children) & 16);
-
-	};
-
-	function prepareSelector( selector ){
-
-		var returned = selector.replace(/\s+/gi, " ").split(",");
-
-		for( var key = 0; key < returned.length; key++ ){
-
-			returned[key] = returned[key].split(/\s/gi);
-
-			for( var subkey = 0; subkey < returned[key].length; subkey++ ){
-
-				returned[key][subkey] = returned[key][subkey].replace(/([#\.:\[])([^#\.:\[\|\>]+)/gi, function(all, type, curiosity){
-
-					if( type === "." &&  /\]$/gi.test(curiosity) ){
-
-						return all;
-
-					};
-
-					return "|" + all;
-
-				}).split("|");
-
-				for( var lastkey = 0; lastkey < returned[key][subkey].length; lastkey++ ){
-
-					returned[key][subkey][lastkey] = returned[key][subkey][lastkey].replace(/^:(first|last|nth|only)(-child|-of-type)?(\([0-9n\+\-]+\))?/gi, function(all, target, type, number){
-
-						return ":" + target + (isEmpty(type) ? "-child" : type) + (isEmpty(number) ? "" : number);
-
-					});
-
-				};
-
-				returned[key][subkey] = returned[key][subkey].join("");
-
-			};
-
-			returned[key] = returned[key].join(" ");
-
-		};
-
-		return returned.join(",");
-
-	};
-
-	function prepareCSSProperty( property ){
-
-		var styles = window.getComputedStyle(document.body, null);
-
-		if( isEmpty(styles.getPropertyValue(property)) && !isEmpty(styles.getPropertyValue(prefix.css + property)) ){
-
-			property = prefix.css + property;
-
-		};
-
-		return property;
-
-	};
-
-	function getNodes( selector, element ){	
-
-		var returned = new Array();
-
-		if( isEmpty(element) ){
-
-			element = document;
-
-		}
-		else if( !isTag(element) ){
-
-			return returned;
-
-		};
-
-		selector = prepareSelector(selector);
-
-		var elementId = element.id ? element.id : null;
-		var removeIdAfter = false;
-		var oldElement = element;
-		var searchTextNode = /\btext\b\s*$/.test(selector) ? true : false;
-
-
-		if( isTrue(searchTextNode) ){
-
-			selector = selector.replace(/[\s>~]*text\s*$/gi, " *");
-
-		};
-
-		if( /^\s*>/gi.test(selector) ){
-
-			if( isEmpty(elementId) ){
-
-				removeIdAfter = true;
-				elementId = element.id = "Jo_" + Math.random().toString(36).substr(2, 9) + new Date().getTime().toString(36);
-
-			};
-
-			selector = "#" + element.id + selector;
-			element = document;
-
-		};
-
-		var nodes = element.querySelectorAll(selector);
-
-		if( isTrue(removeIdAfter) ){
-
-			oldElement.removeAttribute("id");
-
-		};
-
-		if( isTrue(searchTextNode) ){
-
-			var elements = nodes;
-			nodes = new Array();
-
-			for( var element = 0; element < elements.length; element++ ){
-
-				var walker = document.createTreeWalker(elements[element], NodeFilter.SHOW_TEXT, null, false);
-
-				while( node = walker.nextNode() ){
-
-					nodes.push(node);
-
-				};
-
-			};
-
-		};
-
-		for( var node = 0; node < nodes.length; node++ ){
-
-			returned.push(nodes[node]);
-
-		};
-
-		return returned;
-
-	};
-
-	function updateNodes( Jo ){
-
-		var found = new Array();
-
-		Jo.each(function(){
-
-			if( document.contains(this) ){
-
-				found.push(this)
-
-			};
-
-		});
-
-		return found;
-
-	};
-
-	function camelize( text ){
-
-		return text.replace(new RegExp("([a-z])(-\\s)*([A-Z])", "g"), "$1$3").toLowerCase();
-
-	};
-
-	function uncamelize( text ){
-
-		return text.replace(new RegExp("([a-z])([A-Z])", "g"), "$1-$2").toLowerCase();
-
-	};
-
-	function quote( quote, text ){
-
-		return quote + text + quote;
-
-	};
-
-	function singleQuote( text ){
-
-		return quote("'", text.replace(/([\'\"])/g, "\\$1"));
-
-	};
-
-	function doubleQuote( text ){
-
-		return quote('"', text.replace(/([\'\"])/g, "\\$1"));
-
-	};
-
-	var regularExpressions = {
-		singleTag: /^<(\w+)\s*\/?>(?:<\/\1>|)$/,
-		onlySpaces: /^\s+$/g,
-		length: /(\d*\.?\d+)(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%)/gi, //!!! < ?
-		RGBColor: /rgba?\(([0-9]{1,3})[,\s]{1,}([0-9]{1,3})[,\s]{1,}([0-9]{1,3})[,\s]{0,}([0-1]{1}\.?[0-9]*)?\)/gi,
-		hexColor: /^#([a-f0-9]{1,2})([a-f0-9]{1,2})([a-f0-9]{1,2})$/gi
-	};
-
-	var prefix = (function(){
-
-		var styles = window.getComputedStyle(document.documentElement, "");
-
-		var match = (Array.prototype.slice.call(styles).join("").match(/-(moz|webkit|ms)-/i) || (styles.OLink === "" && ["", "o"]))[1];
-
-		var dom = ("WebKit|Moz|MS|O").match(new RegExp("(" + match + ")", "i"))[1];
-		
-		return {
-			dom: dom,
-			lowercase: match,
-			css: "-" + match + "-",
-			js: match[0].toUpperCase() + match.substr(1)
-		};
-
-	})();
 
 	Jo.infos = function(){
 
@@ -3112,6 +2762,7 @@
 		init: function( settings ){
 
 			settings = Jo.merge({
+				console: true
 			}, settings);
 
 			if( isFunction(settings.code) ){
@@ -3148,7 +2799,7 @@
 
 					if( !isEmpty(message.data.type) ){
 
-						if( message.data.type === "console" ){
+						if( message.data.type === "console" && isTrue(settings.console) ){
 
 							console[message.data.content.type].apply(console, message.data.content.content);
 
@@ -4590,6 +4241,368 @@
 		
 		}
 	};
+
+	function isEmpty( source, emptyString ){
+
+		if( (isObject(source) || isArray(source)) && !isFunction(source) ){
+
+			for( var length in source ){
+
+				return false;
+
+			};
+
+			return true;
+
+		}
+		else {
+
+			return source === undefined || source === null || (emptyString === true && source === "");
+
+		};
+
+	};
+
+	function isString( source ){
+
+		return source instanceof String || typeof source === "string";
+
+	};
+
+	function isObject( source ){
+
+		return source instanceof Object && typeof source === "object";
+
+	};
+
+	function isArray( source ){
+
+		return source instanceof Array || typeof source === "array";
+
+	};
+
+	function isJSON( string ){
+
+		try {
+
+			JSON.parse(string);
+
+		}
+		catch( Exception ){
+
+			return false
+
+		};
+
+		return true;
+
+	};
+
+	function isNumber( source ){
+
+		return typeof source === "number" || new RegExp("^[\\d\\.]+$", "gi").test(source) || (!isNaN(parseFloat(source)) && isFinite(source));
+
+	};
+
+	function isBoolean( source ){
+
+		return typeof source === "boolean" || source === true || source === false;
+
+	};
+
+	function isTrue( source ){
+
+		return source === true;
+
+	};
+
+	function isFalse( source ){
+
+		return source === false;
+
+	};
+
+	function isFunction( source ){
+
+		return source instanceof Function || typeof source === "function";
+
+	};
+
+	function isNode( source ){
+
+		return !isEmpty(source) && (source instanceof HTMLElement || source.nodeType);
+
+	};
+
+	function isTag( source ){
+
+		return !isEmpty(source) && isNode(source) && source.nodeType === 1;
+
+	};
+
+	function isText( source ){
+
+		return !isEmpty(source) && isNode(source) && source.nodeType === 3;
+
+	};
+
+	function isNodeList( source ){
+
+		return source instanceof HTMLCollection || source instanceof NodeList;
+
+	};
+
+	function isWindow( source ){
+
+		return source instanceof Window;
+
+	};
+
+	function isJo( source ){
+
+		return source instanceof Jo && typeof source === "object";
+
+	};
+
+	function isChildOf( children, parent ){
+
+		return parent.contains ? parent.contains(children) : !!(parent.compareDocumentPosition(children) & 16);
+
+	};
+
+	function prepareSelector( selector ){
+
+		var returned = selector.replace(/\s+/gi, " ").split(",");
+
+		for( var key = 0; key < returned.length; key++ ){
+
+			returned[key] = returned[key].split(/\s/gi);
+
+			for( var subkey = 0; subkey < returned[key].length; subkey++ ){
+
+				returned[key][subkey] = returned[key][subkey].replace(/([#\.:\[])([^#\.:\[\|\>]+)/gi, function(all, type, curiosity){
+
+					if( type === "." &&  /\]$/gi.test(curiosity) ){
+
+						return all;
+
+					};
+
+					return "|" + all;
+
+				}).split("|");
+
+				for( var lastkey = 0; lastkey < returned[key][subkey].length; lastkey++ ){
+
+					returned[key][subkey][lastkey] = returned[key][subkey][lastkey].replace(/^:(first|last|nth|only)(-child|-of-type)?(\([0-9n\+\-]+\))?/gi, function(all, target, type, number){
+
+						return ":" + target + (isEmpty(type) ? "-child" : type) + (isEmpty(number) ? "" : number);
+
+					});
+
+				};
+
+				returned[key][subkey] = returned[key][subkey].join("");
+
+			};
+
+			returned[key] = returned[key].join(" ");
+
+		};
+
+		return returned.join(",");
+
+	};
+
+	function prepareCSSProperty( property ){
+
+		var styles = window.getComputedStyle(document.body, null);
+
+		if( isEmpty(styles.getPropertyValue(property)) && !isEmpty(styles.getPropertyValue(prefix.css + property)) ){
+
+			property = prefix.css + property;
+
+		};
+
+		return property;
+
+	};
+
+	function convertCSSValue( element, property, value, from, to ){
+
+		if( from === "%" ){
+
+			if( to === "px" ){
+
+				if( ["left", "width", "marginLeft", "marginRight", "borderLeft", "borderRight", "paddingLeft", "paddingRight"].indexOf(property) !== -1 ){
+
+					return (element.parentElement.offsetWidth / 100 * value);
+
+				}
+				else {
+
+					return (element.parentElement.offsetHeight / 100 * value);				
+
+				};
+
+			};
+
+		};
+
+	};
+
+	function getNodes( selector, element ){	
+
+		var returned = new Array();
+
+		if( isEmpty(element) ){
+
+			element = document;
+
+		}
+		else if( !isTag(element) ){
+
+			return returned;
+
+		};
+
+		selector = prepareSelector(selector);
+
+		var elementId = element.id ? element.id : null;
+		var removeIdAfter = false;
+		var oldElement = element;
+		var searchTextNode = /\btext\b\s*$/.test(selector) ? true : false;
+
+
+		if( isTrue(searchTextNode) ){
+
+			selector = selector.replace(/[\s>~]*text\s*$/gi, " *");
+
+		};
+
+		if( /^\s*>/gi.test(selector) ){
+
+			if( isEmpty(elementId) ){
+
+				removeIdAfter = true;
+				elementId = element.id = "Jo_" + Math.random().toString(36).substr(2, 9) + new Date().getTime().toString(36);
+
+			};
+
+			selector = "#" + element.id + selector;
+			element = document;
+
+		};
+
+		var nodes = element.querySelectorAll(selector);
+
+		if( isTrue(removeIdAfter) ){
+
+			oldElement.removeAttribute("id");
+
+		};
+
+		if( isTrue(searchTextNode) ){
+
+			var elements = nodes;
+			nodes = new Array();
+
+			for( var element = 0; element < elements.length; element++ ){
+
+				var walker = document.createTreeWalker(elements[element], NodeFilter.SHOW_TEXT, null, false);
+
+				while( node = walker.nextNode() ){
+
+					nodes.push(node);
+
+				};
+
+			};
+
+		};
+
+		for( var node = 0; node < nodes.length; node++ ){
+
+			returned.push(nodes[node]);
+
+		};
+
+		return returned;
+
+	};
+
+	function updateNodes( Jo ){
+
+		var found = new Array();
+
+		Jo.each(function(){
+
+			if( document.contains(this) ){
+
+				found.push(this)
+
+			};
+
+		});
+
+		return found;
+
+	};
+
+	function camelize( text ){
+
+		return text.replace(new RegExp("([a-z])(-\\s)*([A-Z])", "g"), "$1$3").toLowerCase();
+
+	};
+
+	function uncamelize( text ){
+
+		return text.replace(new RegExp("([a-z])([A-Z])", "g"), "$1-$2").toLowerCase();
+
+	};
+
+	function quote( quote, text ){
+
+		return quote + text + quote;
+
+	};
+
+	function singleQuote( text ){
+
+		return quote("'", text.replace(/([\'\"])/g, "\\$1"));
+
+	};
+
+	function doubleQuote( text ){
+
+		return quote('"', text.replace(/([\'\"])/g, "\\$1"));
+
+	};
+
+	var regularExpressions = {
+		singleTag: /^<(\w+)\s*\/?>(?:<\/\1>|)$/,
+		onlySpaces: /^\s+$/g,
+		length: /(\d*\.?\d+)(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%)/gi, //!!! < ?
+		RGBColor: /rgba?\(([0-9]{1,3})[,\s]{1,}([0-9]{1,3})[,\s]{1,}([0-9]{1,3})[,\s]{0,}([0-1]{1}\.?[0-9]*)?\)/gi,
+		hexColor: /^#([a-f0-9]{1,2})([a-f0-9]{1,2})([a-f0-9]{1,2})$/gi
+	};
+
+	var prefix = (function(){
+
+		var styles = window.getComputedStyle(document.documentElement, "");
+
+		var match = (Array.prototype.slice.call(styles).join("").match(/-(moz|webkit|ms)-/i) || (styles.OLink === "" && ["", "o"]))[1];
+
+		var dom = ("WebKit|Moz|MS|O").match(new RegExp("(" + match + ")", "i"))[1];
+		
+		return {
+			dom: dom,
+			lowercase: match,
+			css: "-" + match + "-",
+			js: match[0].toUpperCase() + match.substr(1)
+		};
+
+	})();
 
 	if( isObject(window) && isObject(window.document) ) window.Jo = window.$ = Jo;
 
