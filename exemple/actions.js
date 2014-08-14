@@ -1,4 +1,4 @@
-/*
+// JUST TEST SPEED
 window.onload = function(){
 	//pure js
 	var bef = +new Date();
@@ -26,7 +26,6 @@ window.onload = function(){
 	$container.empty();
 
 };
-*/
 
 function resize(){
 
@@ -44,35 +43,33 @@ Jo(window)
 
 Jo(function( $ ){
 
-
 	var $container = Jo("#container");
 	var windowWidth = Jo(window).width();
 	var windowHeight = Jo(window).height();
 
 	var bef = +new Date();
-	for( var howMuch = 0; howMuch < 1000; howMuch++ ){
+	for( var howMuch = 0; howMuch < 100; howMuch++ ){
 
 		var $li = Jo("<li/>")
 			.insertEndTo($container)
 			.css({
-				top: "500px",
-				left: "500px"
-			})
-			.animate({
-				left: "5px",
-				top: "5px",
-				// transform: "rotate(190deg)"
+				top: "50%",
+				left: "50%"
+			}).animate({
+				left: Math.round((Math.random() * 100) + 1) + "%",
+				top: Math.round((Math.random() * 100) + 1) + "%"
 			}, {
 				duration: 5000,
-				easing: "easeInOutQuad",
+				easing: "easeOutElastic",
 				complete: function(){
 
-					console.log("finished!");
+					$(this).remove();
 
 				}
 			});
 
 	};
+
 	console.log("jo", +new Date() - bef);
 
 });

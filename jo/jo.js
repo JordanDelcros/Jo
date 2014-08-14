@@ -2118,6 +2118,9 @@
 				easing: "linear"
 			}, options);
 
+			// Check CSS property only one time, then, create a task, store current css
+			// 'DOMSubtreeModified' can trigger when dom change
+
 			setTimeout(function(){
 
 				var valuesTo = new Object();
@@ -2566,49 +2569,56 @@
 		constructor: Jo.animation,
 		init: function( fps, fn ){
 
+			this.active = false;
 			this.fps = fps || 30;
 			this.interval = 1000 / this.fps;
 			this.now = 0;
 			this.then = 0;
 			this.deltaTime = 0;
 
-			this.fn = fn || function(){};
+			this.fn = fn;
 			this.tasks = new Array();
-
-			function loop( now ){
-
-				this.now = now;
-				this.deltaTime = this.now - this.then;
-
-				if( this.deltaTime > this.interval ){
-
-					this.fn(now);
-
-					this.then = now - (this.deltaTime % this.interval);
-
-				};
-
-				this.animationFrame = window.requestAnimationFrame(loop.bind(this));
-
-			};
 
 			documentRoot.addEventListener("visibilitychange", function( event ){
 
 				if( documentRoot.visibilityState === "visible" ){
 
-					this.animationFrame = window.requestAnimationFrame(loop.bind(this));
+					this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
 
 				}
 				else {
 
-					console.log("hidden");
 					window.cancelAnimationFrame(this.animationFrame);
 
 				};
 
 			}.bind(this), false);
 
-			this.animationFrame = window.requestAnimationFrame(loop.bind(this));
+			this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
+
+			return this;
+
+		},
+		loop: function( now ){
+
+			if( this.active === false ){
+
+				return window.cancelAnimationFrame(this.animationFrame);
+
+			};
+
+			this.now = now;
+			this.deltaTime = this.now - this.then;
+
+			if( this.deltaTime > this.interval ){
+
+				this.fn(now);
+
+				this.then = now - (this.deltaTime % this.interval);
+
+			};
+
+			this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
 
 			return this;
 
@@ -2617,7 +2627,7 @@
 
 			for( var task = 0; task < this.tasks.length; task++ ){
 
-				fn.call(this, this.tasks[task]);
+				fn.call(this, this.tasks[task], task);
 
 			};
 
@@ -2628,12 +2638,38 @@
 
 			this.tasks.push(task);
 
+			if( this.active === false ){
+
+				this.active = true;
+				this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
+
+			};
+
 			return this;
 
 		},
-		remove: function( index ){
+		remove: function( task ){
 
-			this.tasks.splice(index, 1);
+			if( isNumber(task) ){
+
+				this.tasks.splice(task, 1);
+
+			}
+			else {
+
+				this.tasks.filter(function( entry ){
+
+					return entry !== task;
+
+				});
+
+			};
+
+			if( this.tasks.length === 0 ){
+
+				this.active = false;
+
+			};
 
 			return this;
 
@@ -2644,7 +2680,7 @@
 
 	var Animations = Jo.animation(30, function( now ){
 
-		this.each(function( task ){
+		this.each(function( task, index ){
 
 			if( isEmpty(task.options.start) ){
 
@@ -2686,11 +2722,11 @@
 
 				if( isFunction(task.options.complete) ){
 
-					task.options.complete(task.this);
+					task.options.complete.call(task.this);
 
 				};
 
-				this.remove(task);
+				this.remove(index);
 
 			};
 
