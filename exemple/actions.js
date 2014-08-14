@@ -3,27 +3,29 @@ window.onload = function(){
 	//pure js
 	var bef = +new Date();
 	var container = document.querySelector("#container");
-	for( var howMuch = 0; howMuch < 1000; howMuch++ ){
-		container.appendChild(document.createElement("li"));
+	for( var howMuch = 0; howMuch < 100; howMuch++ ){
+		var li = document.createElement("li");
+		container.appendChild(li);
+		li.appendChild(document.createElement("ul"))
 	};
 	console.log("pure", +new Date - bef);
 	container.innerHTML = "";
-	//jquery
-	var bef = +new Date();
-	var $container = jQuery("#container");
-	for( var howMuch = 0; howMuch < 1000; howMuch++ ){
-		jQuery("<li/>").appendTo($container);
-	};
-	console.log("jquery", +new Date() - bef);
-	$container.html("");
 	//jo
 	var bef = +new Date();
 	var $container = Jo("#container");
-	for( var howMuch = 0; howMuch < 1000; howMuch++ ){
+	for( var howMuch = 0; howMuch < 100; howMuch++ ){
 		Jo("<li/>").insertEndTo($container);
 	};
 	console.log("jo", +new Date() - bef);
 	$container.empty();
+	//jquery
+	var bef = +new Date();
+	var $container = jQuery("#container");
+	for( var howMuch = 0; howMuch < 100; howMuch++ ){
+		jQuery("<li/>").appendTo($container);
+	};
+	console.log("jquery", +new Date() - bef);
+	$container.html("");
 
 };
 
@@ -47,30 +49,29 @@ Jo(function( $ ){
 	var windowWidth = Jo(window).width();
 	var windowHeight = Jo(window).height();
 
-	var bef = +new Date();
-	for( var howMuch = 0; howMuch < 100; howMuch++ ){
+	// var bef = +new Date();
+	// for( var howMuch = 0; howMuch < 100; howMuch++ ){
 
-		var $li = Jo("<li/>")
-			.insertEndTo($container)
-			.css({
-				top: "50%",
-				left: "50%"
-			}).animate({
-				left: Math.round((Math.random() * 100) + 1) + "%",
-				top: Math.round((Math.random() * 100) + 1) + "%"
-			}, {
-				duration: 5000,
-				easing: "easeOutElastic",
-				complete: function(){
+	// 	var $li = Jo("<li/>")
+	// 		.insertEndTo($container)
+	// 		.css({
+	// 			top: "50%",
+	// 			left: "50%"
+	// 		}).animate({
+	// 			left: Math.round((Math.random() * 100) + 1) + "%",
+	// 			top: Math.round((Math.random() * 100) + 1) + "%"
+	// 		}, {
+	// 			duration: 5000,
+	// 			easing: "easeOutElastic",
+	// 			complete: function(){
 
-					$(this).remove();
+	// 				$(this).remove();
 
-				}
-			});
+	// 			}
+	// 		});
 
-	};
-
-	console.log("jo", +new Date() - bef);
+	// };
+	// console.log("jo", +new Date() - bef);
 
 });
 

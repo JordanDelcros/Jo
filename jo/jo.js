@@ -6,8 +6,7 @@
 	"use strict";
 
 	var documentRoot = document;
-
-	var cache = new Object();
+	var temporaryNode = documentRoot.createElement("div");
 
 	var Jo = function( selector, context, documentRoot ){
 
@@ -20,8 +19,7 @@
 		constructor: Jo,
 		init: function( selector, context ){
 
-			this.selector = selector;
-			this.found = new Array();
+			var found = new Array();
 
 			if( !isEmpty(selector) ){
 
@@ -46,61 +44,59 @@
 
 						if( !isEmpty(singleTag) && singleTag.length > 0 ){
 
-							this.found.push(document.createElement(singleTag[1]));
+							found.push(document.createElement(singleTag[1]));
 
 						}
 						else {
 
-							var temporaryNode = document.createElement("div");
+							var temporary = temporaryNode.cloneNode(false);
 
-							temporaryNode.innerHTML = selector;
+							temporary.innerHTML = selector;
 
-							for( var node = 0; node < temporaryNode.childNodes.length; node++ ){
+							found = temporary.childNodes;
 
-								this.found.push(temporaryNode.childNodes[node]);
-
-							};
-
-							temporaryNode.remove();
+							temporary.remove();
 
 						};
 
 					}
 					else {
 
-						this.found = getNodes(selector);
+						found = getNodes(selector);
 
 					};
 				
 				}
 				else if( isNodeList(selector) ){
 
-					for( var node = 0; node < selector.length; node++ ){
+					for( var node = 0, length = selector.length; node < length; node++ ){
 
-						this.found.push(selector[node]);
+						found.push(selector[node]);
 
 					};
 
 				}
 				else if( isNode(selector) ){
 
-					this.found.push(selector);
+					found.push(selector);
 
 				}
 				else if( isWindow(selector) ){
 
-					this.found.push(window);
+					found.push(window);
 
 				}
 				else if( isJo(selector) ){
 
-					this.found = selector.found;
+					found = selector.found;
 
 				};
 
 			};
 
-			this.length = this.found.length;
+			this.selector = selector;
+			this.found = found;
+			this.length = found.length;
 
 			return this;
 
@@ -229,7 +225,7 @@
 
 				var nodes = this.childNodes;
 
-				for( var node = 0; node < nodes.length; node++ ){
+				for( var node = 0, length = nodes.length; node < length; node++ ){
 
 					if( (!isEmpty(selector) && isString(selector) && !Jo(nodes[node]).is(selector)) || (isTrue(normalize) && isText(nodes[node]) && regularExpressions.onlySpaces.test(nodes[node].textContent)) ){
 
@@ -262,7 +258,7 @@
 
 				var childs = this.children;
 
-				for( var child = 0; child < childs.length; child++ ){
+				for( var child = 0, length = childs.length; child < length; child++ ){
 
 					if( !isEmpty(selector) ){
 
@@ -557,7 +553,7 @@
 		},
 		each: function( fn ){
 
-			for( var index = 0; index < this.found.length; index++ ){
+			for( var index = 0, length = this.found.length; index < length; index++ ){
 
 				fn.call(this.found[index], index);
 
@@ -750,7 +746,6 @@
 			return this.each(function(){
 
 				for( var action in actions ){
-
 
 					if( !isEmpty(this.events[actions[action]]) ){
 
@@ -1588,7 +1583,7 @@
 
 						temporaryNode.remove();
 
-						for( var node = 0; node < nodes.length; node++ ){
+						for( var node = 0, length = nodes.length; node < length; node++ ){
 						
 							this.parentNode.insertBefore(nodes[node], this);
 
@@ -1670,7 +1665,7 @@
 
 						temporaryNode.remove();
 
-						for( var node = 0; node < nodes.length; node++ ){
+						for( var node = 0, length = nodes.length; node < length; node++ ){
 
 							this.parentNode.insertBefore(nodes[node], this.nextElementSibling);
 
@@ -1752,7 +1747,7 @@
 
 						temporaryNode.remove();
 
-						for( var node = 0; node < nodes.length; node++ ){
+						for( var node = 0, length = nodes.length; node < length; node++ ){
 
 							this.insertBefore(nodes[node], this.firstChild);
 
@@ -1834,7 +1829,7 @@
 
 						temporaryNode.remove();
 
-						for( var node = 0; node < nodes.length; node++ ){
+						for( var node = 0, length = nodes.length; node < length; node++ ){
 
 							this.parentNode.appendChild(nodes[node]);
 
@@ -1965,7 +1960,7 @@
 
 					var reference = this;
 
-					for( var element = 0; element < html.length; element++ ){
+					for( var element = 0, length = html.length; element < length; element++ ){
 
 						var node = html[element].cloneNode(true);
 
@@ -2625,7 +2620,7 @@
 		},
 		each: function( fn ){
 
-			for( var task = 0; task < this.tasks.length; task++ ){
+			for( var task = 0, length = this.tasks.length; task < length; task++ ){
 
 				fn.call(this, this.tasks[task], task);
 
@@ -2696,7 +2691,7 @@
 
 			};
 
-			for( var element = 0; element < task.elements.length; element++ ){
+			for( var element = 0, elementLength = task.elements.length; element < elementLength; element++ ){
 
 				for( var property in task.elements[element].properties ){
 
@@ -2704,7 +2699,7 @@
 
 						var model = task.elements[element].properties[property].model;
 
-						for( var value = 0; value < task.elements[element].properties[property].values.length; value++ ){
+						for( var value = 0, valueLength = task.elements[element].properties[property].values.length; value < valueLength; value++ ){
 
 							model = model.replace("#" + value, (task.elements[element].properties[property].values[value].from + (Jo.easing[task.options.easing](elapsedTime, task.options.duration) * task.elements[element].properties[property].values[value].difference)) + task.elements[element].properties[property].values[value].unit);
 
@@ -2762,20 +2757,20 @@
 
 		};
 
-		for( var i = 1; i < arguments.length; i++ ){
+		for( var argument = 1, length = arguments.length; argument < length; argument++ ){
 
-			for( var key in arguments[i] ){
+			for( var key in arguments[argument] ){
 
-				if( arguments[i].hasOwnProperty(key) ){
+				if( arguments[argument].hasOwnProperty(key) ){
 
-					if( isObject(arguments[i][key]) && (arguments[i][key].constructor === Object || arguments[i][key].constructor === Array) ){
+					if( isObject(arguments[argument][key]) && (arguments[argument][key].constructor === Object || arguments[argument][key].constructor === Array) ){
 
-						returned[key] = Jo.merge(returned[key], arguments[i][key]);
+						returned[key] = Jo.merge(returned[key], arguments[argument][key]);
 
 					}
 					else {
 
-						returned[key] = arguments[i][key];
+						returned[key] = arguments[argument][key];
 
 					};
 
@@ -2797,9 +2792,9 @@
 
 		};
 
-		for( var i = 1; i < arguments.length; i++ ){
+		for( var argument = 1; argument < arguments.length; argument++ ){
 
-			var obj = arguments[i];
+			var obj = arguments[argument];
 
 			for( var key in obj ){
 
@@ -2862,7 +2857,7 @@
 
 				if( !isEmpty(settings.parameters) ){
 
-					for( var key = 0; key < settings.parameters.length; key++ ){
+					for( var key = 0, length = settings.parameters.length; key < length; key++ ){
 
 						settings.parameters[key] = doubleQuote(settings.parameters[key].toString());
 
@@ -3049,7 +3044,7 @@
 
 							if( Jo(this).is("[type='file']") ){
 
-								for( var file = 0; file < this.files.length; file++ ){
+								for( var file = 0, length = this.files.length; file < length; file++ ){
 
 									data.push(encodeURIComponent(this.getAttribute("name") + "[" + file + "]") + "=" + encodeURIComponent(this.files[file]));
 
@@ -3102,7 +3097,7 @@
 
 								if( Jo(this).is("[type='file']") ){
 
-									for( var file = 0; file < this.files.length; file++ ){
+									for( var file = 0, length = this.files.length; file < length; file++ ){
 
 										data.append(this.getAttribute("name") + "[" + file + "]", this.files[file]);
 
@@ -4463,15 +4458,21 @@
 
 	};
 
+	function createNodes( html ){
+
+
+
+	};
+
 	function prepareSelector( selector ){
 
 		var returned = selector.replace(/\s+/gi, " ").split(",");
 
-		for( var key = 0; key < returned.length; key++ ){
+		for( var key = 0, keyLength = returned.length; key < keyLength; key++ ){
 
 			returned[key] = returned[key].split(/\s/gi);
 
-			for( var subkey = 0; subkey < returned[key].length; subkey++ ){
+			for( var subkey = 0, subkeyLength = returned[key].length; subkey < subkeyLength; subkey++ ){
 
 				returned[key][subkey] = returned[key][subkey].replace(/([#\.:\[])([^#\.:\[\|\>]+)/gi, function(all, type, curiosity){
 
@@ -4485,7 +4486,7 @@
 
 				}).split("|");
 
-				for( var lastkey = 0; lastkey < returned[key][subkey].length; lastkey++ ){
+				for( var lastkey = 0, lastkeyLength = returned[key][subkey].length; lastkey < lastkeyLength; lastkey++ ){
 
 					returned[key][subkey][lastkey] = returned[key][subkey][lastkey].replace(/^:(first|last|nth|only)(-child|-of-type)?(\([0-9n\+\-]+\))?/gi, function(all, target, type, number){
 
@@ -4626,7 +4627,7 @@
 			var elements = nodes;
 			nodes = new Array();
 
-			for( var element = 0; element < elements.length; element++ ){
+			for( var element = 0, length = elements.length; element < length; element++ ){
 
 				var walker = document.createTreeWalker(elements[element], NodeFilter.SHOW_TEXT, null, false);
 
@@ -4640,7 +4641,7 @@
 
 		};
 
-		for( var node = 0; node < nodes.length; node++ ){
+		for( var node = 0, length = nodes.length; node < length; node++ ){
 
 			returned.push(nodes[node]);
 
