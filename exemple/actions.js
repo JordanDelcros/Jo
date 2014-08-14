@@ -1,35 +1,42 @@
-// window.onload = function(){
-	// pure js
-// 	var bef = +new Date();
-// 	var container = document.querySelector("#container");
-// 	for( var howMuch = 0; howMuch < 1000; howMuch++ ){
-// 		container.appendChild(document.createElement("li"));
-// 	};
-// 	console.log("pure", +new Date - bef);
-// 	container.innerHTML = "";
-	// jquery
-// 	var bef = +new Date();
-// 	var $container = jQuery("#container");
-// 	for( var howMuch = 0; howMuch < 1000; howMuch++ ){
-// 		jQuery("<li/>").appendTo($container);
-// 	};
-// 	console.log("jquery", +new Date() - bef);
-// 	$container.html("");
-	// jo
-// 	var bef = +new Date();
-// 	var $container = Jo("#container");
-// 	for( var howMuch = 0; howMuch < 1000; howMuch++ ){
-// 		Jo("<li/>").insertEndTo($container);
-// 	};
-// 	console.log("jo", +new Date() - bef);
-// 	$container.empty();
+/*
+window.onload = function(){
+	//pure js
+	var bef = +new Date();
+	var container = document.querySelector("#container");
+	for( var howMuch = 0; howMuch < 1000; howMuch++ ){
+		container.appendChild(document.createElement("li"));
+	};
+	console.log("pure", +new Date - bef);
+	container.innerHTML = "";
+	//jquery
+	var bef = +new Date();
+	var $container = jQuery("#container");
+	for( var howMuch = 0; howMuch < 1000; howMuch++ ){
+		jQuery("<li/>").appendTo($container);
+	};
+	console.log("jquery", +new Date() - bef);
+	$container.html("");
+	//jo
+	var bef = +new Date();
+	var $container = Jo("#container");
+	for( var howMuch = 0; howMuch < 1000; howMuch++ ){
+		Jo("<li/>").insertEndTo($container);
+	};
+	console.log("jo", +new Date() - bef);
+	$container.empty();
 
-// };
+};
+*/
 
+function resize(){
 
+	Jo("ul").css({
+		width: "100%",
+		height: $(window).height() + "px",
+		backgroundColor: "rgba(0,0,0,0.5)"
+	});
 
-var joli = 1;
-var jqueryli = 1;
+};
 
 Jo(window)
 	.on("resize ready", resize)
@@ -37,26 +44,27 @@ Jo(window)
 
 Jo(function( $ ){
 
+
 	var $container = Jo("#container");
 	var windowWidth = Jo(window).width();
 	var windowHeight = Jo(window).height();
 
 	var bef = +new Date();
-	for( var howMuch = 0; howMuch < 100; howMuch++ ){
+	for( var howMuch = 0; howMuch < 1000; howMuch++ ){
 
-		Jo("<li/>")
+		var $li = Jo("<li/>")
 			.insertEndTo($container)
 			.css({
-				top: "50%",
-				left: "50%"
+				top: "500px",
+				left: "500px"
 			})
 			.animate({
-				left: (Math.floor(((Math.random() * windowWidth) + 1))) + "px",
-				top: (Math.floor(((Math.random() * windowWidth) + 1))) + "px",
+				left: "5px",
+				top: "5px",
 				// transform: "rotate(190deg)"
 			}, {
 				duration: 5000,
-				easing: "easeOutElastic",
+				easing: "easeInOutQuad",
 				complete: function(){
 
 					console.log("finished!");
@@ -71,24 +79,22 @@ Jo(function( $ ){
 
 Jo(function( $ ){
 
-	console.log("function (doc) ready !");
+	console.log("document is ready!");
 
 });
 
-function resize(){
 
-	console.log("resize", $(window).height() + "px");
 
-	Jo("ul").css({
-		width: "100%",
-		height: $(window).height() + "px",
-		backgroundColor: "rgba(0,0,0,0.5)"
-	});
 
-};
+
+
+
+
+
+
+
 
 /*
-
 var media;
 var peer;
 

@@ -566,6 +566,28 @@
 			return this;
 
 		},
+		filter: function( fn ){
+
+			var $this = Jo(this);
+
+			var found = new Array();
+
+			$this.each(function(){
+
+				if( fn.call(this) === true ){
+
+					found.push(this);
+
+				};
+
+			});
+
+			$this.found = found;
+			$this.length = $this.found.length;
+
+			return $this;
+
+		},
 		is: function( selector ){
 
 			var returned = isEmpty(selector) ? false : true;
@@ -867,7 +889,7 @@
 
 				this.each(function(){
 
-					returned.push(this.innerWidth || this.clientWidth);
+					returned.push(this.outerWidth || this.clientWidth);
 
 				});
 
@@ -883,13 +905,14 @@
 		},
 		height: function( height ){
 
+
 			if( isEmpty(height) ){
 
 				var returned = new Array();
 
 				this.each(function(){
 
-					returned.push(this.innerHeight);
+					returned.push(this.outerHeight || this.clientHeight);
 
 				});
 
@@ -903,7 +926,7 @@
 			};
 
 		},
-		css: function( property, value, unverified ){
+		css: function( property, value, unverify ){
 
 			if( isString(property) ){
 
@@ -911,7 +934,7 @@
 
 					this.each(function(){
 
-						if( !isTrue(unverified) ){
+						if( isTrue(unverify) ){
  
 							property = prepareCSSProperty(property);
 
@@ -928,35 +951,42 @@
 
 					this.each(function(){
 
-						if( !isTrue(value) ){
+						var computedStyles = window.getComputedStyle(this, null);
 
-							property = prepareCSSProperty(property);
+						if( !isEmpty(computedStyles) ){
+
+							if( isTrue(value) ){
+
+								property = prepareCSSProperty(property);
+
+							};
+
+							var display = computedStyles.getPropertyValue("display");
+
+							var removeDisplay = false;
+
+							if( isEmpty(this.style.display) ){
+
+								removeDisplay = true;
+
+							};
+
+							this.style.display = "none";
+
+							var found = computedStyles.getPropertyValue(property);
+
+							this.style.display = isTrue(removeDisplay) ? "" : display;
+
+							if( found === "auto" || found === "none" ){
+
+								found = computedStyles.getPropertyValue(property);
+
+							};
+
+							returned.push(found);
 
 						};
 
-						var display = window.getComputedStyle(this, null).getPropertyValue("display");
-
-						var removeDisplay = false;
-
-						if( isEmpty(this.style.display) ){
-
-							removeDisplay = true;
-
-						};
-
-						this.style.display = "none";
-
-						var found = window.getComputedStyle(this, null).getPropertyValue(property);
-
-						this.style.display = isTrue(removeDisplay) ? "" : display;
-
-						if( found === "auto" || found === "none" ){
-
-							found = window.getComputedStyle(this, null).getPropertyValue(property);
-
-						};
-
-						returned.push(found);
 
 					});
 
@@ -996,7 +1026,7 @@
 
 						if( property.hasOwnProperty(parameter) ){
 
-							if( !isTrue(value) ){
+							if( isTrue(value) ){
 
 								parameter = prepareCSSProperty(parameter);
 
@@ -2088,77 +2118,20 @@
 				easing: "linear"
 			}, options);
 
-			// ONLY text.replace the "to" var one time ! logic...
+			setTimeout(function(){
 
-			for( var property in styles ){
-
-				if( styles.hasOwnProperty(property) ){
-
-					var preparedProperty = prepareCSSProperty(property, styles[property]);
-
-					if( preparedProperty !== property ){
-
-						styles[preparedProperty] = styles[property];
-						delete styles[property];
-
-					};
-
-				};
-
-			};
-
-			var task = {
-				this: this,
-				elements: new Array(),
-				options: options
-			};
-
-			this.each(function(){
-
-				var element = {
-					$element: Jo(this),
-					properties: new Object()
-				};
+				var valuesTo = new Object();
 
 				for( var property in styles ){
 
 					if( styles.hasOwnProperty(property) ){
 
-						var uncamelizedProperty = uncamelize(property);
+						valuesTo[property] = new Object();
+						valuesTo[property].values = new Array();
 
-						var from = element.$element.css(uncamelizedProperty)[0];
-						var to = styles[property];
-						var values = new Array();
+						valuesTo[property].model = styles[property].toString().replace(regularExpressions.length, function( match, number, unit ){
 
-						if( from === "auto" && !isEmpty(this[camelize("offset-" + property)]) ){
-
-							from = this[camelize("offset-" + property)] + "px";
-
-						}
-						else if( from === "none" ){
-
-							if( property === "transform" ){
-
-								from = "matrix(1, 0, 0, 1, 0, 0)";
-
-							}
-							else {
-
-								from = "0";
-
-							};
-
-						};
-
-						if( !isString(to) ){
-
-							to = to.toString();
-
-						};
-
-						var model = to.replace(regularExpressions.length, function( match, number, unit ){
-
-							var index = values.push({
+							var index = valuesTo[property].values.push({
 								from: null,
 								to: parseFloat(number),
 								difference: 0,
@@ -2169,40 +2142,97 @@
 
 						});
 
-						var index = 0;
-						from.replace(regularExpressions.length, function( match, number, unit ){
+						var preparedProperty = prepareCSSProperty(property, styles[property]);
 
-							var convertedValue = convertCSSValue(this, property, number, unit, values[index].unit);
+						if( preparedProperty !== property ){
 
-							values[index].from = convertedValue;
-							values[index].difference = Math.abs(convertedValue - values[index].to);
+							styles[preparedProperty] = styles[property];
+							delete styles[property];
 
-							if( convertedValue > values[index].to ){
-
-								values[index].difference *= -1;
-
-							};
-
-							return "#" + (index - 1);
-
-						}.bind(this));
-
-						element.properties[property] = {
-							model: model,
-							values: values
 						};
 
 					};
 
 				};
 
-				task.elements.push(element);
+				var task = {
+					this: this,
+					elements: new Array(),
+					options: options
+				};
 
-			});
+				this.each(function(){
 
-			Animations.add(task);
+					var bef = +new Date();
+					var element = {
+						$element: Jo(this),
+						properties: new Object()
+					};
 
-			// console.log("ANIME PREPA END", +new Date() - animStart);
+					for( var property in styles ){
+
+						if( styles.hasOwnProperty(property) ){
+
+							var uncamelizedProperty = uncamelize(property);
+
+							var from = element.$element.css(uncamelizedProperty)[0];
+							var model = valuesTo[property].model;
+							var values = valuesTo[property].values;
+
+							if( from === "auto" && !isEmpty(this[camelize("offset-" + property)]) ){
+
+								from = this[camelize("offset-" + property)] + "px";
+
+							}
+							else if( from === "none" ){
+
+								if( property === "transform" ){
+
+									from = "matrix(1, 0, 0, 1, 0, 0)";
+
+								}
+								else {
+
+									from = "0";
+
+								};
+
+							};
+
+							var index = 0;
+							from.replace(regularExpressions.length, function( match, number, unit ){
+
+								var convertedValue = convertCSSValue(this, property, number, unit, valuesTo[property].values[index].unit);
+
+								valuesTo[property].values[index].from = convertedValue;
+								valuesTo[property].values[index].difference = Math.abs(convertedValue - valuesTo[property].values[index].to);
+
+								if( convertedValue > values[index].to ){
+
+									valuesTo[property].values[index].difference *= -1;
+
+								};
+
+								return "#" + (index - 1);
+
+							}.bind(this));
+
+							element.properties[property] = {
+								model: valuesTo[property].model,
+								values: valuesTo[property].values
+							};
+
+						};
+
+					};
+
+					task.elements.push(element);
+
+				});
+
+				Animations.add(task);
+
+			}.bind(this), 0);
 
 			return this;
 
@@ -2558,11 +2588,38 @@
 
 				};
 
-				window.requestAnimationFrame(loop.bind(this));
+				this.animationFrame = window.requestAnimationFrame(loop.bind(this));
 
 			};
 
-			window.requestAnimationFrame(loop.bind(this));
+			documentRoot.addEventListener("visibilitychange", function( event ){
+
+				if( documentRoot.visibilityState === "visible" ){
+
+					this.animationFrame = window.requestAnimationFrame(loop.bind(this));
+
+				}
+				else {
+
+					console.log("hidden");
+					window.cancelAnimationFrame(this.animationFrame);
+
+				};
+
+			}.bind(this), false);
+
+			this.animationFrame = window.requestAnimationFrame(loop.bind(this));
+
+			return this;
+
+		},
+		each: function( fn ){
+
+			for( var task = 0; task < this.tasks.length; task++ ){
+
+				fn.call(this, this.tasks[task]);
+
+			};
 
 			return this;
 
@@ -2585,49 +2642,51 @@
 
 	Jo.animation.fn.init.prototype = Jo.animation.fn;
 
-	var bef = 0;
 	var Animations = Jo.animation(30, function( now ){
 
-		for( var task = 0; task < this.tasks.length; task++ ){
+		this.each(function( task ){
 
-			if( isEmpty(this.tasks[task].options.start) ){
+			if( isEmpty(task.options.start) ){
 
-				this.tasks[task].options.start = now;
-
-			};
-
-			var elapsedTime = now - this.tasks[task].options.start;
-
-			if( elapsedTime >= this.tasks[task].options.duration ){
-
-				elapsedTime = this.tasks[task].options.duration;
+				task.options.start = now;
 
 			};
 
-			for( var element = 0; element < this.tasks[task].elements.length; element++ ){
+			var elapsedTime = now - task.options.start;
 
+			if( elapsedTime >= task.options.duration ){
 
-				for( var property in this.tasks[task].elements[element].properties ){
+				elapsedTime = task.options.duration;
 
-					var model = this.tasks[task].elements[element].properties[property].model;
+			};
 
-					for( var value = 0; value < this.tasks[task].elements[element].properties[property].values.length; value++ ){
+			for( var element = 0; element < task.elements.length; element++ ){
 
-						model = model.replace("#" + value, (this.tasks[task].elements[element].properties[property].values[value].from + (Jo.easing[this.tasks[task].options.easing](elapsedTime, this.tasks[task].options.duration) * this.tasks[task].elements[element].properties[property].values[value].difference)) + this.tasks[task].elements[element].properties[property].values[value].unit);
+				for( var property in task.elements[element].properties ){
+
+					if( task.elements[element].properties.hasOwnProperty(property) ){
+
+						var model = task.elements[element].properties[property].model;
+
+						for( var value = 0; value < task.elements[element].properties[property].values.length; value++ ){
+
+							model = model.replace("#" + value, (task.elements[element].properties[property].values[value].from + (Jo.easing[task.options.easing](elapsedTime, task.options.duration) * task.elements[element].properties[property].values[value].difference)) + task.elements[element].properties[property].values[value].unit);
+
+						};
+
+						task.elements[element].$element.css(property, model, false);
 
 					};
-
-					this.tasks[task].elements[element].$element.css(property, model, true);
 
 				};
 
 			};
 
-			if( elapsedTime === this.tasks[task].options.duration ){
+			if( elapsedTime === task.options.duration ){
 
-				if( isFunction(this.tasks[task].options.complete) ){
+				if( isFunction(task.options.complete) ){
 
-					this.tasks[task].options.complete.call(this.tasks[task].this);
+					task.options.complete(task.this);
 
 				};
 
@@ -2635,11 +2694,9 @@
 
 			};
 
-		};
+		});
 
 	});
-
-	documentRoot = Jo(documentRoot);
 
 	Jo.infos = function(){
 
@@ -4430,7 +4487,14 @@
 
 	function convertCSSValue( element, property, value, from, to ){
 
-		if( from === "%" ){
+		value = parseFloat(value);
+
+		if( from === to ){
+
+			return value;
+
+		}
+		else if( from === "%" ){
 
 			if( to === "px" ){
 
@@ -4444,6 +4508,25 @@
 					return (element.parentElement.offsetHeight / 100 * value);				
 
 				};
+
+			}
+			else if( to === "em" ){
+
+				return convertCSSValue(element, property, value, from, "px") / parseFloat(Jo(element).css("font-size")[0]);
+
+			}
+			else if( to === "rem" ){
+
+				return convertCSSValue(element, property, value, from, "px") / parseFloat(Jo(document.documentElement).css("font-size")[0]);
+
+			};
+
+		}
+		else if( from === "px" ){
+
+			if( to === "%" ){
+
+
 
 			};
 
