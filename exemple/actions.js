@@ -1,32 +1,53 @@
 // JUST TEST SPEED
 window.onload = function(){
 	//pure js
-	var bef = +new Date();
-	var container = document.querySelector("#container");
-	for( var howMuch = 0; howMuch < 100; howMuch++ ){
-		var li = document.createElement("li");
-		container.appendChild(li);
-		li.appendChild(document.createElement("ul"))
-	};
-	console.log("pure", +new Date - bef);
-	container.innerHTML = "";
+	// var bef = +new Date();
+	// var container = document.querySelector("#container");
+	// for( var howMuch = 0; howMuch < 10; howMuch++ ){
+	// 	var li = document.createElement("li");
+	// 	container.appendChild(li);
+	// 	li.appendChild(document.createElement("ul"))
+	// };
+	// console.log("pure", +new Date - bef);
+	// container.innerHTML = "";
+
 	//jo
 	var bef = +new Date();
 	var $container = Jo("#container");
-	for( var howMuch = 0; howMuch < 100; howMuch++ ){
-		Jo("<li/>").insertEndTo($container);
+	for( var howMuch = 0; howMuch < 1; howMuch++ ){
+		Jo("<li/>")
+			.insertEndTo($container)
+			.animate({
+				left: "0px"
+			}, {
+				easing: "easeInOutQuad",
+				duration: 5000,
+				complete: function(){
+					console.log("jo finish");
+				}
+			});
 	};
 	console.log("jo", +new Date() - bef);
-	$container.empty();
+	// $container.empty();
+
 	//jquery
 	var bef = +new Date();
 	var $container = jQuery("#container");
-	for( var howMuch = 0; howMuch < 100; howMuch++ ){
-		jQuery("<li/>").appendTo($container);
+	for( var howMuch = 0; howMuch < 1; howMuch++ ){
+		jQuery("<li/>")
+			.appendTo($container)
+			.animate({
+				left: "0px"
+			}, {
+				// easing: "easeInOutQuad",
+				duration: 5000,
+				complete: function(){
+					console.log("jq finish");
+				}
+			});
 	};
 	console.log("jquery", +new Date() - bef);
-	$container.html("");
-
+	// $container.html("");
 };
 
 function resize(){

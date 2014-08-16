@@ -1,6 +1,7 @@
 /**
 * @package Jo (JavaScript overloaded)
 * @author Jordan Delcros <www.jordan-delcros.com>
+* @github <www.github.com/JordanDelcros/Jo>
 */
 (function( window, undefined ){
 	"use strict";
@@ -2106,17 +2107,23 @@
 		},
 		animate: function( styles, options ){
 
-			var animStart = +new Date();
+			if( isEmpty(options) ){
+
+				options = new Object();
+
+			};
 
 			options = Jo.merge({
 				duration: 1000,
 				easing: "linear"
 			}, options);
 
+			// Just send a task to Animation and let it does the rest of the process
 			// Check CSS property only one time, then, create a task, store current css
 			// 'DOMSubtreeModified' can trigger when dom change
+			// cache generated valuesTO !!!
 
-			setTimeout(function(){
+			// setTimeout(function(){
 
 				var valuesTo = new Object();
 
@@ -2230,7 +2237,7 @@
 
 				Animations.add(task);
 
-			}.bind(this), 0);
+			// }.bind(this), 0);
 
 			return this;
 
@@ -2620,7 +2627,7 @@
 		},
 		each: function( fn ){
 
-			for( var task = 0, length = this.tasks.length; task < length; task++ ){
+			for( var task = 0; task < this.tasks.length; task++ ){
 
 				fn.call(this, this.tasks[task], task);
 
@@ -2630,6 +2637,16 @@
 
 		},
 		add: function( task ){
+
+			task.each = function( fn ){
+
+				for( var element = 0, length = task.elements.length; element < length; element++ ){
+
+					fn.call(null, task.elements[element]);
+
+				};
+
+			};
 
 			this.tasks.push(task);
 
@@ -2691,27 +2708,26 @@
 
 			};
 
-			for( var element = 0, elementLength = task.elements.length; element < elementLength; element++ ){
+			task.each(function( element ){
 
-				for( var property in task.elements[element].properties ){
+				for( var property in element.properties ){
 
-					if( task.elements[element].properties.hasOwnProperty(property) ){
+					if( element.properties.hasOwnProperty(property) ){
 
-						var model = task.elements[element].properties[property].model;
+						var model = element.properties[property].model;
 
-						for( var value = 0, valueLength = task.elements[element].properties[property].values.length; value < valueLength; value++ ){
+						for( var value = 0, length = element.properties[property].values.length; value < length; value++ ){
 
-							model = model.replace("#" + value, (task.elements[element].properties[property].values[value].from + (Jo.easing[task.options.easing](elapsedTime, task.options.duration) * task.elements[element].properties[property].values[value].difference)) + task.elements[element].properties[property].values[value].unit);
-
+							model = model.replace("#" + value, (element.properties[property].values[value].from + (Jo.easing[task.options.easing](elapsedTime, task.options.duration) * element.properties[property].values[value].difference)) + element.properties[property].values[value].unit);
 						};
 
-						task.elements[element].$element.css(property, model, false);
+						element.$element.css(property, model, false);
 
 					};
 
 				};
 
-			};
+			});
 
 			if( elapsedTime === task.options.duration ){
 
