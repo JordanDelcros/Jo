@@ -40,6 +40,7 @@ li {
 	background-color: rgba(100,100,100,1);
 	background-image: url("img/thick.png");
 	background-size: 50px 50px;
+	transform: rotateX(180deg) rotateZ(-20deg);
 }
 
 #stats {

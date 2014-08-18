@@ -18,12 +18,11 @@ window.onload = function(){
 		Jo("<li/>")
 			.addClass("jo")
 			.insertEndTo($container)
+			.css("transform", "rotate(45deg)")
 			.animate({
-				// left: "0px",
-				// top: "100px",
-				backgroundColor: "rgba(8, 101, 88, 1)"
+				// transform: "matrix(1, 1, 0, 1, 0, 0)"
 			}, {
-				easing: "easeInOutQuad",
+				easing: "easeInOutElastic",
 				duration: 5000,
 				complete: function(){
 					console.log("jo finish");

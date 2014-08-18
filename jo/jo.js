@@ -957,6 +957,7 @@
 
 							};
 
+
 							var display = computedStyles.getPropertyValue("display");
 
 							var removeDisplay = false;
@@ -979,10 +980,15 @@
 
 							};
 
+							if( isEmpty(found, true) ){
+
+								found = this.style[property];
+
+							};
+
 							returned.push(found);
 
 						};
-
 
 					});
 
@@ -1048,6 +1054,127 @@
 				});
 
 				return returned;
+
+			};
+
+			return this;
+
+		},
+		transform: function( transformation ){
+
+			if( isEmpty(transformation) ){
+
+				this.each(function(){
+
+					var value = Jo(this).css("transform");
+
+					console.log("ORIGIN", value);
+
+					var transform = value[0].split(/\s*[(),]\s*/).slice(1, -1);
+					var matrix;
+
+					if( transform.length === 6 ){
+
+						matrix = {
+							m11: parseFloat(transform[0]),
+							m21: parseFloat(transform[2]),
+							m31: 0,
+							m41: parseFloat(transform[4]),
+							m12: parseFloat(transform[1]),
+							m22: parseFloat(transform[3]),
+							m32: 0,
+							m42: parseFloat(transform[5]),
+							m13: 0,
+							m23: 0,
+							m33: 1,
+							m43: 0,
+							m14: 0,
+							m24: 0,
+							m34: 0,
+							m44: 1
+						};
+
+					}
+					else if( transform.length === 16 ){
+
+						matrix = {
+							m11: parseFloat(transform[0]),
+							m21: parseFloat(transform[4]),
+							m31: parseFloat(transform[8]),
+							m41: parseFloat(transform[12]),
+							m12: parseFloat(transform[1]),
+							m22: parseFloat(transform[5]),
+							m32: parseFloat(transform[9]),
+							m42: parseFloat(transform[13]),
+							m13: parseFloat(transform[2]),
+							m23: parseFloat(transform[6]),
+							m33: parseFloat(transform[10]),
+							m43: parseFloat(transform[14]),
+							m14: parseFloat(transform[3]),
+							m24: parseFloat(transform[7]),
+							m34: parseFloat(transform[11]),
+							m44: parseFloat(transform[15])
+						};
+
+					}
+					else {
+
+						matrix = {
+							m11: 1,
+							m21: 0,
+							m31: 0,
+							m41: 0,
+							m12: 0,
+							m22: 1,
+							m32: 0,
+							m42: 0,
+							m13: 0,
+							m23: 0,
+							m33: 1,
+							m43: 0,
+							m14: 0,
+							m24: 0,
+							m34: 0,
+							m44: 1
+						};
+
+					};
+
+					var scaleX = Math.sqrt(matrix.m11 * matrix.m11 + matrix.m12 * matrix.m12);
+					var scaleY = Math.sqrt(matrix.m21 * matrix.m21 + matrix.m22 * matrix.m22);
+
+					var translateX = matrix.m41;
+					var translateY = matrix.m42;
+					var translateZ = matrix.m43;
+				
+					var rotateX = Math.atan2(matrix.m23, matrix.m33);
+					var rotateY = Math.asin(-matrix.m13);
+					var rotateZ = Math.atan2(matrix.m12, matrix.m11);
+
+					if( Math.cos(rotateY) === 0 ){
+
+						rotateX = Math.atan2(-matrix.m31, matrix.m22);
+						rotateZ = 0;
+
+					};
+
+					console.log({
+						scaleX: scaleX,
+						scaleY: scaleY,
+						translateX: translateX,
+						translateY: translateY,
+						translateZ: translateZ,
+						rotateX: rotateX * 180 / Math.PI,
+						rotateY: rotateY * 180 / Math.PI,
+						rotateZ: rotateZ * 180 / Math.PI
+					});
+
+				});
+
+			}
+			else {
+
+
 
 			};
 
@@ -2215,6 +2342,18 @@
 
 							return "rgba(#" + (redIndex - 1) + ", #" + (greenIndex - 1) + ", #" + (blueIndex - 1) + ", #" + (alphaIndex - 1) + ")";
 
+						})
+						.replace(/(?!#)\d+/g, function( match ){
+
+							// var index = valuesTo[property].values.push({
+							// 	from: null,
+							// 	to: parseFloat(number),
+							// 	difference: 0,
+							// 	unit: ""
+							// });
+
+							// return "#" + (index - 1);
+
 						});
 
 					var preparedProperty = prepareCSSProperty(property, styles[property]);
@@ -2248,6 +2387,7 @@
 				for( var property in styles ){
 
 					if( styles.hasOwnProperty(property) ){
+
 
 						var uncamelizedProperty = uncamelize(property);
 
@@ -2847,17 +2987,6 @@
 		});
 
 	});
-
-	Jo.infos = function(){
-
-		console.log({
-			version: "0.1",
-			author: "Jordan Delcros",
-			author_github: "JordanDelcros",
-			author_website: "http://www.jordan-delcros.com"
-		});
-
-	};
 
 	Jo.merge = function( returned ){
 
