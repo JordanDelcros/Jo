@@ -19,8 +19,9 @@ window.onload = function(){
 			.addClass("jo")
 			.insertEndTo($container)
 			.animate({
-				left: "0px",
-				top: "100px"
+				// left: "0px",
+				// top: "100px",
+				backgroundColor: "rgba(8, 101, 88, 1)"
 			}, {
 				easing: "easeInOutQuad",
 				duration: 5000,
@@ -33,24 +34,24 @@ window.onload = function(){
 	// $container.empty();
 
 	//jquery
-	var bef = +new Date();
-	var $container = jQuery("#container");
-	for( var howMuch = 0; howMuch < 1; howMuch++ ){
-		jQuery("<li/>")
-			.addClass("jq")
-			.appendTo($container)
-			.animate({
-				left: "0px",
-				top: "300px"
-			}, {
-				// easing: "easeInOutQuad",
-				duration: 5000,
-				complete: function(){
-					console.log("jq finish");
-				}
-			});
-	};
-	console.log("jquery", +new Date() - bef);
+	// var bef = +new Date();
+	// var $container = jQuery("#container");
+	// for( var howMuch = 0; howMuch < 1; howMuch++ ){
+	// 	jQuery("<li/>")
+	// 		.addClass("jq")
+	// 		.appendTo($container)
+	// 		.animate({
+	// 			left: "0px",
+	// 			top: "300px"
+	// 		}, {
+	// 			// easing: "easeInOutQuad",
+	// 			duration: 5000,
+	// 			complete: function(){
+	// 				console.log("jq finish");
+	// 			}
+	// 		});
+	// };
+	// console.log("jquery", +new Date() - bef);
 	// $container.html("");
 };
 

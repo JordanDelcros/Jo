@@ -2138,18 +2138,84 @@
 					valuesTo[property] = new Object();
 					valuesTo[property].values = new Array();
 
-					valuesTo[property].model = styles[property].toString().replace(regularExpressions.length, function( match, number, unit ){
+					valuesTo[property].model = styles[property].toString()
+						.replace(regularExpressions.length, function( match, number, unit ){
 
-						var index = valuesTo[property].values.push({
-							from: null,
-							to: parseFloat(number),
-							difference: 0,
-							unit: unit
+							var index = valuesTo[property].values.push({
+								from: null,
+								to: parseFloat(number),
+								difference: 0,
+								unit: unit
+							});
+
+							return "#" + (index - 1);
+
+						})
+						.replace(regularExpressions.hexaColor, function( match, red, green, blue ){
+
+							if( red.length === 1 ){
+
+								red = red + red;
+
+							};
+
+							if( green.length === 1 ){
+
+								green = green + green;
+
+							};
+
+							if( blue.length === 1 ){
+
+								blue = blue + blue;
+
+							};
+
+							return "rgba(" + parseInt(red, 16) + ", " + parseInt(green, 16) + ", " + parseInt(blue, 16) + ", 1)";
+
+						})
+						.replace(regularExpressions.RGBColor, function( match, red, green, blue, alpha ){
+
+							if( isEmpty(alpha) ){
+
+								alpha = 1;
+
+							};
+
+							var redIndex = valuesTo[property].values.push({
+								from: null,
+								to: parseInt(red),
+								difference: 0,
+								unit: "",
+								integer: true
+							});
+
+							var greenIndex = valuesTo[property].values.push({
+								from: null,
+								to: parseInt(green),
+								difference: 0,
+								unit: "",
+								integer: true
+							});
+
+							var blueIndex = valuesTo[property].values.push({
+								from: null,
+								to: parseInt(blue),
+								difference: 0,
+								unit: "",
+								integer: true
+							});
+
+							var alphaIndex = valuesTo[property].values.push({
+								from: null,
+								to: parseInt(alpha),
+								difference: 0,
+								unit: ""
+							});
+
+							return "rgba(#" + (redIndex - 1) + ", #" + (greenIndex - 1) + ", #" + (blueIndex - 1) + ", #" + (alphaIndex - 1) + ")";
+
 						});
-
-						return "#" + (index - 1);
-
-					});
 
 					var preparedProperty = prepareCSSProperty(property, styles[property]);
 
@@ -2209,23 +2275,47 @@
 
 						};
 
-						var index = 0;
-						from.replace(regularExpressions.length, function( match, number, unit ){
+						var valueIndex = -1;
+						from
+							.replace(regularExpressions.length, function( match, number, unit ){
 
-							var convertedValue = convertCSSValue(this, property, number, unit, valuesTo[property].values[index].unit);
+								valueIndex++;
 
-							valuesTo[property].values[index].from = convertedValue;
-							valuesTo[property].values[index].difference = Math.abs(convertedValue - valuesTo[property].values[index].to);
+								var convertedValue = convertCSSValue(this, property, number, unit, valuesTo[property].values[valueIndex].unit);
 
-							if( convertedValue > values[index].to ){
+								values[valueIndex].from = convertedValue;
+								values[valueIndex].difference = Math.abs(convertedValue - values[valueIndex].to) * (convertedValue > values[valueIndex].to ? -1 : 1);
 
-								valuesTo[property].values[index].difference *= -1;
+								return "#" + (valueIndex - 1);
 
-							};
+							}.bind(this))
+							.replace(regularExpressions.RGBColor, function( match, red, green, blue, alpha ){
 
-							return "#" + (index - 1);
+								if( isEmpty(alpha) ){
 
-						}.bind(this));
+									alpha = 1;
+
+								};
+
+								var redValue = parseInt(red);
+								values[++valueIndex].from = redValue;
+								values[valueIndex].difference = Math.abs(redValue - values[valueIndex].to) * (redValue > values[valueIndex].to);
+
+								var greenValue = parseInt(green);
+								values[++valueIndex].from = greenValue;
+								values[valueIndex].difference = Math.abs(greenValue - values[valueIndex].to) * (greenValue > values[valueIndex].to);
+
+								var blue = parseInt(blue);
+								values[++valueIndex].from = blue;
+								values[valueIndex].difference = Math.abs(blue - values[valueIndex].to) * (blue > values[valueIndex].to);
+
+								var alphaValue = parseInt(alpha);
+								values[++valueIndex].from = alphaValue;
+								values[valueIndex].difference = Math.abs(alphaValue - values[valueIndex].to) * (alphaValue > values[valueIndex].to);
+
+								return "#" + (valueIndex - 1);
+
+							});
 
 						element.properties[property] = {
 							model: valuesTo[property].model,
@@ -2717,11 +2807,21 @@
 
 					if( element.properties.hasOwnProperty(property) ){
 
-						var model = element.properties[property].model;
+						var currentProperty = element.properties[property];
+						var model = currentProperty.model;
 
-						for( var value = 0, length = element.properties[property].values.length; value < length; value++ ){
+						for( var value = 0, length = currentProperty.values.length; value < length; value++ ){
 
-							model = model.replace("#" + value, (element.properties[property].values[value].from + (Jo.easing[task.options.easing](elapsedTime, task.options.duration) * element.properties[property].values[value].difference)) + element.properties[property].values[value].unit);
+							var newValue = (currentProperty.values[value].from + (Jo.easing[task.options.easing](elapsedTime, task.options.duration) * currentProperty.values[value].difference));
+
+							if( isTrue(currentProperty.values[value].integer) ){
+
+								newValue = parseInt(newValue);
+
+							};
+
+							model = model.replace("#" + value, newValue + element.properties[property].values[value].unit);
+
 						};
 
 						element.$element.css(property, model, false);
