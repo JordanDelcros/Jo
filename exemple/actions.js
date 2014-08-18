@@ -16,9 +16,11 @@ window.onload = function(){
 	var $container = Jo("#container");
 	for( var howMuch = 0; howMuch < 1; howMuch++ ){
 		Jo("<li/>")
+			.addClass("jo")
 			.insertEndTo($container)
 			.animate({
-				left: "0px"
+				left: "0px",
+				top: "100px"
 			}, {
 				easing: "easeInOutQuad",
 				duration: 5000,
@@ -35,9 +37,11 @@ window.onload = function(){
 	var $container = jQuery("#container");
 	for( var howMuch = 0; howMuch < 1; howMuch++ ){
 		jQuery("<li/>")
+			.addClass("jq")
 			.appendTo($container)
 			.animate({
-				left: "0px"
+				left: "0px",
+				top: "300px"
 			}, {
 				// easing: "easeInOutQuad",
 				duration: 5000,

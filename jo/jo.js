@@ -1036,6 +1036,19 @@
 
 				});
 
+			}
+			else if( isEmpty(property) ){
+
+				var returned = new Array();
+
+				this.each(function(){
+
+					returned.push(window.getComputedStyle(this, null));
+
+				});
+
+				return returned;
+
 			};
 
 			return this;
@@ -2107,137 +2120,127 @@
 		},
 		animate: function( styles, options ){
 
-			if( isEmpty(options) ){
-
-				options = new Object();
-
-			};
-
 			options = Jo.merge({
 				duration: 1000,
 				easing: "linear"
 			}, options);
 
-			// Just send a task to Animation and let it does the rest of the process
 			// Check CSS property only one time, then, create a task, store current css
 			// 'DOMSubtreeModified' can trigger when dom change
 			// cache generated valuesTO !!!
 
-			// setTimeout(function(){
+			var valuesTo = new Object();
 
-				var valuesTo = new Object();
+			for( var property in styles ){
+
+				if( styles.hasOwnProperty(property) ){
+
+					valuesTo[property] = new Object();
+					valuesTo[property].values = new Array();
+
+					valuesTo[property].model = styles[property].toString().replace(regularExpressions.length, function( match, number, unit ){
+
+						var index = valuesTo[property].values.push({
+							from: null,
+							to: parseFloat(number),
+							difference: 0,
+							unit: unit
+						});
+
+						return "#" + (index - 1);
+
+					});
+
+					var preparedProperty = prepareCSSProperty(property, styles[property]);
+
+					if( preparedProperty !== property ){
+
+						styles[preparedProperty] = styles[property];
+						delete styles[property];
+
+					};
+
+				};
+
+			};
+
+			var currentStyles = this.css();
+
+			var task = {
+				this: this,
+				elements: new Array(),
+				options: options
+			};
+
+			this.each(function( index ){
+
+				var element = {
+					$element: Jo(this),
+					properties: new Object()
+				};
 
 				for( var property in styles ){
 
 					if( styles.hasOwnProperty(property) ){
 
-						valuesTo[property] = new Object();
-						valuesTo[property].values = new Array();
+						var uncamelizedProperty = uncamelize(property);
 
-						valuesTo[property].model = styles[property].toString().replace(regularExpressions.length, function( match, number, unit ){
+						var from = currentStyles[index].getPropertyValue(uncamelizedProperty);
+						var model = valuesTo[property].model;
+						var values = valuesTo[property].values;
 
-							var index = valuesTo[property].values.push({
-								from: null,
-								to: parseFloat(number),
-								difference: 0,
-								unit: unit
-							});
+						if( from === "auto" && !isEmpty(this[camelize("offset-" + property)]) ){
+
+							from = this[camelize("offset-" + property)] + "px";
+
+						}
+						else if( from === "none" ){
+
+							if( property === "transform" ){
+
+								from = "matrix(1, 0, 0, 1, 0, 0)";
+
+							}
+							else {
+
+								from = "0";
+
+							};
+
+						};
+
+						var index = 0;
+						from.replace(regularExpressions.length, function( match, number, unit ){
+
+							var convertedValue = convertCSSValue(this, property, number, unit, valuesTo[property].values[index].unit);
+
+							valuesTo[property].values[index].from = convertedValue;
+							valuesTo[property].values[index].difference = Math.abs(convertedValue - valuesTo[property].values[index].to);
+
+							if( convertedValue > values[index].to ){
+
+								valuesTo[property].values[index].difference *= -1;
+
+							};
 
 							return "#" + (index - 1);
 
-						});
+						}.bind(this));
 
-						var preparedProperty = prepareCSSProperty(property, styles[property]);
-
-						if( preparedProperty !== property ){
-
-							styles[preparedProperty] = styles[property];
-							delete styles[property];
-
+						element.properties[property] = {
+							model: valuesTo[property].model,
+							values: valuesTo[property].values
 						};
 
 					};
 
 				};
 
-				var task = {
-					this: this,
-					elements: new Array(),
-					options: options
-				};
+				task.elements.push(element);
 
-				this.each(function(){
+			});
 
-					var bef = +new Date();
-					var element = {
-						$element: Jo(this),
-						properties: new Object()
-					};
-
-					for( var property in styles ){
-
-						if( styles.hasOwnProperty(property) ){
-
-							var uncamelizedProperty = uncamelize(property);
-
-							var from = element.$element.css(uncamelizedProperty)[0];
-							var model = valuesTo[property].model;
-							var values = valuesTo[property].values;
-
-							if( from === "auto" && !isEmpty(this[camelize("offset-" + property)]) ){
-
-								from = this[camelize("offset-" + property)] + "px";
-
-							}
-							else if( from === "none" ){
-
-								if( property === "transform" ){
-
-									from = "matrix(1, 0, 0, 1, 0, 0)";
-
-								}
-								else {
-
-									from = "0";
-
-								};
-
-							};
-
-							var index = 0;
-							from.replace(regularExpressions.length, function( match, number, unit ){
-
-								var convertedValue = convertCSSValue(this, property, number, unit, valuesTo[property].values[index].unit);
-
-								valuesTo[property].values[index].from = convertedValue;
-								valuesTo[property].values[index].difference = Math.abs(convertedValue - valuesTo[property].values[index].to);
-
-								if( convertedValue > values[index].to ){
-
-									valuesTo[property].values[index].difference *= -1;
-
-								};
-
-								return "#" + (index - 1);
-
-							}.bind(this));
-
-							element.properties[property] = {
-								model: valuesTo[property].model,
-								values: valuesTo[property].values
-							};
-
-						};
-
-					};
-
-					task.elements.push(element);
-
-				});
-
-				Animations.add(task);
-
-			// }.bind(this), 0);
+			Animations.add(task);
 
 			return this;
 
