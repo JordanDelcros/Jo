@@ -25,6 +25,7 @@ header {
 ul {
 	position: absolute;
 	/*height: 100%;*/
+	perspective: 5000px;
 }
 
 li {
@@ -35,12 +36,12 @@ li {
 	left: 50%;
 	border-left: 40% solid red;
 	margin: -10px 0 0 -10px;
-	width: 20px;
-	height: 20px;
+	width: 500px;
+	height: 500px;
 	background-color: rgba(100,100,100,1);
 	background-image: url("img/thick.png");
 	background-size: 50px 50px;
-	transform: rotateX(180deg) rotateZ(-20deg);
+	transform: rotateZ(45deg) rotateY(45deg) rotateX(45deg);
 }
 
 #stats {

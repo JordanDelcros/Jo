@@ -2990,7 +2990,7 @@
 
 	Jo.matrix = function( matrix ){
 
-		return Jo.matrix.fn.init(matrix);
+		return new Jo.matrix.fn.init(matrix);
 
 	};
 
@@ -2998,36 +2998,160 @@
 		constructor: Jo.matrix,
 		init: function( matrix ){
 
-			this.matrix = {
-				m00: 1,
-				m01: 0,
-				m02: 0,
-				m03: 0,
-				m10: 0,
-				m11: 1,
-				m12: 0,
-				m13: 0,
-				m20: 0,
-				m21: 0,
-				m22: 1,
-				m23: 0,
-				m30: 0,
-				m31: 0,
-				m32: 0,
-				m33: 1
+			if( isEmpty(matrix) ){
+
+				this.matrix = {
+					m00: 1,
+					m01: 0,
+					m02: 0,
+					m03: 0,
+					m10: 0,
+					m11: 1,
+					m12: 0,
+					m13: 0,
+					m20: 0,
+					m21: 0,
+					m22: 1,
+					m23: 0,
+					m30: 0,
+					m31: 0,
+					m32: 0,
+					m33: 1
+				};
+
+			}
+			else if( matrix.constructor === Jo.matrix ){
+
+				Jo.matrix(matrix.matrix);
+
+				this.matrix = new Object();
+
+				for( var m in matrix.matrix ){
+
+					if( matrix.matrix.hasOwnProperty(m) ){
+
+						this.matrix[m] = matrix.matrix[m];
+
+					};
+
+				};
+
+			}
+			else if( isObject(matrix) ){
+
+				this.matrix = {
+					m00: matrix.m00 || 1,
+					m01: matrix.m01 || 0,
+					m02: matrix.m02 || 0,
+					m03: matrix.m03 || 0,
+					m10: matrix.m10 || 0,
+					m11: matrix.m11 || 1,
+					m12: matrix.m12 || 0,
+					m13: matrix.m13 || 0,
+					m20: matrix.m20 || 0,
+					m21: matrix.m21 || 0,
+					m22: matrix.m22 || 1,
+					m23: matrix.m23 || 0,
+					m30: matrix.m30 || 0,
+					m31: matrix.m31 || 0,
+					m32: matrix.m32 || 0,
+					m33: matrix.m33 || 1
+				};
+
 			};
 			
+			return this;
+
+		},
+		scale: function( unitX, unitY ){
+
+			this
+				.scaleX(unitX)
+				.scaleY(unitY);
+
+			return this;
+
+		},
+		scaleX: function( unit ){
+
+			this.matrix.m00 += unit;
+
+			return this;
+
+		},
+		scaleY: function( unit ){
+
+			this.matrix.m11 += unit;
+
+			return this;
+
+		},
+		translate: function( pixelsX, pixelsY, pixelsZ ){
+
+			this
+				.translateX(pixelsX)
+				.translateY(pixelsY)
+				.translateZ(pixelsZ);
+
+			return this;
+
+		},
+		translateX: function( pixels ){
+
+			this.matrix.m30 += pixels;
+
+			return this;
+
+		},
+		translateY: function( pixels ){
+
+			this.matrix.m31 += pixels;
+
+			return this;
+
+		},
+		translateZ: function( pixels ){
+
+			this.matrix.m32 += pixels;
+
+			return this;
+
+		},
+		rotate: function( degreesX, degreesY, degreesZ ){
+
+			this
+				.rotateX(degreesX)
+				.rotateY(degreesY)
+				.rotateZ(degreesZ);
+
 			return this;
 
 		},
 		rotateX: function( degrees ){
 
 			var radians = degrees * Math.PI / 180;
+			var cosine = Math.cos(-radians);
+			var sine = Math.sin(-radians);
 
-			this.matrix.m11 = (this.matrix.m11 === 0 ? 1 : this.matrix.m11) * Math.cos(radians);
-			this.matrix.m12 = (this.matrix.m12 === 0 ? 1 : this.matrix.m12) * Math.sin(-radians);
-			this.matrix.m21 = (this.matrix.m21 === 0 ? 1 : this.matrix.m21) * Math.sin(radians);
-			this.matrix.m22 = (this.matrix.m22 === 0 ? 1 : this.matrix.m22) * Math.cos(radians);
+			var clone = this.clone().matrix;
+
+			clone.m01 =  cosine * this.matrix.m01 + sine * this.matrix.m02;
+			clone.m02 =  cosine * this.matrix.m02 - sine * this.matrix.m01;
+			clone.m11 =  cosine * this.matrix.m11 + sine * this.matrix.m12;
+			clone.m12 =  cosine * this.matrix.m12 - sine * this.matrix.m11;
+			clone.m21 =  cosine * this.matrix.m21 + sine * this.matrix.m22;
+			clone.m22 =  cosine * this.matrix.m22 - sine * this.matrix.m21;
+			clone.m31 =  cosine * this.matrix.m31 + sine * this.matrix.m32;
+			clone.m32 =  cosine * this.matrix.m32 - sine * this.matrix.m31;
+
+			this.matrix.m01 = clone.m01;
+			this.matrix.m02 = clone.m02;
+			this.matrix.m11 = clone.m11;
+			this.matrix.m12 = clone.m12;
+			this.matrix.m21 = clone.m21;
+			this.matrix.m22 = clone.m22;
+			this.matrix.m31 = clone.m31;
+			this.matrix.m32 = clone.m32;
 
 			return this;
 
@@ -3035,11 +3159,28 @@
 		rotateY: function( degrees ){
 
 			var radians = degrees * Math.PI / 180;
+			var cosine = Math.cos(-radians);
+			var sine = Math.sin(-radians);
 
-			this.matrix.m00 = (this.matrix.m00 === 0 ? 1 : this.matrix.m00) * Math.cos(radians);
-			this.matrix.m02 = (this.matrix.m02 === 0 ? 1 : this.matrix.m02) * Math.sin(radians);
-			this.matrix.m20 = (this.matrix.m20 === 0 ? 1 : this.matrix.m20) * Math.sin(-radians);
-			this.matrix.m22 = (this.matrix.m22 === 0 ? 1 : this.matrix.m22) * Math.cos(radians);
+			var clone = this.clone().matrix;
+
+			clone.m00 = cosine * this.matrix.m00 - sine * this.matrix.m02
+			clone.m02 = cosine * this.matrix.m02 + sine * this.matrix.m00
+			clone.m10 = cosine * this.matrix.m10 - sine * this.matrix.m12
+			clone.m12 = cosine * this.matrix.m12 + sine * this.matrix.m10
+			clone.m20 = cosine * this.matrix.m20 - sine * this.matrix.m22
+			clone.m22 = cosine * this.matrix.m22 + sine * this.matrix.m20
+			clone.m30 = cosine * this.matrix.m30 - sine * this.matrix.m32
+			clone.m32 = cosine * this.matrix.m32 + sine * this.matrix.m30
+
+			this.matrix.m00 = clone.m00;
+			this.matrix.m02 = clone.m02;
+			this.matrix.m10 = clone.m10;
+			this.matrix.m12 = clone.m12;
+			this.matrix.m20 = clone.m20;
+			this.matrix.m22 = clone.m22;
+			this.matrix.m30 = clone.m30;
+			this.matrix.m32 = clone.m32;
 
 			return this;
 
@@ -3047,11 +3188,35 @@
 		rotateZ: function( degrees ){
 
 			var radians = degrees * Math.PI / 180;
+			var cosine = Math.cos(-radians);
+			var sine = Math.sin(-radians);
 
-			this.matrix.m00 = (this.matrix.m00 === 0 ? 1 : this.matrix.m00) * Math.cos(radians);
-			this.matrix.m01 = (this.matrix.m01 === 0 ? 1 : this.matrix.m01) * Math.sin(-radians);
-			this.matrix.m10 = (this.matrix.m10 === 0 ? 1 : this.matrix.m10) * Math.sin(radians);
-			this.matrix.m11 = (this.matrix.m11 === 0 ? 1 : this.matrix.m11) * Math.cos(radians);
+			var clone = this.clone().matrix;
+
+			clone.m00 = cosine * this.matrix.m00 + sine * this.matrix.m01;
+			clone.m01 = cosine * this.matrix.m01 - sine * this.matrix.m00;
+			clone.m10 = cosine * this.matrix.m10 + sine * this.matrix.m11;
+			clone.m11 = cosine * this.matrix.m11 - sine * this.matrix.m10;
+			clone.m20 = cosine * this.matrix.m20 + sine * this.matrix.m21;
+			clone.m21 = cosine * this.matrix.m21 - sine * this.matrix.m20;
+			clone.m30 = cosine * this.matrix.m30 + sine * this.matrix.m31;
+			clone.m31 = cosine * this.matrix.m31 - sine * this.matrix.m30;
+
+			this.matrix.m00 = clone.m00;
+			this.matrix.m01 = clone.m01;
+			this.matrix.m10 = clone.m10;
+			this.matrix.m11 = clone.m11;
+			this.matrix.m20 = clone.m20;
+			this.matrix.m21 = clone.m21;
+			this.matrix.m30 = clone.m30;
+			this.matrix.m31 = clone.m31;
+
+			return this;
+
+		},
+		clone: function(){
+
+			return Jo.matrix(this.matrix);
 
 		},
 		toString: function(){

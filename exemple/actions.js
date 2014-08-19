@@ -18,7 +18,7 @@ window.onload = function(){
 		Jo("<li/>")
 			.addClass("jo")
 			.insertEndTo($container)
-			.css("transform", "rotate(45deg)")
+			// .css("transform", "rotate(45deg)")
 			.animate({
 				// transform: "matrix(1, 1, 0, 1, 0, 0)"
 			}, {
