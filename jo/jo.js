@@ -2998,109 +2998,70 @@
 		constructor: Jo.matrix,
 		init: function( matrix ){
 
-			if( isJo(matrix) ){
-
-				var transform = Jo(this).css("transform")[0].split(/\s*[(),]\s*/).slice(1, -1);
-
-				if( transform.length === 6 ){
-
-					this.matrix = {
-
-					};
-
-				}
-				else if( transform.length === 16 ){
-
-					this.matrix = {
-
-					};
-
-				}
-				else {
-
-					this.matrix = {
-
-					};
-
-				};
-
+			this.matrix = {
+				m00: 1,
+				m01: 0,
+				m02: 0,
+				m03: 0,
+				m10: 0,
+				m11: 1,
+				m12: 0,
+				m13: 0,
+				m20: 0,
+				m21: 0,
+				m22: 1,
+				m23: 0,
+				m30: 0,
+				m31: 0,
+				m32: 0,
+				m33: 1
 			};
+			
+			return this;
 
-			// var value = Jo(this).css("transform");
+		},
+		rotateX: function( degrees ){
 
-			// console.log("ORIGIN", value);
+			var radians = degrees * Math.PI / 180;
 
-			// var transform = value[0].split(/\s*[(),]\s*/).slice(1, -1);
-			// var matrix;
-
-			// if( transform.length === 6 ){
-
-			// 	matrix = {
-			// 		m11: parseFloat(transform[0]),
-			// 		m21: parseFloat(transform[2]),
-			// 		m31: 0,
-			// 		m41: parseFloat(transform[4]),
-			// 		m12: parseFloat(transform[1]),
-			// 		m22: parseFloat(transform[3]),
-			// 		m32: 0,
-			// 		m42: parseFloat(transform[5]),
-			// 		m13: 0,
-			// 		m23: 0,
-			// 		m33: 1,
-			// 		m43: 0,
-			// 		m14: 0,
-			// 		m24: 0,
-			// 		m34: 0,
-			// 		m44: 1
-			// 	};
-
-			// }
-			// else if( transform.length === 16 ){
-
-			// 	matrix = {
-			// 		m11: parseFloat(transform[0]),
-			// 		m21: parseFloat(transform[4]),
-			// 		m31: parseFloat(transform[8]),
-			// 		m41: parseFloat(transform[12]),
-			// 		m12: parseFloat(transform[1]),
-			// 		m22: parseFloat(transform[5]),
-			// 		m32: parseFloat(transform[9]),
-			// 		m42: parseFloat(transform[13]),
-			// 		m13: parseFloat(transform[2]),
-			// 		m23: parseFloat(transform[6]),
-			// 		m33: parseFloat(transform[10]),
-			// 		m43: parseFloat(transform[14]),
-			// 		m14: parseFloat(transform[3]),
-			// 		m24: parseFloat(transform[7]),
-			// 		m34: parseFloat(transform[11]),
-			// 		m44: parseFloat(transform[15])
-			// 	};
-
-			// }
-			// else {
-
-			// 	matrix = {
-			// 		m11: 1,
-			// 		m21: 0,
-			// 		m31: 0,
-			// 		m41: 0,
-			// 		m12: 0,
-			// 		m22: 1,
-			// 		m32: 0,
-			// 		m42: 0,
-			// 		m13: 0,
-			// 		m23: 0,
-			// 		m33: 1,
-			// 		m43: 0,
-			// 		m14: 0,
-			// 		m24: 0,
-			// 		m34: 0,
-			// 		m44: 1
-			// 	};
-
-			// };
+			this.matrix.m11 = (this.matrix.m11 === 0 ? 1 : this.matrix.m11) * Math.cos(radians);
+			this.matrix.m12 = (this.matrix.m12 === 0 ? 1 : this.matrix.m12) * Math.sin(-radians);
+			this.matrix.m21 = (this.matrix.m21 === 0 ? 1 : this.matrix.m21) * Math.sin(radians);
+			this.matrix.m22 = (this.matrix.m22 === 0 ? 1 : this.matrix.m22) * Math.cos(radians);
 
 			return this;
+
+		},
+		rotateY: function( degrees ){
+
+			var radians = degrees * Math.PI / 180;
+
+			this.matrix.m00 = (this.matrix.m00 === 0 ? 1 : this.matrix.m00) * Math.cos(radians);
+			this.matrix.m02 = (this.matrix.m02 === 0 ? 1 : this.matrix.m02) * Math.sin(radians);
+			this.matrix.m20 = (this.matrix.m20 === 0 ? 1 : this.matrix.m20) * Math.sin(-radians);
+			this.matrix.m22 = (this.matrix.m22 === 0 ? 1 : this.matrix.m22) * Math.cos(radians);
+
+			return this;
+
+		},
+		rotateZ: function( degrees ){
+
+			var radians = degrees * Math.PI / 180;
+
+			this.matrix.m00 = (this.matrix.m00 === 0 ? 1 : this.matrix.m00) * Math.cos(radians);
+			this.matrix.m01 = (this.matrix.m01 === 0 ? 1 : this.matrix.m01) * Math.sin(-radians);
+			this.matrix.m10 = (this.matrix.m10 === 0 ? 1 : this.matrix.m10) * Math.sin(radians);
+			this.matrix.m11 = (this.matrix.m11 === 0 ? 1 : this.matrix.m11) * Math.cos(radians);
+
+		},
+		toString: function(){
+
+			return "matrix3d("
+				+ this.matrix.m00 + "," + this.matrix.m01 + "," + this.matrix.m02 + "," + this.matrix.m03 + ","
+				+ this.matrix.m10 + "," + this.matrix.m11 + "," + this.matrix.m12 + "," + this.matrix.m13 + ","
+				+ this.matrix.m20 + "," + this.matrix.m21 + "," + this.matrix.m22 + "," + this.matrix.m23 + ","
+				+ this.matrix.m30 + "," + this.matrix.m31 + "," + this.matrix.m32 + "," + this.matrix.m33
+			+ ")";
 
 		}
 	};
