@@ -2988,6 +2988,125 @@
 
 	});
 
+	Jo.matrix = function( matrix ){
+
+		return Jo.matrix.fn.init(matrix);
+
+	};
+
+	Jo.matrix.fn = Jo.matrix.prototype = {
+		constructor: Jo.matrix,
+		init: function( matrix ){
+
+			if( isJo(matrix) ){
+
+				var transform = Jo(this).css("transform")[0].split(/\s*[(),]\s*/).slice(1, -1);
+
+				if( transform.length === 6 ){
+
+					this.matrix = {
+
+					};
+
+				}
+				else if( transform.length === 16 ){
+
+					this.matrix = {
+
+					};
+
+				}
+				else {
+
+					this.matrix = {
+
+					};
+
+				};
+
+			};
+
+			// var value = Jo(this).css("transform");
+
+			// console.log("ORIGIN", value);
+
+			// var transform = value[0].split(/\s*[(),]\s*/).slice(1, -1);
+			// var matrix;
+
+			// if( transform.length === 6 ){
+
+			// 	matrix = {
+			// 		m11: parseFloat(transform[0]),
+			// 		m21: parseFloat(transform[2]),
+			// 		m31: 0,
+			// 		m41: parseFloat(transform[4]),
+			// 		m12: parseFloat(transform[1]),
+			// 		m22: parseFloat(transform[3]),
+			// 		m32: 0,
+			// 		m42: parseFloat(transform[5]),
+			// 		m13: 0,
+			// 		m23: 0,
+			// 		m33: 1,
+			// 		m43: 0,
+			// 		m14: 0,
+			// 		m24: 0,
+			// 		m34: 0,
+			// 		m44: 1
+			// 	};
+
+			// }
+			// else if( transform.length === 16 ){
+
+			// 	matrix = {
+			// 		m11: parseFloat(transform[0]),
+			// 		m21: parseFloat(transform[4]),
+			// 		m31: parseFloat(transform[8]),
+			// 		m41: parseFloat(transform[12]),
+			// 		m12: parseFloat(transform[1]),
+			// 		m22: parseFloat(transform[5]),
+			// 		m32: parseFloat(transform[9]),
+			// 		m42: parseFloat(transform[13]),
+			// 		m13: parseFloat(transform[2]),
+			// 		m23: parseFloat(transform[6]),
+			// 		m33: parseFloat(transform[10]),
+			// 		m43: parseFloat(transform[14]),
+			// 		m14: parseFloat(transform[3]),
+			// 		m24: parseFloat(transform[7]),
+			// 		m34: parseFloat(transform[11]),
+			// 		m44: parseFloat(transform[15])
+			// 	};
+
+			// }
+			// else {
+
+			// 	matrix = {
+			// 		m11: 1,
+			// 		m21: 0,
+			// 		m31: 0,
+			// 		m41: 0,
+			// 		m12: 0,
+			// 		m22: 1,
+			// 		m32: 0,
+			// 		m42: 0,
+			// 		m13: 0,
+			// 		m23: 0,
+			// 		m33: 1,
+			// 		m43: 0,
+			// 		m14: 0,
+			// 		m24: 0,
+			// 		m34: 0,
+			// 		m44: 1
+			// 	};
+
+			// };
+
+			return this;
+
+		}
+	};
+
+	Jo.matrix.fn.init.prototype = Jo.matrix.fn;
+
 	Jo.merge = function( returned ){
 
 		if( !isArray(returned) && !isObject(returned) ){
