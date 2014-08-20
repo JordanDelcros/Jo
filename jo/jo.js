@@ -2998,31 +2998,31 @@
 		constructor: Jo.matrix,
 		init: function( matrix ){
 
+			this.default = {
+				m00: 1,
+				m01: 0,
+				m02: 0,
+				m03: 0,
+				m10: 0,
+				m11: 1,
+				m12: 0,
+				m13: 0,
+				m20: 0,
+				m21: 0,
+				m22: 1,
+				m23: 0,
+				m30: 0,
+				m31: 0,
+				m32: 0,
+				m33: 1
+			};
+
 			if( isEmpty(matrix) ){
 
-				this.matrix = {
-					m00: 1,
-					m01: 0,
-					m02: 0,
-					m03: 0,
-					m10: 0,
-					m11: 1,
-					m12: 0,
-					m13: 0,
-					m20: 0,
-					m21: 0,
-					m22: 1,
-					m23: 0,
-					m30: 0,
-					m31: 0,
-					m32: 0,
-					m33: 1
-				};
+				this.copy(this.default);
 
 			}
 			else if( matrix.constructor === Jo.matrix ){
-
-				Jo.matrix(matrix.matrix);
 
 				this.matrix = new Object();
 
@@ -3039,80 +3039,193 @@
 			}
 			else if( isObject(matrix) ){
 
-				this.matrix = {
-					m00: matrix.m00 || 1,
-					m01: matrix.m01 || 0,
-					m02: matrix.m02 || 0,
-					m03: matrix.m03 || 0,
-					m10: matrix.m10 || 0,
-					m11: matrix.m11 || 1,
-					m12: matrix.m12 || 0,
-					m13: matrix.m13 || 0,
-					m20: matrix.m20 || 0,
-					m21: matrix.m21 || 0,
-					m22: matrix.m22 || 1,
-					m23: matrix.m23 || 0,
-					m30: matrix.m30 || 0,
-					m31: matrix.m31 || 0,
-					m32: matrix.m32 || 0,
-					m33: matrix.m33 || 1
-				};
+				this.copy(matrix);
 
 			};
 			
 			return this;
 
 		},
-		scale: function( unitX, unitY ){
+		getA: function(){
+
+			return this.matrix.m00;
+
+		},
+		getB: function(){
+
+			return this.matrix.m10;
+
+		},
+		getC: function(){
+
+			return this.matrix.m01;
+
+		},
+		getD: function(){
+
+			return this.matrix.m11;
+
+		},
+		getE: function(){
+
+			return this.matrix.m02;
+
+		},
+		getF: function(){
+
+			return this.matrix.m12;
+
+		},
+		getScale: function(){
+
+			return {
+				x: Math.sqrt(this.matrix.m00 * this.matrix.m00 + this.matrix.m10 * this.matrix.m10),
+				y: Math.sqrt(this.matrix.m01 * this.matrix.m01 + this.matrix.m11 * this.matrix.m11),
+				z: Math.sqrt(this.matrix.m02 * this.matrix.m02 + this.matrix.m12 * this.matrix.m12)
+			};
+
+		},
+		getTranslation: function(){
+
+			return {
+				x: this.matrix.m03,
+				y: this.matrix.m13,
+				z: this.matrix.m23
+			};
+
+		},
+		getDeterminant: function(){
+
+			return (
+				this.matrix.m30 * (
+					+ this.matrix.m03 * this.matrix.m12 * this.matrix.m21
+					- this.matrix.m02 * this.matrix.m13 * this.matrix.m21
+					- this.matrix.m03 * this.matrix.m11 * this.matrix.m22
+					+ this.matrix.m01 * this.matrix.m13 * this.matrix.m22
+					+ this.matrix.m02 * this.matrix.m11 * this.matrix.m23
+					- this.matrix.m01 * this.matrix.m12 * this.matrix.m23
+				)
+				+ this.matrix.m31 * (
+					+ this.matrix.m00 * this.matrix.m12 * this.matrix.m23
+					- this.matrix.m00 * this.matrix.m13 * this.matrix.m22
+					+ this.matrix.m03 * this.matrix.m10 * this.matrix.m22
+					- this.matrix.m02 * this.matrix.m10 * this.matrix.m23
+					+ this.matrix.m02 * this.matrix.m13 * this.matrix.m20
+					- this.matrix.m03 * this.matrix.m12 * this.matrix.m20
+				)
+				+ this.matrix.m32 * (
+					+ this.matrix.m00 * this.matrix.m13 * this.matrix.m21
+					- this.matrix.m00 * this.matrix.m11 * this.matrix.m23
+					- this.matrix.m03 * this.matrix.m10 * this.matrix.m21
+					+ this.matrix.m01 * this.matrix.m10 * this.matrix.m23
+					+ this.matrix.m03 * this.matrix.m11 * this.matrix.m20
+					- this.matrix.m01 * this.matrix.m13 * this.matrix.m20
+				)
+				+ this.matrix.m33 * (
+					- this.matrix.m02 * this.matrix.m11 * this.matrix.m20
+					- this.matrix.m00 * this.matrix.m12 * this.matrix.m21
+					+ this.matrix.m11 * this.matrix.m11 * this.matrix.m22
+					+ this.matrix.m02 * this.matrix.m10 * this.matrix.m21
+					- this.matrix.m01 * this.matrix.m10 * this.matrix.m22
+					+ this.matrix.m01 * this.matrix.m12 * this.matrix.m20
+				)
+			);
+
+		},
+		getRotation: function(){
+
+			var rotationX = Math.atan2(this.matrix.m21, this.matrix.m22);
+			var rotationY = Math.asin(-this.matrix.m20);
+			var rotationZ = Math.atan2(this.matrix.m10, this.matrix.m00);
+
+			if( Math.cos(rotationY) === 0 ){
+
+				rotationX = Math.atan2(-this.matrix.m02, this.matrix.m22);
+				rotationZ = 0;
+
+			};
+
+			return {
+				x: rotationX * 180 / Math.PI,
+				y: rotationY * 180 / Math.PI,
+				z: rotationZ * 180 / Math.PI,
+			};
+
+		},
+		scale: function( x, y, z ){
+
+			y = y || x || 0;
+			z = z || 1;
 
 			this
-				.scaleX(unitX)
-				.scaleY(unitY);
+				.scaleX(x)
+				.scaleY(y)
+				.scaleZ(z);
 
 			return this;
 
 		},
 		scaleX: function( unit ){
 
-			this.matrix.m00 += unit;
+			this.matrix.m00 *= unit;
+			this.matrix.m01 *= unit;
+			this.matrix.m02 *= unit;
+			this.matrix.m03 *= unit;
 
 			return this;
 
 		},
 		scaleY: function( unit ){
 
-			this.matrix.m11 += unit;
+			this.matrix.m10 *= unit;
+			this.matrix.m11 *= unit;
+			this.matrix.m12 *= unit;
+			this.matrix.m13 *= unit;
 
 			return this;
 
 		},
-		translate: function( pixelsX, pixelsY, pixelsZ ){
+		scaleZ: function( unit ){
 
-			this
-				.translateX(pixelsX)
-				.translateY(pixelsY)
-				.translateZ(pixelsZ);
+			this.matrix.m20 *= unit;
+			this.matrix.m21 *= unit;
+			this.matrix.m22 *= unit;
+			this.matrix.m23 *= unit;
+
+			return this;
+
+		},
+		translate: function( x, y, z ){
+
+			var clone = this.clone().matrix;
+
+			clone.m30 = this.matrix.m00 * x + this.matrix.m10 * y + this.matrix.m20 * z + this.matrix.m30;
+			clone.m31 = this.matrix.m01 * x + this.matrix.m11 * y + this.matrix.m21 * z + this.matrix.m31
+			clone.m32 = this.matrix.m02 * x + this.matrix.m03 * y + this.matrix.m22 * z + this.matrix.m32;
+			clone.m33 = this.matrix.m03 * x + this.matrix.m13 * y + this.matrix.m23 * z + this.matrix.m33;
+
+			this.copy(clone);
 
 			return this;
 
 		},
 		translateX: function( pixels ){
 
-			this.matrix.m30 += pixels;
+			this.translate(pixels, 0, 0);
 
 			return this;
 
 		},
 		translateY: function( pixels ){
 
-			this.matrix.m31 += pixels;
+			this.translate(0, pixels, 0);
 
 			return this;
 
 		},
 		translateZ: function( pixels ){
 
-			this.matrix.m32 += pixels;
+			this.translate(0, 0, pixels);
 
 			return this;
 
@@ -3144,14 +3257,7 @@
 			clone.m31 =  cosine * this.matrix.m31 + sine * this.matrix.m32;
 			clone.m32 =  cosine * this.matrix.m32 - sine * this.matrix.m31;
 
-			this.matrix.m01 = clone.m01;
-			this.matrix.m02 = clone.m02;
-			this.matrix.m11 = clone.m11;
-			this.matrix.m12 = clone.m12;
-			this.matrix.m21 = clone.m21;
-			this.matrix.m22 = clone.m22;
-			this.matrix.m31 = clone.m31;
-			this.matrix.m32 = clone.m32;
+			this.copy(clone);
 
 			return this;
 
@@ -3164,23 +3270,16 @@
 
 			var clone = this.clone().matrix;
 
-			clone.m00 = cosine * this.matrix.m00 - sine * this.matrix.m02
-			clone.m02 = cosine * this.matrix.m02 + sine * this.matrix.m00
-			clone.m10 = cosine * this.matrix.m10 - sine * this.matrix.m12
-			clone.m12 = cosine * this.matrix.m12 + sine * this.matrix.m10
-			clone.m20 = cosine * this.matrix.m20 - sine * this.matrix.m22
-			clone.m22 = cosine * this.matrix.m22 + sine * this.matrix.m20
-			clone.m30 = cosine * this.matrix.m30 - sine * this.matrix.m32
-			clone.m32 = cosine * this.matrix.m32 + sine * this.matrix.m30
+			clone.m00 = cosine * this.matrix.m00 - sine * this.matrix.m02;
+			clone.m02 = cosine * this.matrix.m02 + sine * this.matrix.m00;
+			clone.m10 = cosine * this.matrix.m10 - sine * this.matrix.m12;
+			clone.m12 = cosine * this.matrix.m12 + sine * this.matrix.m10;
+			clone.m20 = cosine * this.matrix.m20 - sine * this.matrix.m22;
+			clone.m22 = cosine * this.matrix.m22 + sine * this.matrix.m20;
+			clone.m30 = cosine * this.matrix.m30 - sine * this.matrix.m32;
+			clone.m32 = cosine * this.matrix.m32 + sine * this.matrix.m30;
 
-			this.matrix.m00 = clone.m00;
-			this.matrix.m02 = clone.m02;
-			this.matrix.m10 = clone.m10;
-			this.matrix.m12 = clone.m12;
-			this.matrix.m20 = clone.m20;
-			this.matrix.m22 = clone.m22;
-			this.matrix.m30 = clone.m30;
-			this.matrix.m32 = clone.m32;
+			this.copy(clone);
 
 			return this;
 
@@ -3202,21 +3301,165 @@
 			clone.m30 = cosine * this.matrix.m30 + sine * this.matrix.m31;
 			clone.m31 = cosine * this.matrix.m31 - sine * this.matrix.m30;
 
-			this.matrix.m00 = clone.m00;
-			this.matrix.m01 = clone.m01;
-			this.matrix.m10 = clone.m10;
-			this.matrix.m11 = clone.m11;
-			this.matrix.m20 = clone.m20;
-			this.matrix.m21 = clone.m21;
-			this.matrix.m30 = clone.m30;
-			this.matrix.m31 = clone.m31;
+			this.copy(clone);
 
 			return this;
+
+		},
+		rotate3d: function( x, y, z, degrees ){
+
+			if( x !== 0 ){
+
+				this.rotateX((x < 0) ? -degrees : degrees);
+
+			};
+
+			if( y !== 0 ){
+
+				this.rotateY((y < 0) ? -degrees : degrees);
+
+			};
+
+			if( z !== 0 ){
+
+				this.rotateZ((z < 0) ? -degrees : degrees);
+
+			};
+
+			return this;
+
+		},
+		add: function( matrix ){
+
+			if( !isEmpty(matrix) ){
+
+				if( matrix.constructor === Jo.matrix ){
+
+					return this.multiply(matrix.matrix);
+
+				}
+				else if( isObject(matrix) ){
+
+					return this.multiply(matrix);
+
+				}
+				else {
+
+					var transforms = matrix.match(/((scale|scaleX|scaleY|scaleZ|scale3d|rotate|rotateX|rotateY|rotateZ|rotate3d|translate|translateX|translateY|translateZ|translate3d|matrix|matrix3d)\([^\)]*\))/g);
+
+					for( var transform = 0, length = transforms.length; transform < length; transform++ ){
+
+						if( /^rotate\(/.test(transforms[transform]) ){
+
+							this.rotateZ(parseFloat(transforms[transform].substr(7, transforms[transform].length - 8)));
+
+						}
+						else if( /^rotateX\(/.test(transforms[transform]) ){
+
+							this.rotateX(parseFloat(transforms[transform].substr(8, transforms[transform].length - 9)));
+
+						}
+						else if( /^rotateY\(/.test(transforms[transform]) ){
+
+							this.rotateY(parseFloat(transforms[transform].substr(8, transforms[transform].length - 9)));
+
+						}
+						else if( /^rotateZ\(/.test(transforms[transform]) ){
+
+							this.rotateZ(parseFloat(transforms[transform].substr(8, transforms[transform].length - 9)));
+
+						}
+						else if( /^rotate3d\(/.test(transforms[transform]) ){
+
+							var values = transforms[transform].substr(9, transforms[transform].length - 10).split(",");
+
+							this.rotate3d(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), parseFloat(values[3]));
+
+						};
+
+					};
+
+					return this;
+
+				};
+
+			}
+			else {
+
+				return this;
+
+			};
+
+		},
+		multiply: function( matrix ){
+
+			this.matrix.m00 = this.matrix.m00 * matrix.m00 + this.matrix.m01 * matrix.m10 + this.matrix.m02 * matrix.m20 + this.matrix.m03 * matrix.m30;
+			this.matrix.m01 = this.matrix.m00 * matrix.m01 + this.matrix.m01 * matrix.m11 + this.matrix.m02 * matrix.m21 + this.matrix.m03 * matrix.m31;
+			this.matrix.m02 = this.matrix.m00 * matrix.m02 + this.matrix.m01 * matrix.m12 + this.matrix.m02 * matrix.m22 + this.matrix.m03 * matrix.m32;
+			this.matrix.m03 = this.matrix.m00 * matrix.m03 + this.matrix.m01 * matrix.m13 + this.matrix.m02 * matrix.m23 + this.matrix.m03 * matrix.m33;
+
+			this.matrix.m10 = this.matrix.m10 * matrix.m00 + this.matrix.m11 * matrix.m10 + this.matrix.m12 * matrix.m20 + this.matrix.m13 * matrix.m30;
+			this.matrix.m11 = this.matrix.m10 * matrix.m01 + this.matrix.m11 * matrix.m11 + this.matrix.m12 * matrix.m21 + this.matrix.m13 * matrix.m31;
+			this.matrix.m12 = this.matrix.m10 * matrix.m02 + this.matrix.m11 * matrix.m12 + this.matrix.m12 * matrix.m22 + this.matrix.m13 * matrix.m32;
+			this.matrix.m13 = this.matrix.m10 * matrix.m03 + this.matrix.m11 * matrix.m13 + this.matrix.m12 * matrix.m23 + this.matrix.m13 * matrix.m33;
+
+			this.matrix.m20 = this.matrix.m20 * matrix.m00 + this.matrix.m21 * matrix.m10 + this.matrix.m22 * matrix.m20 + this.matrix.m23 * matrix.m30;
+			this.matrix.m21 = this.matrix.m20 * matrix.m01 + this.matrix.m21 * matrix.m11 + this.matrix.m22 * matrix.m21 + this.matrix.m23 * matrix.m31;
+			this.matrix.m22 = this.matrix.m20 * matrix.m02 + this.matrix.m21 * matrix.m12 + this.matrix.m22 * matrix.m22 + this.matrix.m23 * matrix.m32;
+			this.matrix.m23 = this.matrix.m20 * matrix.m03 + this.matrix.m21 * matrix.m13 + this.matrix.m22 * matrix.m23 + this.matrix.m23 * matrix.m33;
+
+			this.matrix.m30 = this.matrix.m30 * matrix.m00 + this.matrix.m31 * matrix.m10 + this.matrix.m32 * matrix.m20 + this.matrix.m33 * matrix.m30;
+			this.matrix.m31 = this.matrix.m30 * matrix.m01 + this.matrix.m31 * matrix.m11 + this.matrix.m32 * matrix.m21 + this.matrix.m33 * matrix.m31;
+			this.matrix.m32 = this.matrix.m30 * matrix.m02 + this.matrix.m31 * matrix.m12 + this.matrix.m32 * matrix.m22 + this.matrix.m33 * matrix.m32;
+			this.matrix.m33 = this.matrix.m30 * matrix.m03 + this.matrix.m31 * matrix.m13 + this.matrix.m32 * matrix.m23 + this.matrix.m33 * matrix.m33;
+
+			return this;
+
+		},
+		inverse: function(){
+
+			this.matrix.m00 = this.matrix.m12 * this.matrix.m23 * this.matrix.m31 - this.matrix.m13 * this.matrix.m22 * this.matrix.m31 + this.matrix.m13 * this.matrix.m21 * this.matrix.m32 - this.matrix.m11 * this.matrix.m23 * this.matrix.m32 - this.matrix.m12 * this.matrix.m21 * this.matrix.m33 + this.matrix.m11 * this.matrix.m22 * this.matrix.m33;
+			this.matrix.m01 = this.matrix.m03 * this.matrix.m22 * this.matrix.m31 - this.matrix.m02 * this.matrix.m23 * this.matrix.m31 - this.matrix.m03 * this.matrix.m21 * this.matrix.m32 + this.matrix.m01 * this.matrix.m23 * this.matrix.m32 + this.matrix.m02 * this.matrix.m21 * this.matrix.m33 - this.matrix.m01 * this.matrix.m22 * this.matrix.m33;
+			this.matrix.m02 = this.matrix.m02 * this.matrix.m13 * this.matrix.m31 - this.matrix.m03 * this.matrix.m12 * this.matrix.m31 + this.matrix.m03 * this.matrix.m11 * this.matrix.m32 - this.matrix.m01 * this.matrix.m13 * this.matrix.m32 - this.matrix.m02 * this.matrix.m11 * this.matrix.m33 + this.matrix.m01 * this.matrix.m12 * this.matrix.m33;
+			this.matrix.m03 = this.matrix.m03 * this.matrix.m12 * this.matrix.m21 - this.matrix.m02 * this.matrix.m13 * this.matrix.m21 - this.matrix.m03 * this.matrix.m11 * this.matrix.m22 + this.matrix.m01 * this.matrix.m13 * this.matrix.m22 + this.matrix.m02 * this.matrix.m11 * this.matrix.m23 - this.matrix.m01 * this.matrix.m12 * this.matrix.m23;
+			this.matrix.m10 = this.matrix.m13 * this.matrix.m22 * this.matrix.m30 - this.matrix.m12 * this.matrix.m23 * this.matrix.m30 - this.matrix.m13 * this.matrix.m20 * this.matrix.m32 + this.matrix.m10 * this.matrix.m23 * this.matrix.m32 + this.matrix.m12 * this.matrix.m20 * this.matrix.m33 - this.matrix.m10 * this.matrix.m22 * this.matrix.m33;
+			this.matrix.m11 = this.matrix.m02 * this.matrix.m23 * this.matrix.m30 - this.matrix.m03 * this.matrix.m22 * this.matrix.m30 + this.matrix.m03 * this.matrix.m20 * this.matrix.m32 - this.matrix.m00 * this.matrix.m23 * this.matrix.m32 - this.matrix.m02 * this.matrix.m20 * this.matrix.m33 + this.matrix.m00 * this.matrix.m22 * this.matrix.m33;
+			this.matrix.m12 = this.matrix.m03 * this.matrix.m12 * this.matrix.m30 - this.matrix.m02 * this.matrix.m13 * this.matrix.m30 - this.matrix.m03 * this.matrix.m10 * this.matrix.m32 + this.matrix.m00 * this.matrix.m13 * this.matrix.m32 + this.matrix.m02 * this.matrix.m10 * this.matrix.m33 - this.matrix.m00 * this.matrix.m12 * this.matrix.m33;
+			this.matrix.m13 = this.matrix.m02 * this.matrix.m13 * this.matrix.m20 - this.matrix.m03 * this.matrix.m12 * this.matrix.m20 + this.matrix.m03 * this.matrix.m10 * this.matrix.m22 - this.matrix.m00 * this.matrix.m13 * this.matrix.m22 - this.matrix.m02 * this.matrix.m10 * this.matrix.m23 + this.matrix.m00 * this.matrix.m12 * this.matrix.m23;
+			this.matrix.m20 = this.matrix.m11 * this.matrix.m23 * this.matrix.m30 - this.matrix.m13 * this.matrix.m21 * this.matrix.m30 + this.matrix.m13 * this.matrix.m20 * this.matrix.m31 - this.matrix.m10 * this.matrix.m23 * this.matrix.m31 - this.matrix.m11 * this.matrix.m20 * this.matrix.m33 + this.matrix.m10 * this.matrix.m21 * this.matrix.m33;
+			this.matrix.m21 = this.matrix.m03 * this.matrix.m21 * this.matrix.m30 - this.matrix.m01 * this.matrix.m23 * this.matrix.m30 - this.matrix.m03 * this.matrix.m20 * this.matrix.m31 + this.matrix.m00 * this.matrix.m23 * this.matrix.m31 + this.matrix.m01 * this.matrix.m20 * this.matrix.m33 - this.matrix.m00 * this.matrix.m21 * this.matrix.m33;
+			this.matrix.m22 = this.matrix.m01 * this.matrix.m13 * this.matrix.m30 - this.matrix.m03 * this.matrix.m11 * this.matrix.m30 + this.matrix.m03 * this.matrix.m10 * this.matrix.m31 - this.matrix.m00 * this.matrix.m13 * this.matrix.m31 - this.matrix.m01 * this.matrix.m10 * this.matrix.m33 + this.matrix.m00 * this.matrix.m11 * this.matrix.m33;
+			this.matrix.m23 = this.matrix.m03 * this.matrix.m11 * this.matrix.m20 - this.matrix.m01 * this.matrix.m13 * this.matrix.m20 - this.matrix.m03 * this.matrix.m10 * this.matrix.m21 + this.matrix.m00 * this.matrix.m13 * this.matrix.m21 + this.matrix.m01 * this.matrix.m10 * this.matrix.m23 - this.matrix.m00 * this.matrix.m11 * this.matrix.m23;
+			this.matrix.m30 = this.matrix.m12 * this.matrix.m21 * this.matrix.m30 - this.matrix.m11 * this.matrix.m22 * this.matrix.m30 - this.matrix.m12 * this.matrix.m20 * this.matrix.m31 + this.matrix.m10 * this.matrix.m22 * this.matrix.m31 + this.matrix.m11 * this.matrix.m20 * this.matrix.m32 - this.matrix.m10 * this.matrix.m21 * this.matrix.m32;
+			this.matrix.m31 = this.matrix.m01 * this.matrix.m22 * this.matrix.m30 - this.matrix.m02 * this.matrix.m21 * this.matrix.m30 + this.matrix.m02 * this.matrix.m20 * this.matrix.m31 - this.matrix.m00 * this.matrix.m22 * this.matrix.m31 - this.matrix.m01 * this.matrix.m20 * this.matrix.m32 + this.matrix.m00 * this.matrix.m21 * this.matrix.m32;
+			this.matrix.m32 = this.matrix.m02 * this.matrix.m11 * this.matrix.m30 - this.matrix.m01 * this.matrix.m12 * this.matrix.m30 - this.matrix.m02 * this.matrix.m10 * this.matrix.m31 + this.matrix.m00 * this.matrix.m12 * this.matrix.m31 + this.matrix.m01 * this.matrix.m10 * this.matrix.m32 - this.matrix.m00 * this.matrix.m11 * this.matrix.m32;
+			this.matrix.m33 = this.matrix.m01 * this.matrix.m12 * this.matrix.m20 - this.matrix.m02 * this.matrix.m11 * this.matrix.m20 + this.matrix.m02 * this.matrix.m10 * this.matrix.m21 - this.matrix.m00 * this.matrix.m12 * this.matrix.m21 - this.matrix.m01 * this.matrix.m10 * this.matrix.m22 + this.matrix.m00 * this.matrix.m11 * this.matrix.m22;
+
+			console.log(this.getDeterminant());
+
+			return this.scale(1 / this.getDeterminant());
 
 		},
 		clone: function(){
 
 			return Jo.matrix(this.matrix);
+
+		},
+		copy: function( matrix ){
+
+			this.matrix = new Object();
+
+			for( var m in matrix ){
+
+				if( matrix.hasOwnProperty(m) ){
+
+					this.matrix[m] = matrix[m] || this.default[m];
+
+				};
+
+			};
+
+			return this;
 
 		},
 		toString: function(){

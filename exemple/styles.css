@@ -25,23 +25,23 @@ header {
 ul {
 	position: absolute;
 	/*height: 100%;*/
-	perspective: 5000px;
+	perspective: 500px;
 }
 
 li {
 	padding: 10px;
 	position: absolute;
 	display: block;
-	top: 50%;
-	left: 50%;
+	/*top: 50%;*/
+	/*left: 50%;*/
 	border-left: 40% solid red;
 	margin: -10px 0 0 -10px;
-	width: 500px;
-	height: 500px;
+	width: 100px;
+	height: 100px;
 	background-color: rgba(100,100,100,1);
 	background-image: url("img/thick.png");
 	background-size: 50px 50px;
-	transform: rotateZ(45deg) rotateY(45deg) rotateX(45deg);
+	transform: rotate3d(1, 0, 0, 45deg);
 }
 
 #stats {
