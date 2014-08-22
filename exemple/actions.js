@@ -14,7 +14,7 @@ window.onload = function(){
 	//jo
 	var bef = +new Date();
 	var $container = Jo("#container");
-	for( var howMuch = 0; howMuch < 1; howMuch++ ){
+	for( var howMuch = 0; howMuch < 2; howMuch++ ){
 		Jo("<li/>")
 			.addClass("jo")
 			.insertEndTo($container)
@@ -29,6 +29,7 @@ window.onload = function(){
 			});
 	};
 	console.log("jo", +new Date() - bef);
+
 	// $container.empty();
 
 	//jquery

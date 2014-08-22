@@ -32,16 +32,19 @@ li {
 	padding: 10px;
 	position: absolute;
 	display: block;
-	/*top: 50%;*/
-	/*left: 50%;*/
+	top: 50%;
+	left: 50%;
 	border-left: 40% solid red;
-	margin: -10px 0 0 -10px;
+	margin: -50px 0 0 -50px;
 	width: 100px;
 	height: 100px;
 	background-color: rgba(100,100,100,1);
 	background-image: url("img/thick.png");
 	background-size: 50px 50px;
-	transform: rotate3d(1, 0, 0, 45deg);
+}
+
+li:first-child {
+	transform: skew(10deg, 40deg);
 }
 
 #stats {
