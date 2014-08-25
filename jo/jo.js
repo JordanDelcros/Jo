@@ -3193,15 +3193,15 @@
 
 			var clone = Jo.matrix().matrix;
 
-			// ignore other transforms
-			clone.m30 += x;
-			clone.m31 += y;
-			clone.m32 += z;
+			// Ignore other transforms
+			// clone.m30 += x;
+			// clone.m31 += y;
+			// clone.m32 += z;
 
 			// Mix with other transforms
-			// clone.m30 = this.matrix.m00 * x + this.matrix.m10 * y + this.matrix.m20 * z + this.matrix.m30;
-			// clone.m31 = this.matrix.m01 * x + this.matrix.m11 * y + this.matrix.m21 * z + this.matrix.m31
-			// clone.m32 = this.matrix.m02 * x + this.matrix.m03 * y + this.matrix.m22 * z + this.matrix.m32;
+			clone.m30 = this.matrix.m00 * x + this.matrix.m10 * y + this.matrix.m20 * z + this.matrix.m30;
+			clone.m31 = this.matrix.m01 * x + this.matrix.m11 * y + this.matrix.m21 * z + this.matrix.m31
+			clone.m32 = this.matrix.m02 * x + this.matrix.m03 * y + this.matrix.m22 * z + this.matrix.m32;
 			clone.m33 = this.matrix.m03 * x + this.matrix.m13 * y + this.matrix.m23 * z + this.matrix.m33;
 
 			this.multiply(clone);

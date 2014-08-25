@@ -41,7 +41,7 @@ li {
 	background-color: rgba(100,100,100,1);
 	background-image: url("img/thick.png");
 	background-size: 50px 50px;
-	transform: rotateX(90deg);
+	transform: translateX(100px) rotateZ(10deg) skewX(10deg);
 }
 
 li:first-child {
