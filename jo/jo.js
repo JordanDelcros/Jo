@@ -947,6 +947,12 @@
 
 					value = value.toString();
 
+					if( property === "transform" ){
+
+						value = Jo.matrix().add(value);
+
+					};
+
 					this.each(function(){
 
 						if( isTrue(unverify) ){
@@ -2271,10 +2277,6 @@
 				easing: "linear"
 			}, options);
 
-			// Check CSS property only one time, then, create a task, store current css
-			// 'DOMSubtreeModified' can trigger when dom change
-			// cache generated valuesTO !!!
-
 			var valuesTo = new Object();
 
 			for( var property in styles ){
@@ -2283,6 +2285,31 @@
 
 					valuesTo[property] = new Object();
 					valuesTo[property].values = new Array();
+
+					if( property === "transform" ){
+
+						var matrix = Jo.matrix().add(styles[property]);
+
+						valuesTo[property].model = "matrix3d(#0,#1,#2,#3,#4,#5,#6,#7,#8,#9,#10,#11,#12,#13,#14,#15)";
+
+						for( var m in matrix.matrix ){
+
+							if( matrix.matrix.hasOwnProperty(m) ){
+
+								valuesTo[property].values.push({
+									from: null,
+									to: matrix.matrix[m],
+									difference: 0,
+									unit: null
+								});
+
+							};
+
+						};
+
+						continue;
+
+					};
 
 					valuesTo[property].model = styles[property].toString()
 						.replace(regularExpressions.length, function( match, number, unit ){
@@ -2361,18 +2388,6 @@
 
 							return "rgba(#" + (redIndex - 1) + ", #" + (greenIndex - 1) + ", #" + (blueIndex - 1) + ", #" + (alphaIndex - 1) + ")";
 
-						})
-						.replace(/(?!#)\d+/g, function( match ){
-
-							// var index = valuesTo[property].values.push({
-							// 	from: null,
-							// 	to: parseFloat(number),
-							// 	difference: 0,
-							// 	unit: ""
-							// });
-
-							// return "#" + (index - 1);
-
 						});
 
 					var preparedProperty = prepareCSSProperty(property, styles[property]);
@@ -2407,13 +2422,13 @@
 
 					if( styles.hasOwnProperty(property) ){
 
-
 						var uncamelizedProperty = uncamelize(property);
 
 						var from = currentStyles[index].getPropertyValue(uncamelizedProperty);
 						var model = valuesTo[property].model;
 						var values = valuesTo[property].values;
 
+						var valueIndex = -1;
 						if( from === "auto" && !isEmpty(this[camelize("offset-" + property)]) ){
 
 							from = this[camelize("offset-" + property)] + "px";
@@ -2423,7 +2438,7 @@
 
 							if( property === "transform" ){
 
-								from = "matrix(1, 0, 0, 1, 0, 0)";
+								from = Jo.matrix().toString();
 
 							}
 							else {
@@ -2434,47 +2449,68 @@
 
 						};
 
-						var valueIndex = -1;
-						from
-							.replace(regularExpressions.length, function( match, number, unit ){
+						if( property === "transform" ){
 
-								valueIndex++;
+							var matrix = Jo.matrix().add(from).matrix;
 
-								var convertedValue = convertCSSValue(this, property, number, unit, valuesTo[property].values[valueIndex].unit);
+							for( var m in matrix ){
 
-								values[valueIndex].from = convertedValue;
-								values[valueIndex].difference = Math.abs(convertedValue - values[valueIndex].to) * (convertedValue > values[valueIndex].to ? -1 : 1);
+								if( matrix.hasOwnProperty(m) ){
 
-								return "#" + (valueIndex - 1);
+									valueIndex++;
 
-							}.bind(this))
-							.replace(regularExpressions.RGBColor, function( match, red, green, blue, alpha ){
-
-								if( isEmpty(alpha) ){
-
-									alpha = 1;
+									values[valueIndex].from = matrix[m];
+									values[valueIndex].difference = Math.abs(matrix[m] - values[valueIndex].to) * (matrix[m] > values[valueIndex].to ? -1 : 1);
 
 								};
 
-								var redValue = parseInt(red);
-								values[++valueIndex].from = redValue;
-								values[valueIndex].difference = Math.abs(redValue - values[valueIndex].to) * (redValue > values[valueIndex].to);
+							};
 
-								var greenValue = parseInt(green);
-								values[++valueIndex].from = greenValue;
-								values[valueIndex].difference = Math.abs(greenValue - values[valueIndex].to) * (greenValue > values[valueIndex].to);
+						}
+						else {
 
-								var blue = parseInt(blue);
-								values[++valueIndex].from = blue;
-								values[valueIndex].difference = Math.abs(blue - values[valueIndex].to) * (blue > values[valueIndex].to);
+							from
+								.replace(regularExpressions.length, function( match, number, unit ){
 
-								var alphaValue = parseInt(alpha);
-								values[++valueIndex].from = alphaValue;
-								values[valueIndex].difference = Math.abs(alphaValue - values[valueIndex].to) * (alphaValue > values[valueIndex].to);
+									valueIndex++;
 
-								return "#" + (valueIndex - 1);
+									var convertedValue = convertCSSValue(this, property, number, unit, valuesTo[property].values[valueIndex].unit);
 
-							});
+									values[valueIndex].from = convertedValue;
+									values[valueIndex].difference = Math.abs(convertedValue - values[valueIndex].to) * (convertedValue > values[valueIndex].to ? -1 : 1);
+
+									return "#" + (valueIndex - 1);
+
+								}.bind(this))
+								.replace(regularExpressions.RGBColor, function( match, red, green, blue, alpha ){
+
+									if( isEmpty(alpha) ){
+
+										alpha = 1;
+
+									};
+
+									var redValue = parseInt(red);
+									values[++valueIndex].from = redValue;
+									values[valueIndex].difference = Math.abs(redValue - values[valueIndex].to) * (redValue > values[valueIndex].to);
+
+									var greenValue = parseInt(green);
+									values[++valueIndex].from = greenValue;
+									values[valueIndex].difference = Math.abs(greenValue - values[valueIndex].to) * (greenValue > values[valueIndex].to);
+
+									var blue = parseInt(blue);
+									values[++valueIndex].from = blue;
+									values[valueIndex].difference = Math.abs(blue - values[valueIndex].to) * (blue > values[valueIndex].to);
+
+									var alphaValue = parseInt(alpha);
+									values[++valueIndex].from = alphaValue;
+									values[valueIndex].difference = Math.abs(alphaValue - values[valueIndex].to) * (alphaValue > values[valueIndex].to);
+
+									return "#" + (valueIndex - 1);
+
+								});
+
+						};
 
 						element.properties[property] = {
 							model: valuesTo[property].model,
@@ -2489,325 +2525,12 @@
 
 			});
 
+			console.log(task);
+
 			Animations.add(task);
 
 			return this;
 
-			/*
-
-
-///
-			options = Jo.merge({
-				duration: 1000,
-				easing: "linear"
-			}, options);
-
-			this.each(function(){
-
-				var $this = Jo(this);
-
-				if( isEmpty(this.animation) ){
-
-					this.animation = {
-						options: options,
-						properties: new Object()
-					};
-
-				};
-
-				for( var property in styles ){
-
-					if( styles.hasOwnProperty(property) ){
-
-						var uncamelizedProperty = uncamelize(property);
-
-						this.animation.properties[property] = {
-							from: {
-								origin: $this.css(uncamelizedProperty)[0],
-								values: new Array()
-							},
-							to: {
-								origin: styles[property],
-								values: new Array(),
-								differences: new Array()
-							}
-						};
-
-						if( this.animation.properties[property].from.origin === "auto" && !isEmpty(this[camelize("offset-" + property)]) ){
-
-							this.animation.properties[property].from.origin = this[camelize("offset-" + property)] + "px";
-
-						}
-						else if( this.animation.properties[property].from.origin === "none" ){
-
-							this.animation.properties[property].from.origin = "0";
-
-						};
-
-						if( isNumber(this.animation.properties[property].to.origin) ){
-
-							this.animation.properties[property].to.origin = this.animation.properties[property].to.origin.toString();
-
-						};
-
-						this.animation.properties[property].model = this.animation.properties[property].to.origin
-							.replace(regexp.length, function( match, number, type ){
-
-								var number = parseFloat(number);
-
-								if( type === "em" ){
-
-									number = number * parseFloat($this.parent().css("font-size")[0]);
-									type = "px";
-
-								}
-								else if( type === "rem" ){
-
-									number = number * parseFloat(Jo("html").css("font-size"));
-									type = "px";
-
-								}
-								else if( type === "pt" ){
-
-									number = number * 96 / 72;
-									type = "px";
-
-								}
-								else if( type === "%" ){
-
-									number = $this.parent().width() / 100 * number
-
-								};
-
-								var index = this.animation.properties[property].to.values.push({
-									number: number,
-									type: type
-								});
-
-
-								return "#" + (index - 1);
-
-							}.bind(this))
-							.replace(regexp.hexColor, function( match, red, green, blue ){
-
-								if( red.length === 1 ){
-
-									red = red + red;
-
-								};
-
-								if( green.length === 1 ){
-
-									green = green + green;
-
-								};
-
-								if( blue.length === 1 ){
-
-									blue = blue + blue;
-
-								};
-
-								return "rgba(" + parseInt(red, 16) + ", " + parseInt(green, 16) + ", " + parseInt(blue, 16) + ", 1)";
-
-							})
-							.replace(regexp.RGBColor, function( match, red, green, blue, alpha ){
-
-								if( isEmpty(alpha) ){
-
-									alpha = 1;
-
-								};
-
-								var redIndex = this.animation.properties[property].to.values.push({
-									number: parseInt(red),
-									precision: "integer"
-								});
-
-								var greenIndex = this.animation.properties[property].to.values.push({
-									number: parseInt(green),
-									precision: "integer"
-								});
-
-								var blueIndex = this.animation.properties[property].to.values.push({
-									number: parseInt(blue),
-									precision: "integer"
-								});
-
-								var alphaIndex = this.animation.properties[property].to.values.push({
-									number: parseFloat(alpha)
-								});
-
-								return "rgba(#" + (redIndex - 1) + ", #" + (greenIndex - 1) + ", #" + (blueIndex - 1) + ", #" + (alphaIndex - 1) + ")";
-
-							});
-
-						this.animation.properties[property].from.origin
-							.replace(regexp.length, function( match, number, type ){
-
-								var index = this.animation.properties[property].from.values.push(new Object());
-
-								number = parseFloat(match);
-
-								if( type !== this.animation.properties[property].to.values[index - 1].type ){
-
-									var toNumber = this.animation.properties[property].to.values[index - 1].number;
-									var toType = this.animation.properties[property].to.values[index - 1].type;
-
-									if( toType === "px" ){
-
-										number = parseFloat(window.getComputedStyle(this, null).getPropertyValue(property));
-										type = "px";
-
-									}
-									else if( toType === "%" ){
-
-										number = number / parseFloat(window.outerWidth) * 100;
-										type = "%";
-
-									};
-
-								};
-
-								this.animation.properties[property].from.values[index - 1].number = number;
-								this.animation.properties[property].from.values[index - 1].type = type;
-
-								return false;
-
-							}.bind(this))
-							.replace(regexp.RGBColor, function( match, red, green, blue, alpha ){
-
-								if( isEmpty(alpha) ){
-
-									alpha = 1;
-
-								};
-
-								var redIndex = this.animation.properties[property].from.values.push({
-									number: parseInt(red),
-									precision: "integer"
-								});
-
-								var greenIndex = this.animation.properties[property].from.values.push({
-									number: parseInt(green),
-									precision: "integer"
-								});
-
-								var blueIndex = this.animation.properties[property].from.values.push({
-									number: parseInt(blue),
-									precision: "integer"
-								});
-
-								var alphaIndex = this.animation.properties[property].from.values.push({
-									number: parseFloat(alpha)
-								});
-
-								return false;
-
-							});
-
-						for( var value = 0; value < this.animation.properties[property].to.values.length; value++ ){
-
-							var difference = Math.abs(this.animation.properties[property].from.values[value].number - this.animation.properties[property].to.values[value].number);
-
-							if( this.animation.properties[property].from.values[value].number > this.animation.properties[property].to.values[value].number ){
-
-								difference = -difference;
-
-							};
-
-							this.animation.properties[property].to.differences.push(difference);
-
-						};
-
-					};
-
-				};
-
-				this.animation.fn = function( now ){
-
-					if( isEmpty(this.animation.times.start) ){
-
-						this.animation.times.start = now;
-
-					};
-
-					this.animation.times.elapsed = now - this.animation.times.start;
-
-					if( this.animation.times.elapsed > options.duration ){
-
-						this.animation.times.elapsed = options.duration;
-
-					};
-
-					for( var property in this.animation.properties ){
-
-						if( this.animation.properties.hasOwnProperty(property) ){
-
-							if( this.animation.times.elapsed < options.duration ){
-
-								this.animation.properties[property].progress = this.animation.properties[property].model;
-
-								for( var value = 0; value < this.animation.properties[property].to.values.length; value++ ){
-
-									var valueString = this.animation.properties[property].from.values[value].number + (Jo.easing[options.easing](this.animation.times.elapsed, options.duration) * this.animation.properties[property].to.differences[value]);
-
-									if( this.animation.properties[property].from.values[value].precision === "integer" ){
-
-										valueString = parseInt(valueString);
-
-									};
-
-									if( !isEmpty(this.animation.properties[property].to.values[value].type) ){
-
-										valueString += this.animation.properties[property].to.values[value].type;
-
-									};
-
-									this.animation.properties[property].progress = this.animation.properties[property].progress.replace("#" + value, valueString);
-
-								};
-
-								$this.css(property, this.animation.properties[property].progress);
-
-							}
-							else {
-
-								$this.css(property, this.animation.properties[property].to.origin);
-
-							};
-
-						};
-
-					};
-
-					if( this.animation.times.elapsed === options.duration ){
-
-						cancelAnimationFrame(this.animation.id);
-
-						if( isFunction(options.complete) ){
-
-							options.complete.call(this);
-
-						};
-
-					}
-					else {
-
-						this.animation.id = window.requestAnimationFrame(this.animation.fn);
-
-					};
-
-				}.bind(this);
-
-				this.animation.times = new Object();
-
-				window.requestAnimationFrame(this.animation.fn);
-
-				return this;
-
-			});
-//*/
 		}
 	};
 
@@ -3193,16 +2916,9 @@
 
 			var clone = Jo.matrix().matrix;
 
-			// Ignore other transforms
-			// clone.m30 += x;
-			// clone.m31 += y;
-			// clone.m32 += z;
-
-			// Mix with other transforms
-			clone.m30 = this.matrix.m00 * x + this.matrix.m10 * y + this.matrix.m20 * z + this.matrix.m30;
-			clone.m31 = this.matrix.m01 * x + this.matrix.m11 * y + this.matrix.m21 * z + this.matrix.m31
-			clone.m32 = this.matrix.m02 * x + this.matrix.m03 * y + this.matrix.m22 * z + this.matrix.m32;
-			clone.m33 = this.matrix.m03 * x + this.matrix.m13 * y + this.matrix.m23 * z + this.matrix.m33;
+			clone.m30 += x;
+			clone.m31 += y;
+			clone.m32 += z;
 
 			this.multiply(clone);
 
@@ -3234,8 +2950,8 @@
 
 			return {
 				x: this.matrix.m30,
-				y: this.matrix.m13,
-				z: this.matrix.m23
+				y: this.matrix.m31,
+				z: this.matrix.m32
 			};
 
 		},
@@ -3250,22 +2966,22 @@
 		},
 		skewX: function( degrees ){
 
-			var matrix = Jo.matrix();
+			var matrix = Jo.matrix().matrix;
 
-			matrix.matrix.m10 = degrees * Math.PI / 180;
+			matrix.m10 = Math.tan(degrees * Math.PI / 180);
 
-			this.multiply(matrix.matrix);
+			this.multiply(matrix);
 
 			return this;
 
 		},
 		skewY: function( degrees ){
 
-			var matrix = Jo.matrix();
+			var matrix = Jo.matrix().matrix;
 
-			matrix.matrix.m01 = degrees * Math.PI / 180;
+			matrix.m01 = Math.tan(degrees * Math.PI / 180);
 
-			this.multiply(matrix.matrix);
+			this.multiply(matrix);
 
 			return this;
 
@@ -3282,102 +2998,101 @@
 		},
 		rotateX: function( degrees ){
 
-			var radians = -degrees * Math.PI / 180;
-			var cosine = Math.cos(radians);
-			var sine = Math.sin(radians);
+			if( isNumber(degrees) && degrees !== 0 ){
 
-			var clone = this.clone().matrix;
+				var radians = -degrees * Math.PI / 180;
+				var cosine = Math.cos(radians);
+				var sine = Math.sin(radians);
 
-			clone.m01 = cosine * this.matrix.m01 + sine * this.matrix.m02;
-			clone.m02 = cosine * this.matrix.m02 - sine * this.matrix.m01;
-			clone.m11 = cosine * this.matrix.m11 + sine * this.matrix.m12;
-			clone.m12 = cosine * this.matrix.m12 - sine * this.matrix.m11;
-			clone.m21 = cosine * this.matrix.m21 + sine * this.matrix.m22;
-			clone.m22 = cosine * this.matrix.m22 - sine * this.matrix.m21;
-			clone.m31 = cosine * this.matrix.m31 + sine * this.matrix.m32;
-			clone.m32 = cosine * this.matrix.m32 - sine * this.matrix.m31;
+				var clone = this.clone().matrix;
 
-			this.copy(clone);
+				clone.m01 = cosine * this.matrix.m01 + sine * this.matrix.m02;
+				clone.m02 = cosine * this.matrix.m02 - sine * this.matrix.m01;
+				clone.m11 = cosine * this.matrix.m11 + sine * this.matrix.m12;
+				clone.m12 = cosine * this.matrix.m12 - sine * this.matrix.m11;
+				clone.m21 = cosine * this.matrix.m21 + sine * this.matrix.m22;
+				clone.m22 = cosine * this.matrix.m22 - sine * this.matrix.m21;
+				// clone.m31 = cosine * this.matrix.m31 + sine * this.matrix.m32;
+				// clone.m32 = cosine * this.matrix.m32 - sine * this.matrix.m31;
+
+				this.copy(clone);
+
+			};
 
 			return this;
 
 		},
 		rotateY: function( degrees ){
 
-			var radians = -degrees * Math.PI / 180;
-			var cosine = Math.cos(radians);
-			var sine = Math.sin(radians);
+			if( isNumber(degrees) && degrees !== 0 ){
 
-			var clone = this.clone().matrix;
+				var radians = -degrees * Math.PI / 180;
+				var cosine = Math.cos(radians);
+				var sine = Math.sin(radians);
 
-			clone.m00 = cosine * this.matrix.m00 - sine * this.matrix.m02;
-			clone.m02 = cosine * this.matrix.m02 + sine * this.matrix.m00;
-			clone.m10 = cosine * this.matrix.m10 - sine * this.matrix.m12;
-			clone.m12 = cosine * this.matrix.m12 + sine * this.matrix.m10;
-			clone.m20 = cosine * this.matrix.m20 - sine * this.matrix.m22;
-			clone.m22 = cosine * this.matrix.m22 + sine * this.matrix.m20;
-			clone.m30 = cosine * this.matrix.m30 - sine * this.matrix.m32;
-			clone.m32 = cosine * this.matrix.m32 + sine * this.matrix.m30;
+				var clone = this.clone().matrix;
 
-			this.copy(clone);
+				clone.m00 = cosine * this.matrix.m00 - sine * this.matrix.m02;
+				clone.m02 = cosine * this.matrix.m02 + sine * this.matrix.m00;
+				clone.m10 = cosine * this.matrix.m10 - sine * this.matrix.m12;
+				clone.m12 = cosine * this.matrix.m12 + sine * this.matrix.m10;
+				clone.m20 = cosine * this.matrix.m20 - sine * this.matrix.m22;
+				clone.m22 = cosine * this.matrix.m22 + sine * this.matrix.m20;
+				// clone.m30 = cosine * this.matrix.m30 - sine * this.matrix.m32;
+				// clone.m32 = cosine * this.matrix.m32 + sine * this.matrix.m30;
+
+				this.copy(clone);
+
+			};
 
 			return this;
 
 		},
 		rotateZ: function( degrees ){
 
-			var radians = -degrees * Math.PI / 180;
-			var cosine = Math.cos(radians);
-			var sine = Math.sin(radians);
+			if( isNumber(degrees) && degrees !== 0 ){
 
-			var clone = this.clone().matrix;
+				var radians = -degrees * Math.PI / 180;
+				var cosine = Math.cos(radians);
+				var sine = Math.sin(radians);
 
-			clone.m00 = cosine * this.matrix.m00 + sine * this.matrix.m01;
-			clone.m01 = cosine * this.matrix.m01 - sine * this.matrix.m00;
-			clone.m10 = cosine * this.matrix.m10 + sine * this.matrix.m11;
-			clone.m11 = cosine * this.matrix.m11 - sine * this.matrix.m10;
-			clone.m20 = cosine * this.matrix.m20 + sine * this.matrix.m21;
-			clone.m21 = cosine * this.matrix.m21 - sine * this.matrix.m20;
-			clone.m30 = cosine * this.matrix.m30 + sine * this.matrix.m31;
-			clone.m31 = cosine * this.matrix.m31 - sine * this.matrix.m30;
+				var clone = this.clone().matrix;
 
-			this.copy(clone);
+				clone.m00 = cosine * this.matrix.m00 + sine * this.matrix.m01;
+				clone.m01 = cosine * this.matrix.m01 - sine * this.matrix.m00;
+				clone.m10 = cosine * this.matrix.m10 + sine * this.matrix.m11;
+				clone.m11 = cosine * this.matrix.m11 - sine * this.matrix.m10;
+				clone.m20 = cosine * this.matrix.m20 + sine * this.matrix.m21;
+				clone.m21 = cosine * this.matrix.m21 - sine * this.matrix.m20;
+				// clone.m30 = cosine * this.matrix.m30 + sine * this.matrix.m31;
+				// clone.m31 = cosine * this.matrix.m31 - sine * this.matrix.m30;
+
+				this.copy(clone);
+
+			};
 
 			return this;
 
 		},
 		rotate3d: function( x, y, z, degrees ){
 
-			if( x !== 0 ){
-
-				this.rotateX((x < 0) ? -degrees : degrees);
-
-			};
-
-			if( y !== 0 ){
-
-				this.rotateY((y < 0) ? -degrees : degrees);
-
-			};
-
-			if( z !== 0 ){
-
-				this.rotateZ((z < 0) ? -degrees : degrees);
-
-			};
+			this
+				.rotateX((x < 0) ? -degrees : degrees)
+				.rotateY((y < 0) ? -degrees : degrees)
+				.rotateZ((z < 0) ? -degrees : degrees);
 
 			return this;
 
 		},
 		getRotation: function(){
 
-			var rotationX = Math.atan2(this.matrix.m21, this.matrix.m22);
-			var rotationY = Math.asin(-this.matrix.m20);
-			var rotationZ = Math.atan2(this.matrix.m10, this.matrix.m00);
+			var rotationX = Math.atan2(this.matrix.m12, this.matrix.m22);
+			var rotationY = Math.asin(-this.matrix.m02);
+			var rotationZ = Math.atan2(this.matrix.m01, this.matrix.m00);
 
 			if( Math.cos(rotationY) === 0 ){
 
-				rotationX = Math.atan2(-this.matrix.m02, this.matrix.m22);
+				rotationX = Math.atan2(-this.matrix.m20, this.matrix.m11);
 				rotationZ = 0;
 
 			};
@@ -3573,9 +3288,61 @@
 							};
 
 						}
+						else if( /^matrix\(/.test(transforms[transform]) ){
+
+							var newMatrix;
+
+							if( values.length === 6 ){
+
+								newMatrix = {
+									m00: parseFloat(values[0]) || 1,
+									m01: parseFloat(values[2]) || 0,
+									m02: parseFloat(values[4]) || 0,
+									m03: 0,
+									m10: parseFloat(values[1]) || 0,
+									m11: parseFloat(values[3]) || 1,
+									m12: parseFloat(values[5]) || 0,
+									m13: 0,
+									m20: 0,
+									m21: 0,
+									m22: 1,
+									m23: 0,
+									m30: 0,
+									m31: 0,
+									m32: 0,
+									m33: 1
+								};
+
+							}
+							else if( values.length === 16 ){
+
+								newMatrix = {
+									m00: parseFloat(values[1]) || 1,
+									m01: parseFloat(values[2]) || 0,
+									m02: parseFloat(values[3]) || 0,
+									m03: parseFloat(values[4]) || 0,
+									m10: parseFloat(values[5]) || 0,
+									m11: parseFloat(values[6]) || 1,
+									m12: parseFloat(values[7]) || 0,
+									m13: parseFloat(values[8]) || 0,
+									m20: parseFloat(values[9]) || 0,
+									m21: parseFloat(values[10]) || 0,
+									m22: parseFloat(values[11]) || 1,
+									m23: parseFloat(values[12]) || 0,
+									m30: parseFloat(values[13]) || 0,
+									m31: parseFloat(values[14]) || 0,
+									m32: parseFloat(values[15]) || 0,
+									m33: parseFloat(values[16]) || 1
+								};
+
+							};
+
+							this.multiply(newMatrix)
+
+						}
 						else if( /^matrix3d/.test(transforms[transform]) ){
 
-							var mat = {
+							var newMatrix = {
 								m00: parseFloat(values[1]) || 1,
 								m01: parseFloat(values[2]) || 0,
 								m02: parseFloat(values[3]) || 0,
@@ -3594,13 +3361,7 @@
 								m33: parseFloat(values[16]) || 1
 							};
 
-							console.log("this", this.toString());
-							console.log("add", transforms[transform], values);
-							console.log(mat);
-
-							this.multiply(mat);
-
-							console.log("aftr", this.toString());
+							this.multiply(newMatrix);
 
 						};
 

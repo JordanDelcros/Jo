@@ -19,10 +19,10 @@ window.onload = function(){
 			.addClass("jo")
 			.insertEndTo($container)
 			.animate({
-				// transform: "matrix(1, 1, 0, 1, 0, 0)"
+				transform: "rotateZ(45deg)"
 			}, {
-				easing: "easeInOutElastic",
-				duration: 5000,
+				easing: "easeOutElastic",
+				duration: 2000,
 				complete: function(){
 					console.log("jo finish");
 				}
