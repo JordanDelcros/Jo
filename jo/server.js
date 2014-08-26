@@ -50,6 +50,8 @@ WSServer.on("request", function( request ){
 
 			if( data.type === "offer" ){
 
+				console.log("OFFER")
+
 				users[id].description = data.content;
 
 				for( var user in users ){
@@ -60,21 +62,40 @@ WSServer.on("request", function( request ){
 
 						users[user].connection.sendUTF(JSON.stringify({
 							type: "offer",
-							content: JSON.parse(data.content)
+							content: data.content
 						}));
 
 					};
 				};
 			}
-			else if( data.type === "candidate" ){
+			else if( data.type === "answer" ){
 
-				console.log("candidating !")
+				console.log("ANSWER");
 
 				for( var user in users ){
 
 					if( users.hasOwnProperty(user) && user != id ){
 
-						console.log("send candidate to ", user);
+						console.log("send answer to ", user);
+
+						users[user].connection.sendUTF(JSON.stringify({
+							type: "answer",
+							content: data.content
+						}));
+
+					};
+				};
+
+			}
+			else if( data.type === "candidate" ){
+
+				console.log("CANDIDATE")
+
+				for( var user in users ){
+
+					if( users.hasOwnProperty(user) && user != id ){
+
+						// console.log("send candidate to ", user);
 
 						users[user].connection.sendUTF(JSON.stringify({
 							type: "candidate",
@@ -95,4 +116,4 @@ WSServer.on("request", function( request ){
 
 });
 
-console.log("SERVER NODE STARTED");
+console.log("LOCAL NODE SERVER STARTED");

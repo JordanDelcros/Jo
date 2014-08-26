@@ -9,6 +9,10 @@
 	var documentRoot = document;
 	var temporaryNode = documentRoot.createElement("div");
 
+	window.RTCSessionDescription = (window.mozRTCSessionDescription || window.RTCSessionDescription);
+	window.RTCPeerConnection = (window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.RTCPeerConnection);
+	window.RTCIceCandidate = (window.mozRTCIceCandidate || window.RTCIceCandidate);
+
 	var Jo = function( selector, context, documentRoot ){
 
 		return new Jo.fn.init(selector, context, documentRoot);
@@ -4279,6 +4283,8 @@
 				audio: true
 			}, function( stream ){
 
+				console.log("MEDIA", this);
+
 				this.stream = stream;
 
 				this.src = window.URL.createObjectURL(this.stream);
@@ -4324,55 +4330,24 @@
 						OfferToReceiveVideo: true,
 						OfferToReceiveAudio: true
 					}
+				},
+				error: function( message ){
+
+					console.log(message)
+
 				}
 			}, settings);
 
-			window.RTCSessionDescription = (window.mozRTCSessionDescription || window.RTCSessionDescription);
-			window.RTCPeerConnection = (window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.RTCPeerConnection);
-			window.RTCIceCandidate = (window.mozRTCIceCandidate || window.RTCIceCandidate);
-
-			this.peer = new RTCPeerConnection(settings.config);
-
-			this.peer.addEventListener("icecandidate", function( event ){
-
-				console.log("ICE CANDIDATE");
-
-				if( !isEmpty(event.candidate) ){
-
-					settings.socket.send("candidate", event.candidate);
-
-				};
-
-			}, false);
-
-			this.peer.addStream(settings.stream);
-
-			this.peer.addEventListener("addstream", function( event ){
-
-				console.log("ADD STREAM");
-
-				if( isFunction(settings.addStream) ){
-
-					settings.addstream.call(this, window.URL.createObjectURL(event.stream), event.stream);
-
-				};
-
-			}.bind(this), false);
-
-			this.peer.addEventListener("removestream", function( event ){
-
-				console.log("REMOVE STREAM");
-
-			}, false);
+			this.reset(settings);
 
 			this.peer.createOffer(function( description ){
 
 				this.peer.setLocalDescription(description);
-				settings.socket.send("description", description);
+				settings.socket.send("offer", description);
 
-			}.bind(this), function(){
+			}.bind(this), function( error ){
 
-				console.log("CALL FAIL");
+				settings.error(error);
 
 			}, settings.constraints);
 
@@ -4382,128 +4357,68 @@
 
 				if( data.type === "offer" ){
 
-					console.log("RECEIVE OFFER");
+					this.reset(settings);
 
-					this.peer.setRemoteDescription(new RTCSessionDescription(data.content));
+					this.peer.setRemoteDescription(new RTCSessionDescription(data.content), function(){
 
-					this.peer.createAnswer(function( description ){
+						this.peer.createAnswer(function( description ){
 
-						this.peer.setLocalDescription(description);
-						settings.socket.send("description", description);
+							this.peer.setLocalDescription(description);
+							settings.socket.send("answer", description);
 
-					}.bind(this), function(){
+						}.bind(this), function( error ){
 
-						console.log("ANSWER FAILED");
+							settings.error(error);
 
-					}, settings.constraints);
+						}, settings.constraints);
+
+					}.bind(this), function( error ){
+
+						settings.error(error);
+
+					});
 
 				}
 				else if( data.type === "answer" ){
-
-					console.log("RECEIVE ANSWER");
 
 					this.peer.setRemoteDescription(new RTCSessionDescription(data.content));
 
 				}
 				else if( data.type === "candidate" ){
 
-					console.log("RECEIVE CANDIDATE");
-
-					console.log(data.content);
-
 					this.peer.addIceCandidate(new RTCIceCandidate(data.content));
 
 				}
 				else if( data.type === "close" ){
 
-					console.log("RECEIVE BYE BYE");
 					this.peer.close();
 
 				};
 
 			}.bind(this), false);
 
-		}
-	};
-
-/*
-	Jo.peer.fn = Jo.peer.prototype = {
-		constructor: Jo.peer,
-		init: function( settings ){
-
-			settings = Jo.merge({
-				config: {
-					iceServers: new Array()
-				},
-				constraints: {
-					mandatory: {
-						OfferToReceiveAudio: true,
-						OfferToReceiveVideo: true
-					},
-					optional: [
-						{
-							RtpDataChannels: true,							
-						},
-						{
-							DtlsSrtpKeyAgreement: true
-						}
-					]
-				}
-			}, settings);
-
-			window.RTCPeerConnection = (window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.RTCPeerConnection);
-			window.RTCSessionDescription = (window.mozRTCSessionDescription || window.RTCSessionDescription);
-			window.RTCIceCandidate = (window.mozRTCIceCandidate || window.RTCIceCandidate);
+		},
+		reset: function( settings ){
 
 			this.peer = new RTCPeerConnection(settings.config);
 
-			this.peer.createDescription = function( description ){
-
-				console.log("CREATE DESCRIPTION");
-
-				this.peer.setLocalDescription(description);
-
-				settings.socket.send(description.type, JSON.stringify(description));
-
-			}.bind(this);
-
-			this.constraints = settings.constraints;
-
-			this.sources = new Array();
-
-			this.events = new Object();
-
 			this.peer.addEventListener("icecandidate", function( event ){
-				
-				console.log("ICE CANDIDATE");
 
 				if( !isEmpty(event.candidate) ){
 
-					console.log("SEND ICE CANDIDATE", event);
-
-					settings.socket.send("candidate", JSON.stringify({
-						sdpMLineIndex: event.candidate.sdpMLineIndex,
-						sdpMid: event.candidate.sdpMid,
-						candidate: event.candidate.candidate
-					}));
+					settings.socket.send("candidate", event.candidate);
 
 				};
 
-			}, false);
+			}.bind(this), false);
+
+			this.peer.addStream(settings.stream);
 
 			this.peer.addEventListener("addstream", function( event ){
 
-				console.log("ADD STREAM", event);
+				if( isFunction(settings.addStream) ){
 
-				var url = this.sources.push(decodeURIComponent(window.URL.createObjectURL(event.stream))) - 1;
-
-				if( !isEmpty(this.events.stream) ){
-
-					for( var fn in this.events.stream ){
-
-						this.events.stream[fn].call(this, this.sources[url], event.stream);
-
-					};
+					settings.addStream.call(this, window.URL.createObjectURL(event.stream), event.stream);
 
 				};
 
@@ -4511,140 +4426,17 @@
 
 			this.peer.addEventListener("removestream", function( event ){
 
-				console.log("REMOVE STREAM");
+				if( isFunction(settings.removeStream) ){
+
+					settings.removestream.call(this, event);
+
+				};
 
 			}, false);
 
-			settings.socket.socket.addEventListener("message", function( message ){
-
-				var data = JSON.parse(message.data);
-
-				console.log("SERVER RESPOND AN => ", data.type);
-
-				if( data.content.type === "offer" ){
-
-					console.log("ANSWER OFFER");
-
-					this.peer.setRemoteDescription(new RTCSessionDescription(data.content));
-					this.peer.createAnswer(this.peer.createDescription, function( event ){
-
-						console.log("CONNECTION FAIL", event);
-
-						if( isFunction(settings.error) ){
-
-							settings.error();
-
-						};
-
-					}, this.constraints)
-
-				}
-				else if( data.content.type === "answer" ){
-
-					console.log("ANSWER !")
-
-					this.peer.setRemoteDescription(new RTCSessionDescription(data.content));
-					this.peer.setRemoteDescription(new RTCSessionDescription(data.content));
-
-				}
-				else if( data.content.type === "candidate" ){
-
-					console.log("CANDIDATING");
-
-					this.peer.addIceCandidate(new RTCIceCandidate(data.content));
-
-				};
-
-			}.bind(this), false);
-
-			return this;
-
-		},
-		addStream: function( stream ){
-
-			console.log("ADD STREAM");
-			this.peer.addStream(stream);
-
-			return this;
-
-		},
-		call: function(){
-
-			this.peer.createOffer(this.peer.createDescription, function(){
-
-				console.log("FAIL TO SEND OFFER");
-
-			}.bind(this), this.constraints);
-
-			return this;
-
-		},
-		on: function( action, fn, useCapture ){
-
-			if( isEmpty(useCapture) ){
-
-				useCapture = false;
-
-			};
-
-			if( isEmpty(this.events[action]) ){
-
-				this.events[action] = new Array();
-
-			};
-
-			this.events[action].push(fn);
-
-			return this;
-
-		},
-		off: function( action, fn, useCapture ){
-
-			if( isBoolean(fn) ){
-
-				useCapture = fn;
-				fn = undefined;
-
-			};
-
-			if( isEmpty(useCapture) ){
-
-				useCapture = false;
-
-			};
-
-			if( !isEmpty(fn) ){
-
-				for( var evt in this.events[action] ){
-
-					if( this.events[action][evt] === fn ){
-
-						this.events[action].splice(evt, 1);
-
-					};
-
-				};
-
-			}
-			else {
-
-				delete this.events[action];
-
-			};
-
-			console.log(this.events);
-
-			return this;
-
-		},
-		answer: function(){
-
-		},
-		remove: function(){
-
 		}
 	};
-*/
+
 	Jo.peer.fn.init.prototype = Jo.peer.fn;
 
 	Jo.support = {
