@@ -9,10 +9,6 @@
 	var documentRoot = document;
 	var temporaryNode = documentRoot.createElement("div");
 
-	window.RTCSessionDescription = (window.mozRTCSessionDescription || window.RTCSessionDescription);
-	window.RTCPeerConnection = (window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.RTCPeerConnection);
-	window.RTCIceCandidate = (window.mozRTCIceCandidate || window.RTCIceCandidate);
-
 	var Jo = function( selector, context, documentRoot ){
 
 		return new Jo.fn.init(selector, context, documentRoot);
@@ -1083,127 +1079,6 @@
 				});
 
 				return returned;
-
-			};
-
-			return this;
-
-		},
-		transform: function( transformation ){
-
-			if( isEmpty(transformation) ){
-
-				this.each(function(){
-
-					var value = Jo(this).css("transform");
-
-					console.log("ORIGIN", value);
-
-					var transform = value[0].split(/\s*[(),]\s*/).slice(1, -1);
-					var matrix;
-
-					if( transform.length === 6 ){
-
-						matrix = {
-							m11: parseFloat(transform[0]),
-							m21: parseFloat(transform[2]),
-							m31: 0,
-							m41: parseFloat(transform[4]),
-							m12: parseFloat(transform[1]),
-							m22: parseFloat(transform[3]),
-							m32: 0,
-							m42: parseFloat(transform[5]),
-							m13: 0,
-							m23: 0,
-							m33: 1,
-							m43: 0,
-							m14: 0,
-							m24: 0,
-							m34: 0,
-							m44: 1
-						};
-
-					}
-					else if( transform.length === 16 ){
-
-						matrix = {
-							m11: parseFloat(transform[0]),
-							m21: parseFloat(transform[4]),
-							m31: parseFloat(transform[8]),
-							m41: parseFloat(transform[12]),
-							m12: parseFloat(transform[1]),
-							m22: parseFloat(transform[5]),
-							m32: parseFloat(transform[9]),
-							m42: parseFloat(transform[13]),
-							m13: parseFloat(transform[2]),
-							m23: parseFloat(transform[6]),
-							m33: parseFloat(transform[10]),
-							m43: parseFloat(transform[14]),
-							m14: parseFloat(transform[3]),
-							m24: parseFloat(transform[7]),
-							m34: parseFloat(transform[11]),
-							m44: parseFloat(transform[15])
-						};
-
-					}
-					else {
-
-						matrix = {
-							m11: 1,
-							m21: 0,
-							m31: 0,
-							m41: 0,
-							m12: 0,
-							m22: 1,
-							m32: 0,
-							m42: 0,
-							m13: 0,
-							m23: 0,
-							m33: 1,
-							m43: 0,
-							m14: 0,
-							m24: 0,
-							m34: 0,
-							m44: 1
-						};
-
-					};
-
-					var scaleX = Math.sqrt(matrix.m11 * matrix.m11 + matrix.m12 * matrix.m12);
-					var scaleY = Math.sqrt(matrix.m21 * matrix.m21 + matrix.m22 * matrix.m22);
-
-					var translateX = matrix.m41;
-					var translateY = matrix.m42;
-					var translateZ = matrix.m43;
-				
-					var rotateX = Math.atan2(matrix.m23, matrix.m33);
-					var rotateY = Math.asin(-matrix.m13);
-					var rotateZ = Math.atan2(matrix.m12, matrix.m11);
-
-					if( Math.cos(rotateY) === 0 ){
-
-						rotateX = Math.atan2(-matrix.m31, matrix.m22);
-						rotateZ = 0;
-
-					};
-
-					console.log({
-						scaleX: scaleX,
-						scaleY: scaleY,
-						translateX: translateX,
-						translateY: translateY,
-						translateZ: translateZ,
-						rotateX: rotateX * 180 / Math.PI,
-						rotateY: rotateY * 180 / Math.PI,
-						rotateZ: rotateZ * 180 / Math.PI
-					});
-
-				});
-
-			}
-			else {
-
-
 
 			};
 
@@ -2292,7 +2167,7 @@
 
 					if( property === "transform" ){
 
-						var matrix = Jo.matrix().add(styles[property]);
+						var matrix = Jo.matrix(styles[property]);
 
 						valuesTo[property].model = "matrix3d(#0,#1,#2,#3,#4,#5,#6,#7,#8,#9,#10,#11,#12,#13,#14,#15)";
 
@@ -2455,7 +2330,7 @@
 
 						if( property === "transform" ){
 
-							var matrix = Jo.matrix().add(from).matrix;
+							var matrix = Jo.matrix(from).matrix;
 
 							for( var m in matrix ){
 
@@ -2734,6 +2609,8 @@
 
 	});
 
+	var CSSMatrix = (window.WebKitCSSMatrix || window.CSSMatrix);
+
 	Jo.matrix = function( matrix ){
 
 		return new Jo.matrix.fn.init(matrix);
@@ -2744,7 +2621,15 @@
 		constructor: Jo.matrix,
 		init: function( matrix ){
 
-			this.default = {
+			if( !isEmpty(CSSMatrix) ){
+
+				this.matrix = new CSSMatrix(matrix || "");
+
+				return this;
+
+			};
+
+			this.identity = {
 				m00: 1,
 				m01: 0,
 				m02: 0,
@@ -2765,7 +2650,7 @@
 
 			if( isEmpty(matrix) ){
 
-				this.copy(this.default);
+				this.copy(this.identity);
 
 			}
 			else if( matrix.constructor === Jo.matrix ){
@@ -2794,74 +2679,86 @@
 		},
 		setA: function( number ){
 
-			this.matrix.m00 = number;
+			var clone = this.clone();
 
-			return this;
+			clone.matrix.m11 = number;
+
+			return clone;
 
 		},
 		getA: function(){
 
-			return this.matrix.m00;
+			return this.matrix.m11;
 
 		},
 		setB: function( number ){
 
-			this.matrix.m10 = number;
+			var clone = this.clone();
 
-			return this;
+			clone.matrix.m21 = number;
+
+			return clone;
 
 		},
 		getB: function(){
 
-			return this.matrix.m10;
+			return this.matrix.m21;
 
 		},
 		setC: function( number ){
 
-			this.matrix.m01 = number;
+			var clone = this.clone();
 
-			return this;
+			clone.matrix.m12 = number;
+
+			return clone;
 
 		},
 		getC: function(){
 
-			return this.matrix.m01;
+			return this.matrix.m12;
 
 		},
 		setD: function( number ){
 
-			this.matrix.m11 = number;
+			var clone = this.clone();
 
-			return this;
+			clone.matrix.m22 = number;
+
+			return clone;
 
 		},
 		getD: function(){
 
-			return this.matrix.m11;
+			return this.matrix.m22;
 
 		},
 		setE: function( number ){
 
-			this.matrix.m02 = number;
+			var clone = this.clone();
 
-			return this;
+			clone.matrix.m13 = number;
+
+			return clone;
 
 		},
 		getE: function(){
 
-			return this.matrix.m02;
+			return this.matrix.m13;
 
 		},
 		setF: function( number ){
 
-			this.matrix.m12 = number;
+			var clone = this.clone();
 
-			return this;
+			clone.matrix.m23 = number;
+
+			return clone;
 
 		},
 		getF: function(){
 
-			return this.matrix.m12;
+			return this.matrix.m23;
 
 		},
 		scale: function( x, y, z ){
@@ -2869,234 +2766,328 @@
 			y = y || x || 0;
 			z = z || 1;
 
-			this
+			var clone = this
 				.scaleX(x)
 				.scaleY(y)
 				.scaleZ(z);
 
-			return this;
+			return clone;
 
 		},
 		scaleX: function( unit ){
 
-			this.matrix.m00 *= unit;
-			this.matrix.m01 *= unit;
-			this.matrix.m02 *= unit;
-			this.matrix.m03 *= unit;
+			var clone = this.clone();
 
-			return this;
+			if( clone.matrix instanceof CSSMatrix ){
+
+				var scaled = Jo.matrix();
+
+				clone.matrix = clone.matrix.multiply(scaled.matrix.scale(unit, 0, 0));
+
+			}
+			else {
+
+				clone.matrix.m11 *= unit;
+				clone.matrix.m12 *= unit;
+				clone.matrix.m13 *= unit;
+				clone.matrix.m14 *= unit;
+
+			};
+
+			return clone;
 
 		},
 		scaleY: function( unit ){
 
-			this.matrix.m10 *= unit;
-			this.matrix.m11 *= unit;
-			this.matrix.m12 *= unit;
-			this.matrix.m13 *= unit;
+			var clone = this.clone();
 
-			return this;
+			if( clone.matrix instanceof CSSMatrix ){
+
+				var scaled = Jo.matrix();
+
+				clone.matrix = clone.matrix.multiply(scaled.matrix.scale(0, unit, 0));
+
+			}
+			else {
+
+				clone.matrix.m21 *= unit;
+				clone.matrix.m22 *= unit;
+				clone.matrix.m23 *= unit;
+				clone.matrix.m24 *= unit;
+
+			};
+
+			return clone;
 
 		},
 		scaleZ: function( unit ){
 
-			this.matrix.m20 *= unit;
-			this.matrix.m21 *= unit;
-			this.matrix.m22 *= unit;
-			this.matrix.m23 *= unit;
+			var clone = this.clone();
 
-			return this;
+			if( clone.matrix instanceof CSSMatrix ){
+
+				var scaled = Jo.matrix();
+
+				clone.matrix = clone.matrix.multiply(scaled.matrix.scale(0, 0, unit));
+
+			}
+			else {
+
+				clone.matrix.m31 *= unit;
+				clone.matrix.m32 *= unit;
+				clone.matrix.m33 *= unit;
+				clone.matrix.m34 *= unit;
+
+			};
+
+			return clone;
 
 		},
 		getScale: function(){
 
 			return {
-				x: Math.sqrt(this.matrix.m00 * this.matrix.m00 + this.matrix.m10 * this.matrix.m10),
-				y: Math.sqrt(this.matrix.m01 * this.matrix.m01 + this.matrix.m11 * this.matrix.m11),
-				z: Math.sqrt(this.matrix.m02 * this.matrix.m02 + this.matrix.m12 * this.matrix.m12)
+				x: Math.sqrt(this.matrix.m11 * this.matrix.m11 + this.matrix.m21 * this.matrix.m21),
+				y: Math.sqrt(this.matrix.m12 * this.matrix.m12 + this.matrix.m22 * this.matrix.m22),
+				z: Math.sqrt(this.matrix.m13 * this.matrix.m13 + this.matrix.m23 * this.matrix.m23)
 			};
 
 		},
 		translate: function( x, y, z ){
 
-			var clone = Jo.matrix().matrix;
+			var clone = this
+				.translateX(x)
+				.translateY(y)
+				.translateZ(z);
 
-			clone.m30 += x;
-			clone.m31 += y;
-			clone.m32 += z;
-
-			this.multiply(clone);
-
-			return this;
+			return clone;
 
 		},
 		translateX: function( pixels ){
 
-			this.translate(pixels, 0, 0);
+			var clone = Jo.matrix();
 
-			return this;
+			if( clone.matrix instanceof CSSMatrix ){
+
+				clone.matrix.translate(pixels, 0, 0);
+
+			}
+			else {
+
+				clone.matrix.m41 = pixels;
+
+			};
+
+			return clone.multiply(this.matrix);
 
 		},
 		translateY: function( pixels ){
 
-			this.translate(0, pixels, 0);
+			var clone = Jo.matrix();
 
-			return this;
+			if( clone.matrix instanceof CSSMatrix ){
+
+				clone.matrix.translate(0, pixels, 0);
+
+			}
+			else {
+
+				clone.matrix.m42 = pixels;
+
+			};
+
+			return clone.multiply(this.matrix);
 
 		},
 		translateZ: function( pixels ){
 
-			this.translate(0, 0, pixels);
+			var clone = Jo.matrix();
 
-			return this;
+			if( clone.matrix instanceof CSSMatrix ){
+
+				clone.matrix.translate(0, 0, pixels);
+
+			}
+			else {
+
+				clone.matrix.m43 = pixels;
+
+			};
+
+			return clone.multiply(this.matrix);
 
 		},
 		getTranslation: function(){
 
 			return {
-				x: this.matrix.m30,
-				y: this.matrix.m31,
-				z: this.matrix.m32
+				x: this.matrix.m41,
+				y: this.matrix.m42,
+				z: this.matrix.m43
 			};
 
 		},
 		skew: function( x, y ){
 
-			this
+			var clone = this
 				.skewX(x)
 				.skewY(y);
 
-			return this;
+			return clone;
 
 		},
 		skewX: function( degrees ){
 
-			var matrix = Jo.matrix().matrix;
+			var clone = Jo.matrix();
 
-			matrix.m10 = Math.tan(degrees * Math.PI / 180);
+			if( clone.matrix instanceof CSSMatrix ){
 
-			this.multiply(matrix);
+				clone.matrix = clone.matrix.skewX(degrees);
 
-			return this;
+			}
+			else {
+
+				clone.matrix.m23 = Math.tan(degrees * Math.PI / 180);
+				clone = clone.multiply(this.matrix);
+
+			};
+
+			return clone;
 
 		},
 		skewY: function( degrees ){
 
-			var matrix = Jo.matrix().matrix;
+			var clone = Jo.matrix();
 
-			matrix.m01 = Math.tan(degrees * Math.PI / 180);
+			if( clone.matrix instanceof CSSMatrix ){
 
-			this.multiply(matrix);
+				clone.matrix = clone.matrix.skewY(degrees);
 
-			return this;
+			}
+			else {
+
+				clone.matrix.m12 = Math.tan(degrees * Math.PI / 180);
+				clone = clone.multiply(this.matrix);
+
+			};
+
+			return clone;
 
 		},
 		rotate: function( x, y, z ){
 
-			this
+			var clone = this
 				.rotateX(x)
 				.rotateY(y)
 				.rotateZ(z);
 
-			return this;
+			return clone;
 
 		},
 		rotateX: function( degrees ){
 
-			if( isNumber(degrees) && degrees !== 0 ){
+			var clone = this.clone();
+
+			if( clone.matrix instanceof CSSMatrix ){
+
+				clone.matrix = clone.matrix.rotate(degrees, 0, 0);
+
+			}
+			else if( isNumber(degrees) && degrees !== 0 ){
 
 				var radians = -degrees * Math.PI / 180;
 				var cosine = Math.cos(radians);
 				var sine = Math.sin(radians);
 
-				var clone = this.clone().matrix;
-
-				clone.m01 = cosine * this.matrix.m01 + sine * this.matrix.m02;
-				clone.m02 = cosine * this.matrix.m02 - sine * this.matrix.m01;
-				clone.m11 = cosine * this.matrix.m11 + sine * this.matrix.m12;
-				clone.m12 = cosine * this.matrix.m12 - sine * this.matrix.m11;
-				clone.m21 = cosine * this.matrix.m21 + sine * this.matrix.m22;
-				clone.m22 = cosine * this.matrix.m22 - sine * this.matrix.m21;
-				// clone.m31 = cosine * this.matrix.m31 + sine * this.matrix.m32;
-				// clone.m32 = cosine * this.matrix.m32 - sine * this.matrix.m31;
-
-				this.copy(clone);
+				clone.matrix.m12 = cosine * this.matrix.m12 + sine * this.matrix.m13;
+				clone.matrix.m13 = cosine * this.matrix.m13 - sine * this.matrix.m12;
+				clone.matrix.m22 = cosine * this.matrix.m22 + sine * this.matrix.m23;
+				clone.matrix.m23 = cosine * this.matrix.m23 - sine * this.matrix.m22;
+				clone.matrix.m32 = cosine * this.matrix.m32 + sine * this.matrix.m33;
+				clone.matrix.m33 = cosine * this.matrix.m33 - sine * this.matrix.m32;
+				// clone.m42 = cosine * this.matrix.m42 + sine * this.matrix.m43;
+				// clone.m43 = cosine * this.matrix.m43 - sine * this.matrix.m42;
 
 			};
 
-			return this;
+			return clone;
 
 		},
 		rotateY: function( degrees ){
 
-			if( isNumber(degrees) && degrees !== 0 ){
+			var clone = this.clone();
+
+			if( clone.matrix instanceof CSSMatrix ){
+
+				clone.matrix = clone.matrix.rotate(0, degrees, 0);
+
+			}
+			else if( isNumber(degrees) && degrees !== 0 ){
 
 				var radians = -degrees * Math.PI / 180;
 				var cosine = Math.cos(radians);
 				var sine = Math.sin(radians);
 
-				var clone = this.clone().matrix;
-
-				clone.m00 = cosine * this.matrix.m00 - sine * this.matrix.m02;
-				clone.m02 = cosine * this.matrix.m02 + sine * this.matrix.m00;
-				clone.m10 = cosine * this.matrix.m10 - sine * this.matrix.m12;
-				clone.m12 = cosine * this.matrix.m12 + sine * this.matrix.m10;
-				clone.m20 = cosine * this.matrix.m20 - sine * this.matrix.m22;
-				clone.m22 = cosine * this.matrix.m22 + sine * this.matrix.m20;
-				// clone.m30 = cosine * this.matrix.m30 - sine * this.matrix.m32;
-				// clone.m32 = cosine * this.matrix.m32 + sine * this.matrix.m30;
-
-				this.copy(clone);
+				clone.matrix.m11 = cosine * this.matrix.m11 - sine * this.matrix.m13;
+				clone.matrix.m13 = cosine * this.matrix.m13 + sine * this.matrix.m11;
+				clone.matrix.m21 = cosine * this.matrix.m21 - sine * this.matrix.m23;
+				clone.matrix.m23 = cosine * this.matrix.m23 + sine * this.matrix.m21;
+				clone.matrix.m31 = cosine * this.matrix.m31 - sine * this.matrix.m33;
+				clone.matrix.m33 = cosine * this.matrix.m33 + sine * this.matrix.m31;
+				// clone.m41 = cosine * this.matrix.m41 - sine * this.matrix.m43;
+				// clone.m43 = cosine * this.matrix.m43 + sine * this.matrix.m41;
 
 			};
 
-			return this;
+			return clone;
 
 		},
 		rotateZ: function( degrees ){
 
-			if( isNumber(degrees) && degrees !== 0 ){
+			var clone = this.clone();
+
+			if( clone.matrix instanceof CSSMatrix ){
+
+				clone.matrix = clone.matrix.rotate(0, 0, degrees);
+
+			}
+			else if( isNumber(degrees) && degrees !== 0 ){
 
 				var radians = -degrees * Math.PI / 180;
 				var cosine = Math.cos(radians);
 				var sine = Math.sin(radians);
 
-				var clone = this.clone().matrix;
-
-				clone.m00 = cosine * this.matrix.m00 + sine * this.matrix.m01;
-				clone.m01 = cosine * this.matrix.m01 - sine * this.matrix.m00;
-				clone.m10 = cosine * this.matrix.m10 + sine * this.matrix.m11;
-				clone.m11 = cosine * this.matrix.m11 - sine * this.matrix.m10;
-				clone.m20 = cosine * this.matrix.m20 + sine * this.matrix.m21;
-				clone.m21 = cosine * this.matrix.m21 - sine * this.matrix.m20;
-				// clone.m30 = cosine * this.matrix.m30 + sine * this.matrix.m31;
-				// clone.m31 = cosine * this.matrix.m31 - sine * this.matrix.m30;
-
-				this.copy(clone);
+				clone.matrix.m11 = cosine * this.matrix.m11 + sine * this.matrix.m12;
+				clone.matrix.m12 = cosine * this.matrix.m12 - sine * this.matrix.m11;
+				clone.matrix.m21 = cosine * this.matrix.m21 + sine * this.matrix.m22;
+				clone.matrix.m22 = cosine * this.matrix.m22 - sine * this.matrix.m21;
+				clone.matrix.m31 = cosine * this.matrix.m31 + sine * this.matrix.m32;
+				clone.matrix.m32 = cosine * this.matrix.m32 - sine * this.matrix.m31;
+				// clone.m41 = cosine * this.matrix.m41 + sine * this.matrix.m42;
+				// clone.m42 = cosine * this.matrix.m42 - sine * this.matrix.m41;
 
 			};
 
-			return this;
+			return clone;
 
 		},
 		rotate3d: function( x, y, z, degrees ){
 
-			this
+			var clone = this
 				.rotateX((x < 0) ? -degrees : degrees)
 				.rotateY((y < 0) ? -degrees : degrees)
 				.rotateZ((z < 0) ? -degrees : degrees);
 
-			return this;
+			return clone;
 
 		},
 		getRotation: function(){
 
-			var rotationX = Math.atan2(this.matrix.m12, this.matrix.m22);
-			var rotationY = Math.asin(-this.matrix.m02);
-			var rotationZ = Math.atan2(this.matrix.m01, this.matrix.m00);
+			var rotationX = Math.atan2(this.matrix.m23, this.matrix.m33);
+			var rotationY = Math.asin(-this.matrix.m13);
+			var rotationZ = Math.atan2(this.matrix.m12, this.matrix.m11);
 
 			if( Math.cos(rotationY) === 0 ){
 
-				rotationX = Math.atan2(-this.matrix.m20, this.matrix.m11);
+				rotationX = Math.atan2(-this.matrix.m31, this.matrix.m22);
 				rotationZ = 0;
 
 			};
@@ -3110,16 +3101,25 @@
 		},
 		add: function( matrix ){
 
+			var clone = this.clone();
+
 			if( !isEmpty(matrix) ){
 
-				if( matrix.constructor === Jo.matrix ){
+				if( clone.matrix instanceof CSSMatrix ){
 
-					return this.multiply(matrix.matrix);
+					clone.matrix = clone.matrix.multiply(new CSSMatrix(matrix));
+
+					return clone;
+
+				}
+				else if( matrix.constructor === Jo.matrix ){
+
+					return clone.multiply(matrix.matrix);
 
 				}
 				else if( isObject(matrix) ){
 
-					return this.multiply(matrix);
+					return clone.multiply(matrix);
 
 				}
 				else {
@@ -3134,13 +3134,13 @@
 
 							if( !isEmpty(values[0]) ){
 
-								this.scaleX(parseFloat(values[0]));
+								clone = clone.scaleX(parseFloat(values[0]));
 
 							};
 
 							if( !isEmpty(values[1]) ){
 
-								this.scaleX(parseFloat(values[1]));
+								clone = clone.scaleX(parseFloat(values[1]));
 
 							};
 
@@ -3149,7 +3149,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								this.scaleX(parseFloat(values[0]));
+								clone = clone.scaleX(parseFloat(values[0]));
 
 							};
 
@@ -3158,7 +3158,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								this.scaleY(parseFloat(values[0]));
+								clone = clone.scaleY(parseFloat(values[0]));
 
 							};
 
@@ -3167,7 +3167,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								this.scaleX(parseFloat(values[0]));
+								clone = clone.scaleX(parseFloat(values[0]));
 
 							};
 
@@ -3176,13 +3176,13 @@
 
 							if( !isEmpty(values[0]) ){
 
-								this.translateX(parseFloat(values[0]));
+								clone = clone.translateX(parseFloat(values[0]));
 
 							};
 
 							if( !isEmpty(values[1]) ){
 
-								this.translateY(parseFloat(values[1]));
+								clone = clone.translateY(parseFloat(values[1]));
 
 							};
 
@@ -3191,7 +3191,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								this.translateX(parseFloat(values[0]));
+								clone = clone.translateX(parseFloat(values[0]));
 
 							};
 
@@ -3200,7 +3200,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								this.translateY(parseFloat(values[0]));
+								clone = clone.translateY(parseFloat(values[0]));
 
 							};
 
@@ -3209,7 +3209,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								this.translateZ(parseFloat(values[0]));
+								clone = clone.translateZ(parseFloat(values[0]));
 
 							};
 
@@ -3218,7 +3218,7 @@
 
 							if( !isEmpty(values[0]) && !isEmpty(values[1]) && !isEmpty(values[2]) ){
 
-								this.translate(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]));
+								clone = clone.translate(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]));
 
 							};
 
@@ -3227,13 +3227,13 @@
 
 							if( !isEmpty(values[0]) ){
 
-								this.skewX(parseFloat(values[0]));
+								clone = clone.skewX(parseFloat(values[0]));
 
 							};
 
 							if( !isEmpty(values[1]) ){
 
-								this.skewY(parseFloat(values[1]));
+								clone = clone.skewY(parseFloat(values[1]));
 
 							};
 
@@ -3242,7 +3242,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								this.skewX(parseFloat(values[0]));
+								clone = clone.skewX(parseFloat(values[0]));
 
 							};
 
@@ -3251,7 +3251,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								this.skewY(parseFloat(values[0]));
+								clone = clone.skewY(parseFloat(values[0]));
 
 							};
 
@@ -3260,7 +3260,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								this.rotateZ(parseFloat(values[0]));
+								clone = clone.rotateZ(parseFloat(values[0]));
 
 							};
 
@@ -3269,7 +3269,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								this.rotateX(parseFloat(values[0]));
+								clone = clone.rotateX(parseFloat(values[0]));
 
 							};
 
@@ -3278,7 +3278,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								this.rotateY(parseFloat(values[0]));
+								clone = clone.rotateY(parseFloat(values[0]));
 
 							};
 
@@ -3287,7 +3287,7 @@
 
 							if( !isEmpty(values[0]) && !isEmpty(values[1]) && !isEmpty(values[2]) && !isEmpty(values[3]) ){
 
-								this.rotate3d(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), parseFloat(values[3]));
+								clone = clone.rotate3d(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), parseFloat(values[3]));
 
 							};
 
@@ -3341,7 +3341,7 @@
 
 							};
 
-							this.multiply(newMatrix)
+							clone = clone.multiply(newMatrix)
 
 						}
 						else if( /^matrix3d/.test(transforms[transform]) ){
@@ -3365,89 +3365,107 @@
 								m33: parseFloat(values[16]) || 1
 							};
 
-							this.multiply(newMatrix);
+							clone = clone.multiply(newMatrix);
 
 						};
 
 					};
 
-					return this;
+					return clone;
 
 				};
 
 			}
 			else {
 
-				return this;
+				return clone;
 
 			};
 
 		},
 		multiply: function( matrix ){
 
-			var clone = this.clone().matrix;
+			var clone = this.clone();
 
-			clone.m00 = this.matrix.m00 * matrix.m00 + this.matrix.m01 * matrix.m10 + this.matrix.m02 * matrix.m20 + this.matrix.m03 * matrix.m30;
-			clone.m01 = this.matrix.m00 * matrix.m01 + this.matrix.m01 * matrix.m11 + this.matrix.m02 * matrix.m21 + this.matrix.m03 * matrix.m31;
-			clone.m02 = this.matrix.m00 * matrix.m02 + this.matrix.m01 * matrix.m12 + this.matrix.m02 * matrix.m22 + this.matrix.m03 * matrix.m32;
-			clone.m03 = this.matrix.m00 * matrix.m03 + this.matrix.m01 * matrix.m13 + this.matrix.m02 * matrix.m23 + this.matrix.m03 * matrix.m33;
+			if( clone.matrix instanceof CSSMatrix ){
 
-			clone.m10 = this.matrix.m10 * matrix.m00 + this.matrix.m11 * matrix.m10 + this.matrix.m12 * matrix.m20 + this.matrix.m13 * matrix.m30;
-			clone.m11 = this.matrix.m10 * matrix.m01 + this.matrix.m11 * matrix.m11 + this.matrix.m12 * matrix.m21 + this.matrix.m13 * matrix.m31;
-			clone.m12 = this.matrix.m10 * matrix.m02 + this.matrix.m11 * matrix.m12 + this.matrix.m12 * matrix.m22 + this.matrix.m13 * matrix.m32;
-			clone.m13 = this.matrix.m10 * matrix.m03 + this.matrix.m11 * matrix.m13 + this.matrix.m12 * matrix.m23 + this.matrix.m13 * matrix.m33;
+				clone.matrix = clone.matrix.multiply(matrix);
 
-			clone.m20 = this.matrix.m20 * matrix.m00 + this.matrix.m21 * matrix.m10 + this.matrix.m22 * matrix.m20 + this.matrix.m23 * matrix.m30;
-			clone.m21 = this.matrix.m20 * matrix.m01 + this.matrix.m21 * matrix.m11 + this.matrix.m22 * matrix.m21 + this.matrix.m23 * matrix.m31;
-			clone.m22 = this.matrix.m20 * matrix.m02 + this.matrix.m21 * matrix.m12 + this.matrix.m22 * matrix.m22 + this.matrix.m23 * matrix.m32;
-			clone.m23 = this.matrix.m20 * matrix.m03 + this.matrix.m21 * matrix.m13 + this.matrix.m22 * matrix.m23 + this.matrix.m23 * matrix.m33;
+			}
+			else {
 
-			clone.m30 = this.matrix.m30 * matrix.m00 + this.matrix.m31 * matrix.m10 + this.matrix.m32 * matrix.m20 + this.matrix.m33 * matrix.m30;
-			clone.m31 = this.matrix.m30 * matrix.m01 + this.matrix.m31 * matrix.m11 + this.matrix.m32 * matrix.m21 + this.matrix.m33 * matrix.m31;
-			clone.m32 = this.matrix.m30 * matrix.m02 + this.matrix.m31 * matrix.m12 + this.matrix.m32 * matrix.m22 + this.matrix.m33 * matrix.m32;
-			clone.m33 = this.matrix.m30 * matrix.m03 + this.matrix.m31 * matrix.m13 + this.matrix.m32 * matrix.m23 + this.matrix.m33 * matrix.m33;
+				clone.matrix.m11 = this.matrix.m11 * matrix.m11 + this.matrix.m12 * matrix.m21 + this.matrix.m13 * matrix.m31 + this.matrix.m14 * matrix.m41;
+				clone.matrix.m12 = this.matrix.m11 * matrix.m12 + this.matrix.m12 * matrix.m22 + this.matrix.m13 * matrix.m32 + this.matrix.m14 * matrix.m42;
+				clone.matrix.m13 = this.matrix.m11 * matrix.m13 + this.matrix.m12 * matrix.m23 + this.matrix.m13 * matrix.m33 + this.matrix.m14 * matrix.m43;
+				clone.matrix.m14 = this.matrix.m11 * matrix.m14 + this.matrix.m12 * matrix.m24 + this.matrix.m13 * matrix.m34 + this.matrix.m14 * matrix.m44;
 
-			this.copy(clone);
+				clone.matrix.m21 = this.matrix.m21 * matrix.m11 + this.matrix.m22 * matrix.m21 + this.matrix.m23 * matrix.m31 + this.matrix.m24 * matrix.m41;
+				clone.matrix.m22 = this.matrix.m21 * matrix.m12 + this.matrix.m22 * matrix.m22 + this.matrix.m23 * matrix.m32 + this.matrix.m24 * matrix.m42;
+				clone.matrix.m23 = this.matrix.m21 * matrix.m13 + this.matrix.m22 * matrix.m23 + this.matrix.m23 * matrix.m33 + this.matrix.m24 * matrix.m43;
+				clone.matrix.m24 = this.matrix.m21 * matrix.m14 + this.matrix.m22 * matrix.m24 + this.matrix.m23 * matrix.m34 + this.matrix.m24 * matrix.m44;
 
-			return this;
+				clone.matrix.m31 = this.matrix.m31 * matrix.m11 + this.matrix.m32 * matrix.m21 + this.matrix.m33 * matrix.m31 + this.matrix.m34 * matrix.m41;
+				clone.matrix.m32 = this.matrix.m31 * matrix.m12 + this.matrix.m32 * matrix.m22 + this.matrix.m33 * matrix.m32 + this.matrix.m34 * matrix.m42;
+				clone.matrix.m33 = this.matrix.m31 * matrix.m13 + this.matrix.m32 * matrix.m23 + this.matrix.m33 * matrix.m33 + this.matrix.m34 * matrix.m43;
+				clone.matrix.m34 = this.matrix.m31 * matrix.m14 + this.matrix.m32 * matrix.m24 + this.matrix.m33 * matrix.m34 + this.matrix.m34 * matrix.m44;
+
+				clone.matrix.m41 = this.matrix.m41 * matrix.m11 + this.matrix.m42 * matrix.m21 + this.matrix.m43 * matrix.m31 + this.matrix.m44 * matrix.m41;
+				clone.matrix.m42 = this.matrix.m41 * matrix.m12 + this.matrix.m42 * matrix.m22 + this.matrix.m43 * matrix.m32 + this.matrix.m44 * matrix.m42;
+				clone.matrix.m43 = this.matrix.m41 * matrix.m13 + this.matrix.m42 * matrix.m23 + this.matrix.m43 * matrix.m33 + this.matrix.m44 * matrix.m43;
+				clone.matrix.m44 = this.matrix.m41 * matrix.m14 + this.matrix.m42 * matrix.m24 + this.matrix.m43 * matrix.m34 + this.matrix.m44 * matrix.m44;
+
+			};
+
+			return clone;
 
 		},
 		inverse: function(){
 
-			this.matrix.m00 = this.matrix.m12 * this.matrix.m23 * this.matrix.m31 - this.matrix.m13 * this.matrix.m22 * this.matrix.m31 + this.matrix.m13 * this.matrix.m21 * this.matrix.m32 - this.matrix.m11 * this.matrix.m23 * this.matrix.m32 - this.matrix.m12 * this.matrix.m21 * this.matrix.m33 + this.matrix.m11 * this.matrix.m22 * this.matrix.m33;
-			this.matrix.m01 = this.matrix.m03 * this.matrix.m22 * this.matrix.m31 - this.matrix.m02 * this.matrix.m23 * this.matrix.m31 - this.matrix.m03 * this.matrix.m21 * this.matrix.m32 + this.matrix.m01 * this.matrix.m23 * this.matrix.m32 + this.matrix.m02 * this.matrix.m21 * this.matrix.m33 - this.matrix.m01 * this.matrix.m22 * this.matrix.m33;
-			this.matrix.m02 = this.matrix.m02 * this.matrix.m13 * this.matrix.m31 - this.matrix.m03 * this.matrix.m12 * this.matrix.m31 + this.matrix.m03 * this.matrix.m11 * this.matrix.m32 - this.matrix.m01 * this.matrix.m13 * this.matrix.m32 - this.matrix.m02 * this.matrix.m11 * this.matrix.m33 + this.matrix.m01 * this.matrix.m12 * this.matrix.m33;
-			this.matrix.m03 = this.matrix.m03 * this.matrix.m12 * this.matrix.m21 - this.matrix.m02 * this.matrix.m13 * this.matrix.m21 - this.matrix.m03 * this.matrix.m11 * this.matrix.m22 + this.matrix.m01 * this.matrix.m13 * this.matrix.m22 + this.matrix.m02 * this.matrix.m11 * this.matrix.m23 - this.matrix.m01 * this.matrix.m12 * this.matrix.m23;
-			this.matrix.m10 = this.matrix.m13 * this.matrix.m22 * this.matrix.m30 - this.matrix.m12 * this.matrix.m23 * this.matrix.m30 - this.matrix.m13 * this.matrix.m20 * this.matrix.m32 + this.matrix.m10 * this.matrix.m23 * this.matrix.m32 + this.matrix.m12 * this.matrix.m20 * this.matrix.m33 - this.matrix.m10 * this.matrix.m22 * this.matrix.m33;
-			this.matrix.m11 = this.matrix.m02 * this.matrix.m23 * this.matrix.m30 - this.matrix.m03 * this.matrix.m22 * this.matrix.m30 + this.matrix.m03 * this.matrix.m20 * this.matrix.m32 - this.matrix.m00 * this.matrix.m23 * this.matrix.m32 - this.matrix.m02 * this.matrix.m20 * this.matrix.m33 + this.matrix.m00 * this.matrix.m22 * this.matrix.m33;
-			this.matrix.m12 = this.matrix.m03 * this.matrix.m12 * this.matrix.m30 - this.matrix.m02 * this.matrix.m13 * this.matrix.m30 - this.matrix.m03 * this.matrix.m10 * this.matrix.m32 + this.matrix.m00 * this.matrix.m13 * this.matrix.m32 + this.matrix.m02 * this.matrix.m10 * this.matrix.m33 - this.matrix.m00 * this.matrix.m12 * this.matrix.m33;
-			this.matrix.m13 = this.matrix.m02 * this.matrix.m13 * this.matrix.m20 - this.matrix.m03 * this.matrix.m12 * this.matrix.m20 + this.matrix.m03 * this.matrix.m10 * this.matrix.m22 - this.matrix.m00 * this.matrix.m13 * this.matrix.m22 - this.matrix.m02 * this.matrix.m10 * this.matrix.m23 + this.matrix.m00 * this.matrix.m12 * this.matrix.m23;
-			this.matrix.m20 = this.matrix.m11 * this.matrix.m23 * this.matrix.m30 - this.matrix.m13 * this.matrix.m21 * this.matrix.m30 + this.matrix.m13 * this.matrix.m20 * this.matrix.m31 - this.matrix.m10 * this.matrix.m23 * this.matrix.m31 - this.matrix.m11 * this.matrix.m20 * this.matrix.m33 + this.matrix.m10 * this.matrix.m21 * this.matrix.m33;
-			this.matrix.m21 = this.matrix.m03 * this.matrix.m21 * this.matrix.m30 - this.matrix.m01 * this.matrix.m23 * this.matrix.m30 - this.matrix.m03 * this.matrix.m20 * this.matrix.m31 + this.matrix.m00 * this.matrix.m23 * this.matrix.m31 + this.matrix.m01 * this.matrix.m20 * this.matrix.m33 - this.matrix.m00 * this.matrix.m21 * this.matrix.m33;
-			this.matrix.m22 = this.matrix.m01 * this.matrix.m13 * this.matrix.m30 - this.matrix.m03 * this.matrix.m11 * this.matrix.m30 + this.matrix.m03 * this.matrix.m10 * this.matrix.m31 - this.matrix.m00 * this.matrix.m13 * this.matrix.m31 - this.matrix.m01 * this.matrix.m10 * this.matrix.m33 + this.matrix.m00 * this.matrix.m11 * this.matrix.m33;
-			this.matrix.m23 = this.matrix.m03 * this.matrix.m11 * this.matrix.m20 - this.matrix.m01 * this.matrix.m13 * this.matrix.m20 - this.matrix.m03 * this.matrix.m10 * this.matrix.m21 + this.matrix.m00 * this.matrix.m13 * this.matrix.m21 + this.matrix.m01 * this.matrix.m10 * this.matrix.m23 - this.matrix.m00 * this.matrix.m11 * this.matrix.m23;
-			this.matrix.m30 = this.matrix.m12 * this.matrix.m21 * this.matrix.m30 - this.matrix.m11 * this.matrix.m22 * this.matrix.m30 - this.matrix.m12 * this.matrix.m20 * this.matrix.m31 + this.matrix.m10 * this.matrix.m22 * this.matrix.m31 + this.matrix.m11 * this.matrix.m20 * this.matrix.m32 - this.matrix.m10 * this.matrix.m21 * this.matrix.m32;
-			this.matrix.m31 = this.matrix.m01 * this.matrix.m22 * this.matrix.m30 - this.matrix.m02 * this.matrix.m21 * this.matrix.m30 + this.matrix.m02 * this.matrix.m20 * this.matrix.m31 - this.matrix.m00 * this.matrix.m22 * this.matrix.m31 - this.matrix.m01 * this.matrix.m20 * this.matrix.m32 + this.matrix.m00 * this.matrix.m21 * this.matrix.m32;
-			this.matrix.m32 = this.matrix.m02 * this.matrix.m11 * this.matrix.m30 - this.matrix.m01 * this.matrix.m12 * this.matrix.m30 - this.matrix.m02 * this.matrix.m10 * this.matrix.m31 + this.matrix.m00 * this.matrix.m12 * this.matrix.m31 + this.matrix.m01 * this.matrix.m10 * this.matrix.m32 - this.matrix.m00 * this.matrix.m11 * this.matrix.m32;
-			this.matrix.m33 = this.matrix.m01 * this.matrix.m12 * this.matrix.m20 - this.matrix.m02 * this.matrix.m11 * this.matrix.m20 + this.matrix.m02 * this.matrix.m10 * this.matrix.m21 - this.matrix.m00 * this.matrix.m12 * this.matrix.m21 - this.matrix.m01 * this.matrix.m10 * this.matrix.m22 + this.matrix.m00 * this.matrix.m11 * this.matrix.m22;
+			var clone = this.clone();
 
-			this.scale(1 / this.getDeterminant());
+			if( clone.matrix instanceof CSSMatrix ){
 
-			return this;
+				clone.matrix = clone.matrix.inverse();
+
+			}
+			else {
+
+				clone.matrix.m11 = clone.matrix.m23 * clone.matrix.m34 * clone.matrix.m42 - clone.matrix.m24 * clone.matrix.m33 * clone.matrix.m42 + clone.matrix.m24 * clone.matrix.m32 * clone.matrix.m43 - clone.matrix.m22 * clone.matrix.m34 * clone.matrix.m43 - clone.matrix.m23 * clone.matrix.m32 * clone.matrix.m44 + clone.matrix.m22 * clone.matrix.m33 * clone.matrix.m44;
+				clone.matrix.m12 = clone.matrix.m14 * clone.matrix.m33 * clone.matrix.m42 - clone.matrix.m13 * clone.matrix.m34 * clone.matrix.m42 - clone.matrix.m14 * clone.matrix.m32 * clone.matrix.m43 + clone.matrix.m12 * clone.matrix.m34 * clone.matrix.m43 + clone.matrix.m13 * clone.matrix.m32 * clone.matrix.m44 - clone.matrix.m12 * clone.matrix.m33 * clone.matrix.m44;
+				clone.matrix.m13 = clone.matrix.m13 * clone.matrix.m24 * clone.matrix.m42 - clone.matrix.m14 * clone.matrix.m23 * clone.matrix.m42 + clone.matrix.m14 * clone.matrix.m22 * clone.matrix.m43 - clone.matrix.m12 * clone.matrix.m24 * clone.matrix.m43 - clone.matrix.m13 * clone.matrix.m22 * clone.matrix.m44 + clone.matrix.m12 * clone.matrix.m23 * clone.matrix.m44;
+				clone.matrix.m14 = clone.matrix.m14 * clone.matrix.m23 * clone.matrix.m32 - clone.matrix.m13 * clone.matrix.m24 * clone.matrix.m32 - clone.matrix.m14 * clone.matrix.m22 * clone.matrix.m33 + clone.matrix.m12 * clone.matrix.m24 * clone.matrix.m33 + clone.matrix.m13 * clone.matrix.m22 * clone.matrix.m34 - clone.matrix.m12 * clone.matrix.m23 * clone.matrix.m34;
+				clone.matrix.m21 = clone.matrix.m24 * clone.matrix.m33 * clone.matrix.m41 - clone.matrix.m23 * clone.matrix.m34 * clone.matrix.m41 - clone.matrix.m24 * clone.matrix.m31 * clone.matrix.m43 + clone.matrix.m21 * clone.matrix.m34 * clone.matrix.m43 + clone.matrix.m23 * clone.matrix.m31 * clone.matrix.m44 - clone.matrix.m21 * clone.matrix.m33 * clone.matrix.m44;
+				clone.matrix.m22 = clone.matrix.m13 * clone.matrix.m34 * clone.matrix.m41 - clone.matrix.m14 * clone.matrix.m33 * clone.matrix.m41 + clone.matrix.m14 * clone.matrix.m31 * clone.matrix.m43 - clone.matrix.m11 * clone.matrix.m34 * clone.matrix.m43 - clone.matrix.m13 * clone.matrix.m31 * clone.matrix.m44 + clone.matrix.m11 * clone.matrix.m33 * clone.matrix.m44;
+				clone.matrix.m23 = clone.matrix.m14 * clone.matrix.m23 * clone.matrix.m41 - clone.matrix.m13 * clone.matrix.m24 * clone.matrix.m41 - clone.matrix.m14 * clone.matrix.m21 * clone.matrix.m43 + clone.matrix.m11 * clone.matrix.m24 * clone.matrix.m43 + clone.matrix.m13 * clone.matrix.m21 * clone.matrix.m44 - clone.matrix.m11 * clone.matrix.m23 * clone.matrix.m44;
+				clone.matrix.m24 = clone.matrix.m13 * clone.matrix.m24 * clone.matrix.m31 - clone.matrix.m14 * clone.matrix.m23 * clone.matrix.m31 + clone.matrix.m14 * clone.matrix.m21 * clone.matrix.m33 - clone.matrix.m11 * clone.matrix.m24 * clone.matrix.m33 - clone.matrix.m13 * clone.matrix.m21 * clone.matrix.m34 + clone.matrix.m11 * clone.matrix.m23 * clone.matrix.m34;
+				clone.matrix.m31 = clone.matrix.m22 * clone.matrix.m34 * clone.matrix.m41 - clone.matrix.m24 * clone.matrix.m32 * clone.matrix.m41 + clone.matrix.m24 * clone.matrix.m31 * clone.matrix.m42 - clone.matrix.m21 * clone.matrix.m34 * clone.matrix.m42 - clone.matrix.m22 * clone.matrix.m31 * clone.matrix.m44 + clone.matrix.m21 * clone.matrix.m32 * clone.matrix.m44;
+				clone.matrix.m32 = clone.matrix.m14 * clone.matrix.m32 * clone.matrix.m41 - clone.matrix.m12 * clone.matrix.m34 * clone.matrix.m41 - clone.matrix.m14 * clone.matrix.m31 * clone.matrix.m42 + clone.matrix.m11 * clone.matrix.m34 * clone.matrix.m42 + clone.matrix.m12 * clone.matrix.m31 * clone.matrix.m44 - clone.matrix.m11 * clone.matrix.m32 * clone.matrix.m44;
+				clone.matrix.m33 = clone.matrix.m12 * clone.matrix.m24 * clone.matrix.m41 - clone.matrix.m14 * clone.matrix.m22 * clone.matrix.m41 + clone.matrix.m14 * clone.matrix.m21 * clone.matrix.m42 - clone.matrix.m11 * clone.matrix.m24 * clone.matrix.m42 - clone.matrix.m12 * clone.matrix.m21 * clone.matrix.m44 + clone.matrix.m11 * clone.matrix.m22 * clone.matrix.m44;
+				clone.matrix.m34 = clone.matrix.m14 * clone.matrix.m22 * clone.matrix.m31 - clone.matrix.m12 * clone.matrix.m24 * clone.matrix.m31 - clone.matrix.m14 * clone.matrix.m21 * clone.matrix.m32 + clone.matrix.m11 * clone.matrix.m24 * clone.matrix.m32 + clone.matrix.m12 * clone.matrix.m21 * clone.matrix.m34 - clone.matrix.m11 * clone.matrix.m22 * clone.matrix.m34;
+				clone.matrix.m41 = clone.matrix.m23 * clone.matrix.m32 * clone.matrix.m41 - clone.matrix.m22 * clone.matrix.m33 * clone.matrix.m41 - clone.matrix.m23 * clone.matrix.m31 * clone.matrix.m42 + clone.matrix.m21 * clone.matrix.m33 * clone.matrix.m42 + clone.matrix.m22 * clone.matrix.m31 * clone.matrix.m43 - clone.matrix.m21 * clone.matrix.m32 * clone.matrix.m43;
+				clone.matrix.m42 = clone.matrix.m12 * clone.matrix.m33 * clone.matrix.m41 - clone.matrix.m13 * clone.matrix.m32 * clone.matrix.m41 + clone.matrix.m13 * clone.matrix.m31 * clone.matrix.m42 - clone.matrix.m11 * clone.matrix.m33 * clone.matrix.m42 - clone.matrix.m12 * clone.matrix.m31 * clone.matrix.m43 + clone.matrix.m11 * clone.matrix.m32 * clone.matrix.m43;
+				clone.matrix.m43 = clone.matrix.m13 * clone.matrix.m22 * clone.matrix.m41 - clone.matrix.m12 * clone.matrix.m23 * clone.matrix.m41 - clone.matrix.m13 * clone.matrix.m21 * clone.matrix.m42 + clone.matrix.m11 * clone.matrix.m23 * clone.matrix.m42 + clone.matrix.m12 * clone.matrix.m21 * clone.matrix.m43 - clone.matrix.m11 * clone.matrix.m22 * clone.matrix.m43;
+				clone.matrix.m44 = clone.matrix.m12 * clone.matrix.m23 * clone.matrix.m31 - clone.matrix.m13 * clone.matrix.m22 * clone.matrix.m31 + clone.matrix.m13 * clone.matrix.m21 * clone.matrix.m32 - clone.matrix.m11 * clone.matrix.m23 * clone.matrix.m32 - clone.matrix.m12 * clone.matrix.m21 * clone.matrix.m33 + clone.matrix.m11 * clone.matrix.m22 * clone.matrix.m33;
+
+				clone = clone.scale(1 / clone.getDeterminant());
+
+			};
+
+			return clone;
 
 		},
 		getDeterminant: function(){
 
 			return (
-				(this.matrix.m00 * this.matrix.m11 * this.matrix.m22 * this.matrix.m33)
-				+ (this.matrix.m10 * this.matrix.m21 * this.matrix.m32 * this.matrix.m03)
-				+ (this.matrix.m20 * this.matrix.m31 * this.matrix.m02 * this.matrix.m13)
-				+ (this.matrix.m30 * this.matrix.m01 * this.matrix.m12 * this.matrix.m23)
+				(this.matrix.m11 * this.matrix.m22 * this.matrix.m33 * this.matrix.m44)
+				+ (this.matrix.m21 * this.matrix.m32 * this.matrix.m43 * this.matrix.m14)
+				+ (this.matrix.m31 * this.matrix.m42 * this.matrix.m13 * this.matrix.m24)
+				+ (this.matrix.m41 * this.matrix.m12 * this.matrix.m23 * this.matrix.m34)
 			) - (
-				(this.matrix.m03 * this.matrix.m12 * this.matrix.m21 * this.matrix.m30)
-				+ (this.matrix.m13 * this.matrix.m22 * this.matrix.m31 * this.matrix.m00)
-				+ (this.matrix.m23 * this.matrix.m32 * this.matrix.m01 * this.matrix.m10)
-				+ (this.matrix.m33 * this.matrix.m02 * this.matrix.m11 * this.matrix.m20)
+				(this.matrix.m14 * this.matrix.m23 * this.matrix.m32 * this.matrix.m41)
+				+ (this.matrix.m24 * this.matrix.m33 * this.matrix.m42 * this.matrix.m11)
+				+ (this.matrix.m34 * this.matrix.m43 * this.matrix.m12 * this.matrix.m21)
+				+ (this.matrix.m44 * this.matrix.m13 * this.matrix.m22 * this.matrix.m31)
 			);
 
 		},
@@ -3464,7 +3482,7 @@
 
 				if( matrix.hasOwnProperty(m) ){
 
-					this.matrix[m] = matrix[m] || this.default[m];
+					this.matrix[m] = matrix[m] || this.identity[m];
 
 				};
 
@@ -3476,10 +3494,10 @@
 		toString: function(){
 
 			return "matrix3d("
-				+ this.matrix.m00 + "," + this.matrix.m01 + "," + this.matrix.m02 + "," + this.matrix.m03 + ","
-				+ this.matrix.m10 + "," + this.matrix.m11 + "," + this.matrix.m12 + "," + this.matrix.m13 + ","
-				+ this.matrix.m20 + "," + this.matrix.m21 + "," + this.matrix.m22 + "," + this.matrix.m23 + ","
-				+ this.matrix.m30 + "," + this.matrix.m31 + "," + this.matrix.m32 + "," + this.matrix.m33
+				+ this.matrix.m11 + "," + this.matrix.m12 + "," + this.matrix.m13 + "," + this.matrix.m14 + ","
+				+ this.matrix.m21 + "," + this.matrix.m22 + "," + this.matrix.m23 + "," + this.matrix.m24 + ","
+				+ this.matrix.m31 + "," + this.matrix.m32 + "," + this.matrix.m33 + "," + this.matrix.m34 + ","
+				+ this.matrix.m41 + "," + this.matrix.m42 + "," + this.matrix.m43 + "," + this.matrix.m44
 			+ ")";
 
 		},
@@ -4283,8 +4301,6 @@
 				audio: true
 			}, function( stream ){
 
-				console.log("MEDIA", this);
-
 				this.stream = stream;
 
 				this.src = window.URL.createObjectURL(this.stream);
@@ -4298,18 +4314,24 @@
 			}.bind(this));
 
 		},
-		play: function(){
-
-		},
-		pause: function(){
-
-		},
 		stop: function(){
+
+			var videoTracks = this.stream.getVideoTracks();
+
+			for( var track = 0, length = videoTracks.length; track < length; track++ ){
+
+				videoTracks[track].stop();
+
+			};
 
 		}
 	};
 
 	Jo.media.fn.init.prototype = Jo.media.fn;
+
+	var RTCSessionDescription = (window.mozRTCSessionDescription || window.RTCSessionDescription);
+	var RTCPeerConnection = (window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.RTCPeerConnection);
+	var RTCIceCandidate = (window.mozRTCIceCandidate || window.RTCIceCandidate);
 
 	Jo.peer = function( settings ){
 
@@ -4381,7 +4403,13 @@
 				}
 				else if( data.type === "answer" ){
 
-					this.peer.setRemoteDescription(new RTCSessionDescription(data.content));
+					this.peer.setRemoteDescription(new RTCSessionDescription(data.content), function(){
+
+					}, function( error ){
+
+						settings.error(error);
+
+					});
 
 				}
 				else if( data.type === "candidate" ){

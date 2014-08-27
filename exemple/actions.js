@@ -12,23 +12,23 @@ window.onload = function(){
 	// container.innerHTML = "";
 
 	//jo
-	// var bef = +new Date();
-	// var $container = Jo("#container");
-	// for( var howMuch = 0; howMuch < 2; howMuch++ ){
-	// 	Jo("<li/>")
-	// 		.addClass("jo")
-	// 		.insertEndTo($container)
-	// 		.animate({
-	// 			transform: "rotateZ(45deg)"
-	// 		}, {
-	// 			easing: "easeOutElastic",
-	// 			duration: 2000,
-	// 			complete: function(){
-	// 				console.log("jo finish");
-	// 			}
-	// 		});
-	// };
-	// console.log("jo", +new Date() - bef);
+	var bef = +new Date();
+	var $container = Jo("#container");
+	for( var howMuch = 0; howMuch < 2; howMuch++ ){
+		Jo("<li/>")
+			.addClass("jo")
+			.insertEndTo($container)
+			.animate({
+				transform: "rotateZ(45deg)"
+			}, {
+				easing: "easeOutElastic",
+				duration: 2000,
+				complete: function(){
+					console.log("jo finish");
+				}
+			});
+	};
+	console.log("jo", +new Date() - bef);
 
 	// $container.empty();
 

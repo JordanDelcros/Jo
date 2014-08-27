@@ -23,8 +23,7 @@ header {
 }
 
 ul {
-	position: absolute;
-	/*height: 100%;*/
+	height: 100%;
 	perspective: 500px;
 }
 
@@ -41,7 +40,7 @@ li {
 	background-color: rgba(100,100,100,1);
 	background-image: url("img/thick.png");
 	background-size: 50px 50px;
-	transform: rotate3d(0,1,1,45deg);
+	transform: rotate3d(0,0,1,45deg);
 }
 
 li:first-child {
