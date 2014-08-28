@@ -2151,6 +2151,8 @@
 		},
 		animate: function( styles, options ){
 
+			var before = +new Date();
+
 			options = Jo.merge({
 				duration: 1000,
 				easing: "linear"
@@ -2165,19 +2167,101 @@
 					valuesTo[property] = new Object();
 					valuesTo[property].values = new Array();
 
-					if( property === "transform" ){
+					if( property !== "transform" ){
+
+						valuesTo[property].model = styles[property].toString()
+							.replace(regularExpressions.length, function( match, number, unit ){
+
+								var index = valuesTo[property].values.push({
+									from: null,
+									to: parseFloat(number),
+									difference: 0,
+									unit: unit
+								});
+
+								return "#" + (index - 1);
+
+							})
+							.replace(regularExpressions.hexaColor, function( match, red, green, blue ){
+
+								if( red.length === 1 ){
+
+									red = red + red;
+
+								};
+
+								if( green.length === 1 ){
+
+									green = green + green;
+
+								};
+
+								if( blue.length === 1 ){
+
+									blue = blue + blue;
+
+								};
+
+								return "rgba(" + parseInt(red, 16) + ", " + parseInt(green, 16) + ", " + parseInt(blue, 16) + ", 1)";
+
+							})
+							.replace(regularExpressions.RGBColor, function( match, red, green, blue, alpha ){
+
+								if( isEmpty(alpha) ){
+
+									alpha = 1;
+
+								};
+
+								var redIndex = valuesTo[property].values.push({
+									from: null,
+									to: parseInt(red),
+									difference: 0,
+									unit: "",
+									integer: true
+								});
+
+								var greenIndex = valuesTo[property].values.push({
+									from: null,
+									to: parseInt(green),
+									difference: 0,
+									unit: "",
+									integer: true
+								});
+
+								var blueIndex = valuesTo[property].values.push({
+									from: null,
+									to: parseInt(blue),
+									difference: 0,
+									unit: "",
+									integer: true
+								});
+
+								var alphaIndex = valuesTo[property].values.push({
+									from: null,
+									to: parseInt(alpha),
+									difference: 0,
+									unit: ""
+								});
+
+								return "rgba(#" + (redIndex - 1) + ", #" + (greenIndex - 1) + ", #" + (blueIndex - 1) + ", #" + (alphaIndex - 1) + ")";
+
+							});
+
+					}
+					else {
 
 						var matrix = Jo.matrix(styles[property]);
 
 						valuesTo[property].model = "matrix3d(#0,#1,#2,#3,#4,#5,#6,#7,#8,#9,#10,#11,#12,#13,#14,#15)";
 
-						for( var m in matrix.matrix ){
+						for( var column = 1; column < 5; column++ ){
 
-							if( matrix.matrix.hasOwnProperty(m) ){
+							for( var row = 1; row < 5; row++ ){
 
 								valuesTo[property].values.push({
 									from: null,
-									to: matrix.matrix[m],
+									to: matrix.matrix["m" + column.toString() + row.toString()],
 									difference: 0,
 									unit: null
 								});
@@ -2189,85 +2273,6 @@
 						continue;
 
 					};
-
-					valuesTo[property].model = styles[property].toString()
-						.replace(regularExpressions.length, function( match, number, unit ){
-
-							var index = valuesTo[property].values.push({
-								from: null,
-								to: parseFloat(number),
-								difference: 0,
-								unit: unit
-							});
-
-							return "#" + (index - 1);
-
-						})
-						.replace(regularExpressions.hexaColor, function( match, red, green, blue ){
-
-							if( red.length === 1 ){
-
-								red = red + red;
-
-							};
-
-							if( green.length === 1 ){
-
-								green = green + green;
-
-							};
-
-							if( blue.length === 1 ){
-
-								blue = blue + blue;
-
-							};
-
-							return "rgba(" + parseInt(red, 16) + ", " + parseInt(green, 16) + ", " + parseInt(blue, 16) + ", 1)";
-
-						})
-						.replace(regularExpressions.RGBColor, function( match, red, green, blue, alpha ){
-
-							if( isEmpty(alpha) ){
-
-								alpha = 1;
-
-							};
-
-							var redIndex = valuesTo[property].values.push({
-								from: null,
-								to: parseInt(red),
-								difference: 0,
-								unit: "",
-								integer: true
-							});
-
-							var greenIndex = valuesTo[property].values.push({
-								from: null,
-								to: parseInt(green),
-								difference: 0,
-								unit: "",
-								integer: true
-							});
-
-							var blueIndex = valuesTo[property].values.push({
-								from: null,
-								to: parseInt(blue),
-								difference: 0,
-								unit: "",
-								integer: true
-							});
-
-							var alphaIndex = valuesTo[property].values.push({
-								from: null,
-								to: parseInt(alpha),
-								difference: 0,
-								unit: ""
-							});
-
-							return "rgba(#" + (redIndex - 1) + ", #" + (greenIndex - 1) + ", #" + (blueIndex - 1) + ", #" + (alphaIndex - 1) + ")";
-
-						});
 
 					var preparedProperty = prepareCSSProperty(property, styles[property]);
 
@@ -2328,25 +2333,7 @@
 
 						};
 
-						if( property === "transform" ){
-
-							var matrix = Jo.matrix(from).matrix;
-
-							for( var m in matrix ){
-
-								if( matrix.hasOwnProperty(m) ){
-
-									valueIndex++;
-
-									values[valueIndex].from = matrix[m];
-									values[valueIndex].difference = Math.abs(matrix[m] - values[valueIndex].to) * (matrix[m] > values[valueIndex].to ? -1 : 1);
-
-								};
-
-							};
-
-						}
-						else {
+						if( property !== "transform" ){
 
 							from
 								.replace(regularExpressions.length, function( match, number, unit ){
@@ -2389,6 +2376,26 @@
 
 								});
 
+						}
+						else {
+
+							var matrix = Jo.matrix(from).matrix;
+
+							for( var column = 1; column < 5; column++ ){
+
+								for( var row = 1; row < 5; row++ ){
+
+									valueIndex++;
+
+									var cell = matrix["m" + column.toString() + row.toString()];
+
+									values[valueIndex].from = cell;
+									values[valueIndex].difference = Math.abs(cell - values[valueIndex].to) * (cell > values[valueIndex].to ? -1 : 1);
+
+								};
+
+							};
+
 						};
 
 						element.properties[property] = {
@@ -2403,8 +2410,6 @@
 				task.elements.push(element);
 
 			});
-
-			console.log(task);
 
 			Animations.add(task);
 
@@ -2622,6 +2627,16 @@
 		init: function( matrix ){
 
 			if( !isEmpty(CSSMatrix) ){
+
+				if( isString(matrix) ){
+
+					matrix = matrix.replace(/\d+?\.?\d+e[+-]\d+/g, function( match ){
+
+						return parseFloat(match).toFixed(20);
+
+					});
+
+				};
 
 				this.matrix = new CSSMatrix(matrix || "");
 
@@ -3299,13 +3314,13 @@
 							if( values.length === 6 ){
 
 								newMatrix = {
-									m00: parseFloat(values[0]) || 1,
-									m01: parseFloat(values[2]) || 0,
-									m02: parseFloat(values[4]) || 0,
+									m00: parseFloat(values[0]).toFixed(20) || 1,
+									m01: parseFloat(values[2]).toFixed(20) || 0,
+									m02: parseFloat(values[4]).toFixed(20) || 0,
 									m03: 0,
-									m10: parseFloat(values[1]) || 0,
-									m11: parseFloat(values[3]) || 1,
-									m12: parseFloat(values[5]) || 0,
+									m10: parseFloat(values[1]).toFixed(20) || 0,
+									m11: parseFloat(values[3]).toFixed(20) || 1,
+									m12: parseFloat(values[5]).toFixed(20) || 0,
 									m13: 0,
 									m20: 0,
 									m21: 0,
@@ -3321,22 +3336,22 @@
 							else if( values.length === 16 ){
 
 								newMatrix = {
-									m00: parseFloat(values[1]) || 1,
-									m01: parseFloat(values[2]) || 0,
-									m02: parseFloat(values[3]) || 0,
-									m03: parseFloat(values[4]) || 0,
-									m10: parseFloat(values[5]) || 0,
-									m11: parseFloat(values[6]) || 1,
-									m12: parseFloat(values[7]) || 0,
-									m13: parseFloat(values[8]) || 0,
-									m20: parseFloat(values[9]) || 0,
-									m21: parseFloat(values[10]) || 0,
-									m22: parseFloat(values[11]) || 1,
-									m23: parseFloat(values[12]) || 0,
-									m30: parseFloat(values[13]) || 0,
-									m31: parseFloat(values[14]) || 0,
-									m32: parseFloat(values[15]) || 0,
-									m33: parseFloat(values[16]) || 1
+									m00: parseFloat(values[1]).toFixed(20) || 1,
+									m01: parseFloat(values[2]).toFixed(20) || 0,
+									m02: parseFloat(values[3]).toFixed(20) || 0,
+									m03: parseFloat(values[4]).toFixed(20) || 0,
+									m10: parseFloat(values[5]).toFixed(20) || 0,
+									m11: parseFloat(values[6]).toFixed(20) || 1,
+									m12: parseFloat(values[7]).toFixed(20) || 0,
+									m13: parseFloat(values[8]).toFixed(20) || 0,
+									m20: parseFloat(values[9]).toFixed(20) || 0,
+									m21: parseFloat(values[10]).toFixed(20) || 0,
+									m22: parseFloat(values[11]).toFixed(20) || 1,
+									m23: parseFloat(values[12]).toFixed(20) || 0,
+									m30: parseFloat(values[13]).toFixed(20) || 0,
+									m31: parseFloat(values[14]).toFixed(20) || 0,
+									m32: parseFloat(values[15]).toFixed(20) || 0,
+									m33: parseFloat(values[16]).toFixed(20) || 1
 								};
 
 							};
@@ -4279,6 +4294,8 @@
 
 	Jo.blob.fn.init.prototype = Jo.blob.fn;
 
+	var getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+
 	Jo.media = function( settings ){
 
 		return new Jo.media.fn.init(settings);
@@ -4289,14 +4306,12 @@
 		constructor: Jo.media,
 		init: function( settings ){
 
-			navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
-
 			settings = Jo.merge({
 				video: true,
 				audio: true
 			}, settings);
 
-			var media = navigator.getUserMedia({
+			var media = getUserMedia({
 				video: true,
 				audio: true
 			}, function( stream ){
@@ -5099,39 +5114,100 @@
 			return value;
 
 		}
-		else if( from === "%" ){
+		else {
 
-			if( to === "px" ){
+			// var $reference = Jo(element).parents().filter(function(){
 
-				if( ["left", "width", "marginLeft", "marginRight", "borderLeft", "borderRight", "paddingLeft", "paddingRight"].indexOf(property) !== -1 ){
+			// 	var position = Jo(this).css("position")[0];
 
-					return (element.parentElement.offsetWidth / 100 * value);
+			// 	if( position !== "absolute" && position !== "fixed" ){
+
+			// 		return true;
+
+			// 	}
+			// 	else {
+
+			// 		return false;
+
+			// 	};
+
+			// }).item(0);
+
+			if( from === "px" ){
+
+				if( to === "em" ){
+
+					return value / parseFloat(Jo(element).css("font-size")[0]);
 
 				}
-				else {
+				else if( to === "rem" ){
 
-					return (element.parentElement.offsetHeight / 100 * value);				
+					return value / parseFloat(Jo(document.documentElement).css("font-size")[0]);
+
+				}
+				else if( to === "%" ){
+
+					if( ["left", "width", "marginLeft", "marginRight", "borderLeft", "borderRight", "paddingLeft", "paddingRight"].indexOf(property) !== -1 ){
+
+						return value / element.parentElement.offsetWidth * 100;
+
+					}
+					else {
+
+						return value / element.parentElement.offsetHeight * 100;
+
+					};
+
+				}
+
+			}
+			else if( from === "em" ){
+
+				if( to === "px" ){
+
+					return value * parseFloat(Jo(element).css("font-size")[0]);
+
+				}
+				else if( to === "rem" ){
+
+					var px = value * parseFloat(Jo(element).css("font-size")[0]); 
+
+					return px / parseFloat(px / parseFloat(Jo(document.documentElement).css("font-size")[0]));
+
+				}
+				else if( to === "%" ){
+
+					return convertCSSValue(element, property, convertCSSValue(element, property, value, from, "px"), "px", "%");
 
 				};
 
 			}
-			else if( to === "em" ){
+			else if( from === "%" ){
 
-				return convertCSSValue(element, property, value, from, "px") / parseFloat(Jo(element).css("font-size")[0]);
+				if( to === "px" ){
 
-			}
-			else if( to === "rem" ){
+					if( ["left", "width", "marginLeft", "marginRight", "borderLeft", "borderRight", "paddingLeft", "paddingRight"].indexOf(property) !== -1 ){
 
-				return convertCSSValue(element, property, value, from, "px") / parseFloat(Jo(document.documentElement).css("font-size")[0]);
+						return element.offsetWidth / 100 * value;
 
-			};
+					}
+					else {
 
-		}
-		else if( from === "px" ){
+						return element.offsetHeight / 100 * value;
 
-			if( to === "%" ){
+					};
 
+				}
+				else if( to === "em" ){
 
+					return convertCSSValue(element, property, convertCSSValue(element, property, value, from, "px"), "px", "em");
+
+				}
+				else if( to === "rem" ){
+
+					return convertCSSValue(element, property, convertCSSValue(element, property, value, from, "px"), "px", "rem");
+
+				};
 
 			};
 

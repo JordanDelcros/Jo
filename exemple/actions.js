@@ -14,20 +14,24 @@ window.onload = function(){
 	//jo
 	var bef = +new Date();
 	var $container = Jo("#container");
-	for( var howMuch = 0; howMuch < 2; howMuch++ ){
+	for( var howMuch = 0; howMuch < 100; howMuch++ ){
 		Jo("<li/>")
 			.addClass("jo")
 			.insertEndTo($container)
-			.animate({
-				transform: "rotateZ(45deg)"
-			}, {
-				easing: "easeOutElastic",
-				duration: 2000,
-				complete: function(){
-					console.log("jo finish");
-				}
-			});
+			
 	};
+	Jo("li")
+		.css("transform", "rotateZ(181deg)")
+		.animate({
+			transform: "rotateZ(10deg)",
+			left: "10%"
+		}, {
+			easing: "easeInOutQuad",
+			duration: 5000,
+			complete: function(){
+				console.log("jo finish");
+			}
+		});
 	console.log("jo", +new Date() - bef);
 
 	// $container.empty();
@@ -40,8 +44,8 @@ window.onload = function(){
 	// 		.addClass("jq")
 	// 		.appendTo($container)
 	// 		.animate({
-	// 			left: "0px",
-	// 			top: "300px"
+	// 			left: "10%",
+	// 			transform: "rotateZ(5deg)"
 	// 		}, {
 	// 			// easing: "easeInOutQuad",
 	// 			duration: 5000,
@@ -56,58 +60,58 @@ window.onload = function(){
 
 Jo(function( $ ){
 
-	isReady();
+	// isReady();
 
 });
 
 var media;
 var peer;
 
-var isReady = function(){
+// var isReady = function(){
 
-	console.log("document is ready");
+// 	console.log("document is ready");
 
-	// KEEP INTACT AFTER THIS LINE, TO FINISH
+// 	// KEEP INTACT AFTER THIS LINE, TO FINISH
 
-	socket = Jo.socket({
-		url: "192.168.0.25:9000", //window.location.host + ":9000",
-		open: function(){
+// 	socket = Jo.socket({
+// 		url: "192.168.0.25:9000", //window.location.host + ":9000",
+// 		open: function(){
 
-			console.log("SOCKET IS OPEN");
+// 			console.log("SOCKET IS OPEN");
 
-		}
-	});
+// 		}
+// 	});
 
-	media = Jo.media({
-		video: true,
-		audio: false,
-		success: function( src, stream ){
+// 	media = Jo.media({
+// 		video: true,
+// 		audio: false,
+// 		success: function( src, stream ){
 
-			Jo("video").item(0).attr("src", src).found[0].play();
+// 			Jo("video").item(0).attr("src", src).found[0].play();
 
-			peer = $.peer({
-				socket: socket,
-				config: {
-					iceServers: new Array()
-				},
-				stream: stream,
-				addStream: function( src, stream ){
+// 			peer = $.peer({
+// 				socket: socket,
+// 				config: {
+// 					iceServers: new Array()
+// 				},
+// 				stream: stream,
+// 				addStream: function( src, stream ){
 
-					console.log("NEW STREAM ADDED", src, stream);
+// 					console.log("NEW STREAM ADDED", src, stream);
 
-					Jo("video").item(1).attr("src", src).found[0].play();
+// 					Jo("video").item(1).attr("src", src).found[0].play();
 
-				}
-			});
+// 				}
+// 			});
 
-		},
-		error: function( code ){
+// 		},
+// 		error: function( code ){
 
-			console.log("fail", code);
+// 			console.log("fail", code);
 
-		}
-	});
+// 		}
+// 	});
 
-};
+// };
 
 
