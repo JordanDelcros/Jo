@@ -3,6 +3,7 @@
 <head>
 	<meta charset="utf-8"/>
 	<title>Jo</title>
+	<link type="text/css"/ rel="stylesheet" href="http://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700,300italic,400italic,500italic,700italic">
 	<style type="text/css">
 
 		* {
@@ -11,8 +12,151 @@
 			border: 0;
 			outline: 0;
 			padding: 0;
+			font-size: inherit;
+			font-weight: inherit;
 			color: inherit;
 			-webkit-appearance: none;
+		}
+
+		ol, ul, li {
+			list-style: none;
+		}
+
+		a {
+			text-decoration: none;
+		}
+
+		html {
+			font-size: 10px;
+		}
+
+		body {
+			font-family: "Ubuntu", sans-serif;
+			background-color: #EEEEEE;
+		}
+
+		header h1 {
+			padding: 2rem;
+			width: 40%;
+			box-sizing: border-box;
+			font-size: 4rem;
+			font-weight: 500;
+			letter-spacing: 1px;
+			color: #EEEEEE;
+			background-color: #2B3036;
+		}
+
+		section {
+			display: flex;
+			flex-direction: row;
+			align-items: stretch;
+		}
+
+		section#what h2,
+		section#setup h2,
+		section#documentation h2,
+		section#documentation > ul > li > div:first-child {
+			padding: 2rem;
+			width: 40%;
+			box-sizing: border-box;
+			font-size: 1.5rem;
+			letter-spacing: 1px;
+			color: #EEEEEE;
+			background-color: #2B3036;
+		}
+
+		section#what p,
+		section#setup div {
+			float: left;
+			padding: 2rem;
+			width: 60%;
+			box-sizing: border-box;
+			font-size: 1.2rem;
+		}
+
+		section#documentation {
+			flex-direction: column;
+		}
+
+		section#documentation > ul > li {
+			display: flex;
+			flex-direction: row;
+			align-items: stretch;
+		}
+
+		section#documentation div.left h3 {
+			display: inline-block;
+			margin-right: 1rem;
+		}
+
+		section#documentation div.left ol {
+			margin-top: 2rem;
+		}
+
+		section#documentation span.type {
+			padding: 0.5rem;
+			border-radius: 0.3rem;
+			font-size: 1rem;
+		}
+		
+		section#documentation span.parameter {
+			color: #7f8a95;
+		}
+
+		section#documentation span.value {
+			color: #FFF;
+			background-color: #FD598E;
+		}
+
+		section#documentation span.constructor {
+			background-color: #456DA0;
+		}
+
+		code {
+			display: inline-block;
+			margin: 1rem 0;
+			padding: 2rem;
+			border-radius: 1rem;
+			color: #EEEEEE;
+			background-color: #2B3036;
+		}
+
+		code span.tagName {
+			color: #FD598E;
+		}
+
+		code span.tagAttributeName {
+			color: #A6E22A;
+		}
+
+		code span.tagAttributeValue {
+			color: #DADB74;
+		}
+
+		/* GENERIC */
+
+		a[href^="#"]:hover:before {
+			position: absolute;
+			display: inline-block;
+			content: "#";
+			left: -1.5rem;
+			opacity: 0.3;
+		}
+
+		.clearfix:before,
+		.clearfix:after {
+			content: "\0020";
+			display: block;
+			height: 0;
+			visibility: hidden;
+		}
+
+		.clearfix:after {
+			clear: both;
+		}
+
+		.clearfix {
+			zoom: 1;
 		}
 
 	</style>
@@ -20,27 +164,39 @@
 <body>
 	<header>
 		<h1>Jo</h1>
-		<nav>
+	</header>
+	<section id="what" class="clearfix">
+		<h2><a href="#what">What?</a></h2>
+		<p class="right">Jo is a JavaScript library to simplify developer's life and the first to be designed for new-generation browsers.</p>
+	</section>
+	<section id="setup" class="clearfix">
+		<h2><a href="#setup">Setup</a></h2>
+		<div>
+			<p>Add the Jo library to your webpage.</p>
+			<code>
+				&lt;<span class="tagName">script</span> <span class="tagAttributeName">type</span>=<span class="tagAttributeValue">"text/javascript"</span> <span class="tagAttributeName">src</span>=<span class="tagAttributeValue">"path/to/jo.js"</span>&gt;&lt;/<span class="tagName">script</span>&gt;
+			</code>
+		</div>
+	</section>
+	<section id="documentation" class="clearfix">
+			<h2><a href="#documentation">Documentation</a></h2>
 			<ul>
-				<li>
-					<a href="#setup">Setup</a>
-				</li>
-				<li>
-					<a href="#documentation">Documentation</a>
+				<li class="clearfix">
+					<div class="left">
+						<h3>Jo(<span class="parameter">[selector]</span>)</h3>
+						<span class="type constructor">constructor</span>
+						<ol>
+							<li>
+								<span class="type parameter">[selector]</span>
+								<span class="type value">string/</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
 				</li>
 			</ul>
-		</nav>
-	</header>
-	<section id="setup">
-		<h2>Setup</h2>
-	</section>
-	<section id="documentation">
-		<h2>Documentation</h2>
-		<ul>
-			<li>
-				
-			</li>
-		</ul>
+		</div>
 	</section>
 </body>
 </html>
