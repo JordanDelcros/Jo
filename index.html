@@ -55,7 +55,7 @@
 		section#what h2,
 		section#setup h2,
 		section#documentation h2,
-		section#documentation > ul > li > div:first-child {
+		section#documentation div.left {
 			padding: 2rem;
 			width: 40%;
 			box-sizing: border-box;
@@ -84,13 +84,23 @@
 			align-items: stretch;
 		}
 
+		section#documentation div.left,
+		section#documentation div.right {
+			padding-bottom: 5rem;
+		}
+
 		section#documentation div.left h3 {
 			display: inline-block;
-			margin-right: 1rem;
+			margin: 0 1rem 1rem 0;
 		}
 
 		section#documentation div.left ol {
 			margin-top: 2rem;
+		}
+
+		section#documentation div.left ol li {
+			margin-top: 1rem;
+			line-height: 2rem;
 		}
 
 		section#documentation span.type {
@@ -100,23 +110,33 @@
 		}
 		
 		section#documentation span.parameter {
+			margin: 0 0.1rem;
+			font-size: 1.3rem;
 			color: #7f8a95;
 		}
 
 		section#documentation span.value {
-			color: #FFF;
+			color: #FFFFFF;
 			background-color: #FD598E;
+		}
+
+		section#documentation span.default {
+			color: #7f8a95;
 		}
 
 		section#documentation span.constructor {
 			background-color: #456DA0;
 		}
 
+		section#documentation span.method {
+			background-color: #757E2B;
+		}
+
 		code {
 			display: inline-block;
 			margin: 1rem 0;
 			padding: 2rem;
-			border-radius: 1rem;
+			border-radius: 0.6rem;
 			color: #EEEEEE;
 			background-color: #2B3036;
 		}
@@ -181,14 +201,1761 @@
 	<section id="documentation" class="clearfix">
 			<h2><a href="#documentation">Documentation</a></h2>
 			<ul>
+				<!-- Jo constructor -->
 				<li class="clearfix">
 					<div class="left">
 						<h3>Jo(<span class="parameter">[selector]</span>)</h3>
 						<span class="type constructor">constructor</span>
 						<ol>
 							<li>
-								<span class="type parameter">[selector]</span>
-								<span class="type value">string/</span>
+								<span class="parameter">[selector]</span>
+								<span class="type value">string | function | elements | jo</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- find() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.find(<span class="parameter">[selector]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[selector]</span>
+								<span class="type value">string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- siblings() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.siblings(<span class="parameter">[selector]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[selector]</span>
+								<span class="type value">string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- siblingsBefore() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.siblingsBefore(<span class="parameter">[selector]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[selector]</span>
+								<span class="type value">string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- siblingsAfter() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.siblingsAfter(<span class="parameter">[selector]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[selector]</span>
+								<span class="type value">string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- node() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.node(<span class="parameter">[selector], [normalize]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[selector]</span>
+								<span class="type value">string</span>
+							</li>
+							<li>
+								<span class="parameter">[normalize]</span>
+								<span class="type value">boolean</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- children() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.children(<span class="parameter">[selector]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[selector]</span>
+								<span class="type value">string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- parent() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.parent(<span class="parameter">[selector]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[selector]</span>
+								<span class="type value">string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- parents() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.parents(<span class="parameter">[selector], [otherwise]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[selector]</span>
+								<span class="type value">string</span>
+							</li>
+							<li>
+								<span class="parameter">[otherwise]</span>
+								<span class="type value">boolean</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- item() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.item(<span class="parameter">[number]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[number]</span>
+								<span class="type value">integer</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- previous() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.previous(<span class="parameter">[selector]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[selector]</span>
+								<span class="type value">string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- previousNode() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.previousNode(<span class="parameter">[selector]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[selector]</span>
+								<span class="type value">string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- next() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.next(<span class="parameter">[selector]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[selector]</span>
+								<span class="type value">null | string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- nextNode() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.nextNode(<span class="parameter">[selector]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[selector]</span>
+								<span class="type value">string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- each() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.each(<span class="parameter">[selector]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[selector]</span>
+								<span class="type value">string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- is() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.is(<span class="parameter">[selector]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[selector]</span>
+								<span class="type value">string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- on() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.on(<span class="parameter">[action], [fn], [useCapture]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[action]</span>
+								<span class="type value">string</span>
+							</li>
+							<li>
+								<span class="parameter">[fn]</span>
+								<span class="type value">function</span>
+							</li>
+							<li>
+								<span class="parameter">[useCapture]</span>
+								<span class="type value">boolean</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- off() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.off(<span class="parameter">[action], [fn], [useCapture]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[action]</span>
+								<span class="type value">string</span>
+							</li>
+							<li>
+								<span class="parameter">[fn]</span>
+								<span class="type value">function</span>
+							</li>
+							<li>
+								<span class="parameter">[useCapture]</span>
+								<span class="type value">boolean</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- trigger() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.trigger(<span class="parameter">[action]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[action]</span>
+								<span class="type value">string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- attribute() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.attribute(<span class="parameter">[name], [value]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[name]</span>
+								<span class="type value">string | array | object</span>
+							</li>
+							<li>
+								<span class="parameter">[value]</span>
+								<span class="type value">string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- width() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.width(<span class="parameter">[size]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[size]</span>
+								<span class="type value">integer | string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- height() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.height(<span class="parameter">[size]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[size]</span>
+								<span class="type value">integer | string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- css() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.css(<span class="parameter">[property], [value], [unverify]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[property]</span>
+								<span class="type value">string | array | object</span>
+							</li>
+							<li>
+								<span class="parameter">[value]</span>
+								<span class="type value">string</span>
+							</li>
+							<li>
+								<span class="parameter">[unverify]</span>
+								<span class="type value">boolean</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- scroll() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.scroll(<span class="parameter">[x], [y]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[x]</span>
+								<span class="type value">integer</span>
+							</li>
+							<li>
+								<span class="parameter">[y]</span>
+								<span class="type value">integer</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- offset() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.offset()</h3>
+						<span class="type method">method</span>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- addClass() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.addClass(<span class="parameter">[className]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[className]</span>
+								<span class="type value">string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- removeClass() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.removeClass(<span class="parameter">[className]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[className]</span>
+								<span class="type value">string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- toggleClass() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.toggleClass(<span class="parameter">[className]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[className]</span>
+								<span class="type value">string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- hasClass() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.hasClass(<span class="parameter">[className]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[className]</span>
+								<span class="type value">string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- html() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.html(<span class="parameter">[html]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[html]</span>
+								<span class="type value">string | elements | jo</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- text() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.text(<span class="parameter">[text]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[text]</span>
+								<span class="type value">string </span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- value() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.value(<span class="parameter">[text]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[text]</span>
+								<span class="type value">string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- data() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.data(<span class="parameter">[name], [value]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[name]</span>
+								<span class="type value">string</span>
+							</li>
+							<li>
+								<span class="parameter">[value]</span>
+								<span class="type value">all</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- toString() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.toString()</h3>
+						<span class="type method">method</span>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- index() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.index()</h3>
+						<span class="type method">method</span>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- indexType() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.index()</h3>
+						<span class="type method">method</span>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- focus() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.focus(<span class="parameter">[positionStart], [positionEnd]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[positionStart]</span>
+								<span class="type value">integer</span>
+							</li>
+							<li>
+								<span class="parameter">[positionEnd]</span>
+								<span class="type value">integer</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- cursor() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.cursor(<span class="parameter">[x], [y]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[x]</span>
+								<span class="type value">integer</span>
+							</li>
+							<li>
+								<span class="parameter">[y]</span>
+								<span class="type value">integer</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- cursor() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.cursor(<span class="parameter">[deep]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[deep]</span>
+								<span class="type value">boolean</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- insertBefore() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.insertBefore(<span class="parameter">[html]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[html]</span>
+								<span class="type value">string | elements | jo</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- insertBeforeTo() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.insertBeforeTo(<span class="parameter">[html]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[html]</span>
+								<span class="type value">string | elements | jo</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- insertAfter() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.insertAfter(<span class="parameter">[html]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[html]</span>
+								<span class="type value">string | elements | jo</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- insertAfterTo() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.insertAfterTo(<span class="parameter">[html]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[html]</span>
+								<span class="type value">string | elements | jo</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- insertStart() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.insertStart(<span class="parameter">[html]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[html]</span>
+								<span class="type value">string | elements | jo</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- insertStartTo() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.insertStartTo(<span class="parameter">[html]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[html]</span>
+								<span class="type value">string | elements | jo</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- insertEnd() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.insertEnd(<span class="parameter">[html]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[html]</span>
+								<span class="type value">string | elements | jo</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- insertEndTo() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.insertEndTo(<span class="parameter">[html]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[html]</span>
+								<span class="type value">string | elements | jo</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- wrap() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.wrap(<span class="parameter">[html]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[html]</span>
+								<span class="type value">string | elements | jo</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- replace() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.replace(<span class="parameter">[html]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[html]</span>
+								<span class="type value">string | elements | jo</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- remove() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.remove()</h3>
+						<span class="type method">method</span>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- empty() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.empty()</h3>
+						<span class="type method">method</span>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- show() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.show()</h3>
+						<span class="type method">method</span>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- hide() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.hide()</h3>
+						<span class="type method">method</span>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- fadeIn() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.fadeIn({<span class="parameter">[duration], [easing], [complete]</span>})</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[duration]</span>
+								<span class="type value">integer</span>
+							</li>
+							<li>
+								<span class="parameter">[easing]</span>
+								<span class="type value">easing</span>
+							</li>
+							<li>
+								<span class="parameter">[complete]</span>
+								<span class="type value">function</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- fadeOut() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.fadeOut({<span class="parameter">[duration], [easing], [complete]</span>})</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[duration]</span>
+								<span class="type value">integer</span>
+							</li>
+							<li>
+								<span class="parameter">[easing]</span>
+								<span class="type value">easing</span>
+							</li>
+							<li>
+								<span class="parameter">[complete]</span>
+								<span class="type value">function</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- animate() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>.animate(<span class="parameter">[styles]</span>, {<span class="parameter">[duration], [easing], [complete]</span>})</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[styles]</span>
+								<span class="type value">object</span>
+							</li>
+							<li>
+								<span class="parameter">[duration]</span>
+								<span class="type value">integer</span>
+							</li>
+							<li>
+								<span class="parameter">[easing]</span>
+								<span class="type value">easing</span>
+							</li>
+							<li>
+								<span class="parameter">[complete]</span>
+								<span class="type value">function</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- Jo.animation() constructor -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>Jo.animation(<span class="parameter">[fps], [fn]</span>)</h3>
+						<span class="type constructor">constructor</span>
+						<ol>
+							<li>
+								<span class="parameter">[fps]</span>
+								<span class="type value">integer</span>
+							</li>
+							<li>
+								<span class="parameter">[fn]</span>
+								<span class="type value">function</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- animation.each() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>animation.each(<span class="parameter">[fn]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[fn]</span>
+								<span class="type value">function</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- animation.remove() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>animation.remove(<span class="parameter">[task]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[task]</span>
+								<span class="type value">number | all</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- Jo.matrix() constructor -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>Jo.matrix(<span class="parameter">[matrix]</span>)</h3>
+						<span class="type constructor">constructor</span>
+						<ol>
+							<li>
+								<span class="parameter">[matrix]</span>
+								<span class="type value">string | object | matrix | jo.matrix</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.a() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.a(<span class="parameter">[number]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[number]</span>
+								<span class="type value">float</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.b() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.b(<span class="parameter">[number]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[number]</span>
+								<span class="type value">float</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.c() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.c(<span class="parameter">[number]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[number]</span>
+								<span class="type value">float</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.d() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.d(<span class="parameter">[number]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[number]</span>
+								<span class="type value">float</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.e() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.e(<span class="parameter">[number]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[number]</span>
+								<span class="type value">float</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.f() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.f(<span class="parameter">[number]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[number]</span>
+								<span class="type value">float</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.scale() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.scale(<span class="parameter">[x], [y], [z]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[x]</span>
+								<span class="type value">float</span>
+							</li>
+							<li>
+								<span class="parameter">[y]</span>
+								<span class="type value">float</span>
+							</li>
+							<li>
+								<span class="parameter">[z]</span>
+								<span class="type value">float</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.scaleX() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.scaleX(<span class="parameter">[unit]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[unit]</span>
+								<span class="type value">float</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.scaleY() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.scaleY(<span class="parameter">[unit]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[unit]</span>
+								<span class="type value">float</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.scaleZ() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.scaleZ(<span class="parameter">[unit]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[unit]</span>
+								<span class="type value">float</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.translate() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.translate(<span class="parameter">[x], [y], [z]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[x]</span>
+								<span class="type value">integer</span>
+							</li>
+							<li>
+								<span class="parameter">[y]</span>
+								<span class="type value">integer</span>
+							</li>
+							<li>
+								<span class="parameter">[z]</span>
+								<span class="type value">integer</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.translateX() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.translateX(<span class="parameter">[pixel]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[pixel]</span>
+								<span class="type value">integer</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.translateY() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.translateY(<span class="parameter">[pixel]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[pixel]</span>
+								<span class="type value">integer</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.translateZ() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.translateZ(<span class="parameter">[pixel]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[pixel]</span>
+								<span class="type value">integer</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.skew() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.skew(<span class="parameter">[x], [y], [z]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[x]</span>
+								<span class="type value">float</span>
+							</li>
+							<li>
+								<span class="parameter">[y]</span>
+								<span class="type value">float</span>
+							</li>
+							<li>
+								<span class="parameter">[z]</span>
+								<span class="type value">float</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.skewX() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.skewX(<span class="parameter">[degree]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[degree]</span>
+								<span class="type value">float</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.skewY() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.skewY(<span class="parameter">[degree]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[degree]</span>
+								<span class="type value">float</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.rotate() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.rotate(<span class="parameter">[x], [y], [z]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[x]</span>
+								<span class="type value">float</span>
+							</li>
+							<li>
+								<span class="parameter">[y]</span>
+								<span class="type value">float</span>
+							</li>
+							<li>
+								<span class="parameter">[z]</span>
+								<span class="type value">float</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.rotateX() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.rotateX(<span class="parameter">[degree]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[degree]</span>
+								<span class="type value">float</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.rotateY() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.rotateY(<span class="parameter">[degree]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[degree]</span>
+								<span class="type value">float</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.rotateZ() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.rotateZ(<span class="parameter">[degree]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[degree]</span>
+								<span class="type value">float</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.rotate3d() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.rotate3d(<span class="parameter">[x], [y], [z], [degree]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[x]</span>
+								<span class="type value">float</span>
+							</li>
+							<li>
+								<span class="parameter">[y]</span>
+								<span class="type value">float</span>
+							</li>
+							<li>
+								<span class="parameter">[z]</span>
+								<span class="type value">float</span>
+							</li>
+							<li>
+								<span class="parameter">[degree]</span>
+								<span class="type value">float</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.add() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.add(<span class="parameter">[matrix]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[matrix]</span>
+								<span class="type value">string | object | matrix | jo.matrix</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.multiply() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.multiply(<span class="parameter">[matrix]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[matrix]</span>
+								<span class="type value">string | object | matrix | jo.matrix</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.inverse() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.inverse()</h3>
+						<span class="type method">method</span>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.getDeterminant() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.getDeterminant()</h3>
+						<span class="type method">method</span>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.clone() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.clone()</h3>
+						<span class="type method">method</span>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.copy() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.copy()</h3>
+						<span class="type method">method</span>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.toString() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.toString()</h3>
+						<span class="type method">method</span>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- matrix.toString2d() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>matrix.toString2d()</h3>
+						<span class="type method">method</span>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- Jo.merge() constructor -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>Jo.merge(<span class="parameter">[returned], [toMerge1], [toMerge2], ...</span>)</h3>
+						<span class="type constructor">constructor</span>
+						<ol>
+							<li>
+								<span class="parameter">[returned]</span>
+								<span class="type value">object | array</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- Jo.extend() constructor -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>Jo.extend(<span class="parameter">[returned], [toMerge1], [toMerge2], ...</span>)</h3>
+						<span class="type constructor">constructor</span>
+						<ol>
+							<li>
+								<span class="parameter">[returned]</span>
+								<span class="type value">object | array</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- Jo.worker() constructor -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>Jo.worker({<span class="parameter">[url], [code], [parameters], [receive], [console]</span>})</h3>
+						<span class="type constructor">constructor</span>
+						<ol>
+							<li>
+								<span class="parameter">[url]</span>
+								<span class="type value">string</span>
+							</li>
+							<li>
+								<span class="parameter">[code]</span>
+								<span class="type value">function</span>
+							</li>
+							<li>
+								<span class="parameter">[parameters]</span>
+								<span class="type value">array</span>
+							</li>
+							<li>
+								<span class="parameter">[reveive]</span>
+								<span class="type value">function</span>
+							</li>
+							<li>
+								<span class="parameter">[console]</span>
+								<span class="type value">boolean</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- worker.send() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>worker.send(<span class="parameter">[type], [data]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[type]</span>
+								<span class="type value">string</span>
+							</li>
+							<li>
+								<span class="parameter">[data]</span>
+								<span class="type value">all</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- worker.on() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>worker.on(<span class="parameter">[action], [fn]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[action]</span>
+								<span class="type value">string</span>
+							</li>
+							<li>
+								<span class="parameter">[fn]</span>
+								<span class="type value">all</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- worker.off() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>worker.off(<span class="parameter">[action], [fn]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[action]</span>
+								<span class="type value">string</span>
+							</li>
+							<li>
+								<span class="parameter">[fn]</span>
+								<span class="type value">all</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- worker.close() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>worker.close(<span class="parameter">[fn]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[fn]</span>
+								<span class="type value">function</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- Jo.ajax() constructor -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>Jo.ajax({<span class="parameter">[method], [async], [url], [data], [type], [initialize], [open], [send], [receive], [complete], [progress], [abort], [error]</span>})</h3>
+						<span class="type constructor">constructor</span>
+						<ol>
+							<li>
+								<span class="parameter">[method]</span>
+								<span class="type value">string</span>
+							</li>
+							<li>
+								<span class="parameter">[async]</span>
+								<span class="type value">boolean</span>
+							</li>
+							<li>
+								<span class="parameter">[url]</span>
+								<span class="type value">string</span>
+							</li>
+							<li>
+								<span class="parameter">[data]</span>
+								<span class="type value">object | formdata | jo</span>
+							</li>
+							<li>
+								<span class="parameter">[type]</span>
+								<span class="type value">string</span>
+							</li>
+							<li>
+								<span class="parameter">[initialize]</span>
+								<span class="type value">function</span>
+							</li>
+							<li>
+								<span class="parameter">[open]</span>
+								<span class="type value">function</span>
+							</li>
+							<li>
+								<span class="parameter">[send]</span>
+								<span class="type value">function</span>
+							</li>
+							<li>
+								<span class="parameter">[receive]</span>
+								<span class="type value">function</span>
+							</li>
+							<li>
+								<span class="parameter">[complere]</span>
+								<span class="type value">function</span>
+							</li>
+							<li>
+								<span class="parameter">[progress]</span>
+								<span class="type value">function</span>
+							</li>
+							<li>
+								<span class="parameter">[abort]</span>
+								<span class="type value">function</span>
+							</li>
+							<li>
+								<span class="parameter">[error]</span>
+								<span class="type value">function</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- ajax.abort() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>ajax.abort(<span class="parameter">[fn]</span>)</h3>
+						<span class="type method">method</span>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- Jo.socket() constructor -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>Jo.socket({<span class="parameter">[url], [secure], [open], [close], [receive], [error]</span>})</h3>
+						<span class="type constructor">constructor</span>
+						<ol>
+							<li>
+								<span class="parameter">[url]</span>
+								<span class="type value">string</span>
+							</li>
+							<li>
+								<span class="parameter">[secure]</span>
+								<span class="type value">boolean</span>
+							</li>
+							<li>
+								<span class="parameter">[open]</span>
+								<span class="type value">function</span>
+							</li>
+							<li>
+								<span class="parameter">[close]</span>
+								<span class="type value">function</span>
+							</li>
+							<li>
+								<span class="parameter">[receive]</span>
+								<span class="type value">function</span>
+							</li>
+							<li>
+								<span class="parameter">[error]</span>
+								<span class="type value">function</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- socket.send() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>socket.send(<span class="parameter">[type], [data]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[type]</span>
+								<span class="type value">string</span>
+							</li>
+							<li>
+								<span class="parameter">[data]</span>
+								<span class="type value">all</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- socket.on() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>socket.on(<span class="parameter">[action], [fn]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[type]</span>
+								<span class="type value">string</span>
+							</li>
+							<li>
+								<span class="parameter">[fn]</span>
+								<span class="type value">function</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- socket.off() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>socket.off(<span class="parameter">[action], [fn]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[type]</span>
+								<span class="type value">string</span>
+							</li>
+							<li>
+								<span class="parameter">[fn]</span>
+								<span class="type value">function</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- socket.close() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>socket.close(<span class="parameter">[fn]</span>)</h3>
+						<span class="type method">method</span>
+						<ol>
+							<li>
+								<span class="parameter">[fn]</span>
+								<span class="type value">function</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- Jo.blob() constructor -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>Jo.blob({<span class="parameter">[data], [type]</span>})</h3>
+						<span class="type constructor">constructor</span>
+						<ol>
+							<li>
+								<span class="parameter">[data]</span>
+								<span class="type value">all</span>
+							</li>
+							<li>
+								<span class="parameter">[type]</span>
+								<span class="type value">string</span>
+							</li>
+						</ol>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- socket.toUrl() -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>socket.toUrl()</h3>
+						<span class="type method">method</span>
+					</div>
+					<div class="right">
+					</div>
+				</li>
+				<!-- Jo.media() constructor -->
+				<li class="clearfix">
+					<div class="left">
+						<h3>Jo.media({<span class="parameter">[video], [audio], [success], [error]</span>})</h3>
+						<span class="type constructor">constructor</span>
+						<ol>
+							<li>
+								<span class="parameter">[video]</span>
+								<span class="type value">boolean</span>
+							</li>
+							<li>
+								<span class="parameter">[audio]</span>
+								<span class="type value">boolean</span>
+							</li>
+							<li>
+								<span class="parameter">[success]</span>
+								<span class="type value">function</span>
+							</li>
+							<li>
+								<span class="parameter">[success]</span>
+								<span class="type value">function</span>
 							</li>
 						</ol>
 					</div>
