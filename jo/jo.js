@@ -4560,7 +4560,19 @@
 		}
 	};
 
-	Jo.easing = {
+	Jo.easing = function( type, elapsed, duration ){
+
+		return new Jo.easing.fn.init(type, elapsed, duration);
+
+	};
+
+	Jo.easing.fn = Jo.easing.prototype = {
+		constructor: Jo.easing,
+		init: function( type, elapsed, duration ){
+
+			return this[type](elapsed, duration);
+
+		},
 		linear: function( elapsed, duration ){
 
 			if( elapsed === duration ){
@@ -4912,6 +4924,8 @@
 		
 		}
 	};
+
+	Jo.easing.fn.init.prototype = Jo.easing.fn;
 
 	function isEmpty( source, emptyString ){
 
