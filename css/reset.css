@@ -1,0 +1,22 @@
+@charset "utf-8";
+
+* {
+	position: relative;
+	margin: 0;
+	border: 0;
+	outline: 0;
+	padding: 0;
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	color: inherit;
+	-webkit-appearance: none;
+}
+
+ol, ul, li {
+	list-style: none;
+}
+
+a {
+	text-decoration: none;
+}

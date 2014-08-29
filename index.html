@@ -4,182 +4,8 @@
 	<meta charset="utf-8"/>
 	<title>Jo</title>
 	<link type="text/css"/ rel="stylesheet" href="http://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700,300italic,400italic,500italic,700italic">
-	<style type="text/css">
-
-		* {
-			position: relative;
-			margin: 0;
-			border: 0;
-			outline: 0;
-			padding: 0;
-			font-size: inherit;
-			font-weight: inherit;
-			color: inherit;
-			-webkit-appearance: none;
-		}
-
-		ol, ul, li {
-			list-style: none;
-		}
-
-		a {
-			text-decoration: none;
-		}
-
-		html {
-			font-size: 10px;
-		}
-
-		body {
-			font-family: "Ubuntu", sans-serif;
-			background-color: #EEEEEE;
-		}
-
-		header h1 {
-			padding: 2rem;
-			width: 40%;
-			box-sizing: border-box;
-			font-size: 4rem;
-			font-weight: 500;
-			letter-spacing: 1px;
-			color: #EEEEEE;
-			background-color: #2B3036;
-		}
-
-		section {
-			display: flex;
-			flex-direction: row;
-			align-items: stretch;
-		}
-
-		section#what h2,
-		section#setup h2,
-		section#documentation h2,
-		section#documentation div.left {
-			padding: 2rem;
-			width: 40%;
-			box-sizing: border-box;
-			font-size: 1.5rem;
-			letter-spacing: 1px;
-			color: #EEEEEE;
-			background-color: #2B3036;
-		}
-
-		section#what p,
-		section#setup div {
-			float: left;
-			padding: 2rem;
-			width: 60%;
-			box-sizing: border-box;
-			font-size: 1.2rem;
-		}
-
-		section#documentation {
-			flex-direction: column;
-		}
-
-		section#documentation > ul > li {
-			display: flex;
-			flex-direction: row;
-			align-items: stretch;
-		}
-
-		section#documentation div.left,
-		section#documentation div.right {
-			padding-bottom: 5rem;
-		}
-
-		section#documentation div.left h3 {
-			display: inline-block;
-			margin: 0 1rem 1rem 0;
-		}
-
-		section#documentation div.left ol {
-			margin-top: 2rem;
-		}
-
-		section#documentation div.left ol li {
-			margin-top: 1rem;
-			line-height: 2rem;
-		}
-
-		section#documentation span.type {
-			padding: 0.5rem;
-			border-radius: 0.3rem;
-			font-size: 1rem;
-		}
-		
-		section#documentation span.parameter {
-			margin: 0 0.1rem;
-			font-size: 1.3rem;
-			color: #7f8a95;
-		}
-
-		section#documentation span.value {
-			color: #FFFFFF;
-			background-color: #FD598E;
-		}
-
-		section#documentation span.default {
-			color: #7f8a95;
-		}
-
-		section#documentation span.constructor {
-			background-color: #456DA0;
-		}
-
-		section#documentation span.method {
-			background-color: #757E2B;
-		}
-
-		code {
-			display: inline-block;
-			margin: 1rem 0;
-			padding: 2rem;
-			border-radius: 0.6rem;
-			color: #EEEEEE;
-			background-color: #2B3036;
-		}
-
-		code span.tagName {
-			color: #FD598E;
-		}
-
-		code span.tagAttributeName {
-			color: #A6E22A;
-		}
-
-		code span.tagAttributeValue {
-			color: #DADB74;
-		}
-
-		/* GENERIC */
-
-		a[href^="#"]:hover:before {
-			position: absolute;
-			display: inline-block;
-			content: "#";
-			left: -1.5rem;
-			opacity: 0.3;
-		}
-
-		.clearfix:before,
-		.clearfix:after {
-			content: "\0020";
-			display: block;
-			height: 0;
-			visibility: hidden;
-		}
-
-		.clearfix:after {
-			clear: both;
-		}
-
-		.clearfix {
-			zoom: 1;
-		}
-
-	</style>
+	<link type="text/css"/ rel="stylesheet" href="css/reset.css">
+	<link type="text/css"/ rel="stylesheet" href="css/jo.css">
 </head>
 <body>
 	<header>
@@ -196,6 +22,7 @@
 			<code>
 				&lt;<span class="tagName">script</span> <span class="tagAttributeName">type</span>=<span class="tagAttributeValue">"text/javascript"</span> <span class="tagAttributeName">src</span>=<span class="tagAttributeValue">"path/to/jo.js"</span>&gt;&lt;/<span class="tagName">script</span>&gt;
 			</code>
+			<p>You can now use <span class="code">Jo()</span> or <span class="code">$()</span> shortens</p>
 		</div>
 	</section>
 	<section id="documentation" class="clearfix">
@@ -214,6 +41,10 @@
 						</ol>
 					</div>
 					<div class="right">
+						<p>You can select any element from the document (or the context)</p>
+						<code>
+							<span class="jsVariable">var</span> element = Jo(<span class="tagAttributeValue">"body > section:first-child a"</span>);
+						</code>
 					</div>
 				</li>
 				<!-- find() -->
