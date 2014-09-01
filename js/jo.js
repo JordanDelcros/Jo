@@ -646,7 +646,7 @@
 			}
 			else if( isString(selector) ){
 
-				selector = prepareSelector(selector);
+				selector = prepareCSSSelector(selector);
 
 				this.each(function(){
 
@@ -5055,7 +5055,7 @@
 
 	};
 
-	function prepareSelector( selector ){
+	function prepareCSSSelector( selector ){
 
 		var returned = new Array();
 
@@ -5109,34 +5109,7 @@
 
 		});
 
-		console.log(selector);
-
-		// var match = selector.match(/(?:[a-z]*(?:(?:\.[a-z\-\_]+)?(?:\[[a-z\-\_]+(?:\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\])?(?:\:[a-z\-]+(?:\((?:[^\)]*)?\))?)?)*\s*)*/gi);
-
-		// for( var key = 0, keyLength = match.length; key < keyLength; key++ ){
-
-		// 	if( !isEmpty(match[key], true) ){
-
-		// 		console.log(match[key])
-
-		// 		var subMatch = match[key].match(/(?:[a-z]*(?:(?:\.[a-z\-\_]+)?(?:\[[a-z\-\_]+(?:\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\])?(?:\:[a-z\-]+(?:\((?:[^\)]*)?\))?)?)*)*/gi);
-
-		// 		for( var subkey = 0, subkeyLength = subMatch.length; subkey < subkeyLength; subkey++ ){
-
-		// 			if( !isEmpty(subMatch[subkey], true) ){
-
-		// 				returned.push(subMatch[subkey]);
-
-		// 			};
-
-		// 		};
-
-		// 	};
-
-		// };
-
-
-		/**/
+		return selector;
 
 		var returned = selector.replace(/\s+/gi, " ").split(",");
 
@@ -5349,7 +5322,7 @@
 
 		};
 
-		selector = prepareSelector(selector);
+		selector = prepareCSSSelector(selector);
 
 		var elementId = element.id ? element.id : null;
 		var removeIdAfter = false;
