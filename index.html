@@ -10,7 +10,7 @@
 </head>
 <body>
 	<header>
-		<h1>Jo</h1>
+		<h1>Jo <span data-type="comma,">v0.1 beta</span></h1>
 	</header>
 	<section id="what" class="clearfix">
 		<h2><a href="#what">What?</a></h2>
@@ -43,7 +43,7 @@
 					</div>
 					<div class="right">
 						<p class="description">Select any element from the document (or the context).</p>
-						<p>HTML Model :</p>
+						<p>HTML model :</p>
 						<code>
 							&lt;<span class="tagName">section</span>&gt;
 								<br/><span class="tabulation"></span>&lt;<span class="tagName">div</span>&gt;
@@ -70,8 +70,8 @@
 										<br/>
 									<br/>});
 								</code>
-								<p>It is simply a shorten version for <code>Jo(<span class="jsVariable">window</span>).on(<span class="jsString">"load"</span>, <span class="jsFunction">function</span>(){}, <span class="jsBoolean">false</span>);</code></p>
-								<p>An event is created to wait until the window (dont misturb with document ready) was fully loaded before executing the given function.</p>
+								<p>It is a shortens for <code>Jo(<span class="jsVariable">window</span>).on(<span class="jsString">"load"</span>, <span class="jsFunction">function</span>(){}, <span class="jsBoolean">false</span>);</code></p>
+								<p>An event is created to wait until the window was fully loaded before executing the given function.</p>
 							</li>
 						</ul>
 					</div>
@@ -90,7 +90,7 @@
 					</div>
 					<div class="right">
 						<p class="description">Find any descendants elements in the previous selection.</p>
-						<p>HTML Model :</p>
+						<p>HTML model :</p>
 						<code>
 							&lt;<span class="tagName">ul</span>&gt;
 								<br/><span class="tabulation"></span>&lt;<span class="tagName">li</span>&gt;one&lt;/<span class="tagName">li</span>&gt;
@@ -134,7 +134,7 @@
 					</div>
 					<div class="right">
 						<p class="description">Find any siblings elements of the previous selection.</p>
-						<p>HTML Model :</p>
+						<p>HTML model :</p>
 						<code>
 							&lt;<span class="tagName">ul</span>&gt;
 								<br/><span class="tabulation"></span>&lt;<span class="tagName">li</span>&gt;one&lt;/<span class="tagName">li</span>&gt;
@@ -184,8 +184,8 @@
 						</ol>
 					</div>
 					<div class="right">
-						<p class="description">Find any siblings elements of before the previous selection.</p>
-						<p>HTML Model :</p>
+						<p class="description">Find any siblings elements before the previous selection.</p>
+						<p>HTML model :</p>
 						<code>
 							&lt;<span class="tagName">ul</span>&gt;
 								<br/><span class="tabulation"></span>&lt;<span class="tagName">li</span>&gt;one&lt;/<span class="tagName">li</span>&gt;
@@ -199,7 +199,7 @@
 							<li>
 								<p>If <span class="parameter">[selector]</span> is a CSS selector <span class="type value">string</span> :</p>
 								<code>
-									<span class="jsVariable">var</span> element = Jo(<span class="jsString">"ul li:nth-child(4)"</span>).siblings(<span class="jsString">"li:nth-child(2)"</span>);
+									<span class="jsVariable">var</span> element = Jo(<span class="jsString">"ul li:nth-child(4)"</span>).siblingsBefore(<span class="jsString">"li:nth-child(2)"</span>);
 								</code>
 								<p>The result will be an array containing :</p>
 								<code>
@@ -209,14 +209,13 @@
 							<li>
 								<p>Else if <span class="parameter">[selector]</span> is <span class="type value">empty</span> or <span class="type value">null</span></p>
 								<code>
-									<span class="jsVariable">var</span> elements = Jo(<span class="jsString">"ul li:nth-child(4)"</span>).siblings();
+									<span class="jsVariable">var</span> elements = Jo(<span class="jsString">"ul li:nth-child(4)"</span>).siblingsBefore();
 								</code>
 								<p>The result will be an array containing :</p>
 								<code>
 									&lt;<span class="tagName">li</span>&gt;one&lt;/<span class="tagName">li</span>&gt;
 									<br/>&lt;<span class="tagName">li</span>&gt;two&lt;/<span class="tagName">li</span>&gt;
 									<br/>&lt;<span class="tagName">li</span>&gt;three&lt;/<span class="tagName">li</span>&gt;
-									<br/>&lt;<span class="tagName">li</span>&gt;five&lt;/<span class="tagName">li</span>&gt;
 								</code>
 							</li>
 						</ul>
@@ -235,6 +234,42 @@
 						</ol>
 					</div>
 					<div class="right">
+						<p class="description">Find any siblings elements after the previous selection.</p>
+						<p>HTML model :</p>
+						<code>
+							&lt;<span class="tagName">ul</span>&gt;
+								<br/><span class="tabulation"></span>&lt;<span class="tagName">li</span> <span class="tagAttributeName">class</span>=<span class="tagAttributeValue">"active"</span>&gt;one&lt;/<span class="tagName">li</span>&gt;
+								<br/><span class="tabulation"></span>&lt;<span class="tagName">li</span>&gt;two&lt;/<span class="tagName">li</span>&gt;
+								<br/><span class="tabulation"></span>&lt;<span class="tagName">li</span> <span class="tagAttributeName">class</span>=<span class="tagAttributeValue">"active"</span>&gt;three&lt;/<span class="tagName">li</span>&gt;
+								<br/><span class="tabulation"></span>&lt;<span class="tagName">li</span>&gt;four&lt;/<span class="tagName">li</span>&gt;
+								<br/><span class="tabulation"></span>&lt;<span class="tagName">li</span> <span class="tagAttributeName">class</span>=<span class="tagAttributeValue">"active"</span>&gt;five&lt;/<span class="tagName">li</span>&gt;
+							<br/>&lt;/<span class="tagName">ul</span>&gt;
+						</code>
+						<ul>
+							<li>
+								<p>If <span class="parameter">[selector]</span> is a CSS selector <span class="type value">string</span> :</p>
+								<code>
+									<span class="jsVariable">var</span> element = Jo(<span class="jsString">"ul li:nth-child(2)"</span>).siblingsAfter(<span class="jsString">"li.active"</span>);
+								</code>
+								<p>The result will be an array containing :</p>
+								<code>
+									&lt;<span class="tagName">li</span> <span class="tagAttributeName">class</span>=<span class="tagAttributeValue">"active"</span>&gt;three&lt;/<span class="tagName">li</span>&gt;
+									<br/>&lt;<span class="tagName">li</span> <span class="tagAttributeName">class</span>=<span class="tagAttributeValue">"active"</span>&gt;five&lt;/<span class="tagName">li</span>&gt;
+								</code>
+							</li>
+							<li>
+								<p>Else if <span class="parameter">[selector]</span> is <span class="type value">empty</span> or <span class="type value">null</span></p>
+								<code>
+									<span class="jsVariable">var</span> elements = Jo(<span class="jsString">"ul li:nth-child(2)"</span>).siblingsAfter();
+								</code>
+								<p>The result will be an array containing :</p>
+								<code>
+									&lt;<span class="tagName">li</span> <span class="tagAttributeName">class</span>=<span class="tagAttributeValue">"active"</span>&gt;three&lt;/<span class="tagName">li</span>&gt;
+									<br/>&lt;<span class="tagName">li</span>&gt;four&lt;/<span class="tagName">li</span>&gt;
+									<br/>&lt;<span class="tagName">li</span> <span class="tagAttributeName">class</span>=<span class="tagAttributeValue">"active"</span>&gt;five&lt;/<span class="tagName">li</span>&gt;
+								</code>
+							</li>
+						</ul>
 					</div>
 				</li>
 				<!-- node() -->
@@ -254,6 +289,14 @@
 						</ol>
 					</div>
 					<div class="right">
+						<p class="description">Find all direct child nodes from the previous selection.</p>
+						<p>HTML model :</p>
+						<code>
+							&lt;<span class="tagName">p</span>&gt;Hello World! My name is &lt;<span class="tagName">strong</span>&gt;Jo&lt;/<span class="tagName">strong</span>&gt;.&lt;/<span class="tagName">p</span>&gt;
+						</code>
+						<ul>
+
+						</ul>
 					</div>
 				</li>
 				<!-- children() -->

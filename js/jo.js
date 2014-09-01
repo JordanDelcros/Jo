@@ -108,7 +108,6 @@
 
 			var found = new Array();
 
-
 			$this.each(function(){
 
 				found = found.concat(getNodes(selector, this));
@@ -249,7 +248,7 @@
 			return $this;
 
 		},
-		child: function( selector ){
+		children: function( selector ){
 
 			var $this = Jo(this);
 
@@ -5056,13 +5055,88 @@
 
 	};
 
-	function createNodes( html ){
-
-
-
-	};
-
 	function prepareSelector( selector ){
+
+		var returned = new Array();
+
+		selector = selector.replace(/(?:[a-z]*(?:(?:\.[a-z\-\_]+)?(?:\[[a-z\-\_]+(?:\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\])?(?:\:[a-z\-]+(?:\((?:[^\)]*)?\))?)?)*\s*)*/gi, function( fragment ){
+
+			if( isEmpty(fragment, true) ){
+
+				return "";
+
+			}
+			else {
+
+				return fragment.replace(/(?:[a-z]*(?:(?:\.[a-z\-\_]+)?(?:\[[a-z\-\_]+(?:\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\])?(?:\:[a-z\-]+(?:\((?:[^\)]*)?\))?)?)*)*/gi, function( element ){
+
+					if( isEmpty(element, true) ){
+
+						return "";
+
+					}
+					else {
+
+						return element.replace(/\[[a-z\-\_]+(?:\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\]|\:(first|last|nth|only)(-child|-of-type)?(\((?:[^\)]*)?\))?/gi, function( detail, target, type, number ){
+
+							if( isEmpty(detail, true) ){
+
+								return "";
+
+							}
+							else {
+
+								if( /^:/.test(detail) ){
+
+									return ":" + target + (isEmpty(type) ? "-child" : "") + (isEmpty(number) ? "" : number);
+
+								}
+								else {
+
+									return detail;
+
+								};
+
+							};
+
+						});
+
+					};
+
+				});
+
+			};
+
+		});
+
+		console.log(selector);
+
+		// var match = selector.match(/(?:[a-z]*(?:(?:\.[a-z\-\_]+)?(?:\[[a-z\-\_]+(?:\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\])?(?:\:[a-z\-]+(?:\((?:[^\)]*)?\))?)?)*\s*)*/gi);
+
+		// for( var key = 0, keyLength = match.length; key < keyLength; key++ ){
+
+		// 	if( !isEmpty(match[key], true) ){
+
+		// 		console.log(match[key])
+
+		// 		var subMatch = match[key].match(/(?:[a-z]*(?:(?:\.[a-z\-\_]+)?(?:\[[a-z\-\_]+(?:\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\])?(?:\:[a-z\-]+(?:\((?:[^\)]*)?\))?)?)*)*/gi);
+
+		// 		for( var subkey = 0, subkeyLength = subMatch.length; subkey < subkeyLength; subkey++ ){
+
+		// 			if( !isEmpty(subMatch[subkey], true) ){
+
+		// 				returned.push(subMatch[subkey]);
+
+		// 			};
+
+		// 		};
+
+		// 	};
+
+		// };
+
+
+		/**/
 
 		var returned = selector.replace(/\s+/gi, " ").split(",");
 
@@ -5230,6 +5304,36 @@
 
 	};
 
+	function getNodesXPath( path, element ){
+
+		var returned = new Array();
+
+		if( isEmpty(element) ){
+
+			element = document;
+
+		}
+		else if( !isTag(element) ){
+
+			return returned;
+
+		};
+
+		var XPath = new XPathEvaluator();
+		var NSResolver = XPath.createNSResolver(element.ownerDocument === null ? element.documentElement : element.ownerDocument.documentElement);
+
+		var evaluated = XPath.evaluate(selector, element, NSResolver, 0, null);
+
+		while( node = evaluated.iterateNext() ){
+
+			returned.push(node);
+
+		};
+
+		return returned;
+
+	};
+
 	function getNodes( selector, element ){	
 
 		var returned = new Array();
@@ -5250,14 +5354,6 @@
 		var elementId = element.id ? element.id : null;
 		var removeIdAfter = false;
 		var oldElement = element;
-		var searchTextNode = /\btext\b\s*$/.test(selector) ? true : false;
-
-
-		if( isTrue(searchTextNode) ){
-
-			selector = selector.replace(/[\s>~]*text\s*$/gi, " *");
-
-		};
 
 		if( /^\s*>/gi.test(selector) ){
 
@@ -5277,26 +5373,7 @@
 
 		if( isTrue(removeIdAfter) ){
 
-			oldElement.removeAttribute("id");
-
-		};
-
-		if( isTrue(searchTextNode) ){
-
-			var elements = nodes;
-			nodes = new Array();
-
-			for( var element = 0, length = elements.length; element < length; element++ ){
-
-				var walker = document.createTreeWalker(elements[element], NodeFilter.SHOW_TEXT, null, false);
-
-				while( node = walker.nextNode() ){
-
-					nodes.push(node);
-
-				};
-
-			};
+			oldElement.id = null;
 
 		};
 
