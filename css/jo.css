@@ -5,6 +5,7 @@ html {
 }
 
 body {
+	line-height: 1.2rem;
 	font-family: "Ubuntu", sans-serif;
 	background-color: #EEEEEE;
 }
@@ -67,7 +68,7 @@ section#documentation > ul > li {
 
 section#documentation div.left,
 section#documentation div.right {
-	padding-bottom: 5rem;
+	padding-bottom: 3rem;
 }
 
 section#documentation div.left h3 {
@@ -84,6 +85,17 @@ section#documentation div.left ol li {
 	line-height: 2rem;
 }
 
+section#documentation div.right p.description {
+	font-size: 1.6rem;
+	line-height: 3rem;
+}
+
+section#documentation div.right ul li {
+	border-left: 2rem solid #DFDFEB;
+	padding: 1rem 0 1rem 2rem;
+	margin-bottom: 3rem;
+}
+
 section#documentation span.type {
 	padding: 0.5rem;
 	border-radius: 0.3rem;
@@ -92,6 +104,7 @@ section#documentation span.type {
 
 section#documentation span.parameter {
 	margin: 0 0.1rem;
+	line-height: 2rem;
 	font-size: 1.3rem;
 	color: #7f8a95;
 }
@@ -114,13 +127,38 @@ section#documentation span.method {
 }
 
 code {
-	display: inline-block;
+	display: block;
 	margin: 1rem 0;
 	padding: 2rem;
 	border-radius: 0.6rem;
 	letter-spacing: 1px;
+	line-height: 1.8rem;
+	/*white-space: pre;*/
 	color: #EEEEEE;
 	background-color: #2B3036;
+}
+
+p code {
+	display: inline-block;
+	padding: 0.5rem 0.8rem;
+	border-radius: 0.2rem;
+	color: #EEEEEE;
+	background-color: #2B3036;
+}
+
+code span.tabulation {
+	display: inline-block;
+	width: 3rem;
+}
+
+code span.tabulation-2 {
+	display: inline-block;
+	width: 6rem;
+}
+
+code span.tabulation-3 {
+	display: inline-block;
+	width: 9rem;
 }
 
 code span.tagName {
@@ -131,12 +169,18 @@ code span.tagAttributeName {
 	color: #A6E22A;
 }
 
-code span.tagAttributeValue {
+code span.tagAttributeValue,
+code span.jsString {
 	color: #DADB74;
 }
 
-code span.jsVariable {
+code span.jsVariable,
+code span.jsFunction {
 	color: #57D6EF;
+}
+
+code span.jsBoolean {
+	color: #D094F7;
 }
 
 /* GENERIC */
