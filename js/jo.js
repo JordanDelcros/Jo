@@ -5362,7 +5362,6 @@
 
 		var removeIdAfter = false;
 		var originElement = element;
-		var searchMore = //;
 
 		if( /^\s*[>~]/gi.test(selector) ){
 
