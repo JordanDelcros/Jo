@@ -646,7 +646,7 @@
 			}
 			else if( isString(selector) ){
 
-				selector = prepareCSSSelector(selector);
+				selector = prepareCSSSelector(selector, "fragment");
 
 				this.each(function(){
 
@@ -3526,6 +3526,25 @@
 
 	Jo.merge = function( returned ){
 
+		if( !isEmpty(returned) && isEmpty(arguments[1]) ){
+
+			var type;
+
+			if( isArray(returned) ){
+
+				type = new Array();
+
+			}
+			else {
+
+				type = new Object();
+
+			};
+
+			return Jo.merge(type, returned);
+
+		};
+
 		if( !isArray(returned) && !isObject(returned) ){
 
 			if( !isEmpty(arguments[1]) && isArray(arguments[1]) ){
@@ -3565,6 +3584,12 @@
 		};
 
 		return returned;
+
+	};
+
+	Jo.clone = function( returned ){
+
+		return Jo.merge(returned);
 
 	};
 
@@ -5055,11 +5080,11 @@
 
 	};
 
-	function prepareCSSSelector( selector, type ){
+	function prepareCSSSelector( selector, output, regroup ){
 
 		var returned = new Array();
 
-		selector = selector.replace(/(?:[a-z]*(?:(?:\.[a-z0-9\-\_]+)?(?:\[[a-z0-9\-\_]+(?:\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\])?(?:\:[a-z\-]+(?:\((?:[^\)]*)?\))?)?)*\s*)*/gi, function( fragment ){
+		selector = selector.replace(/(?:[a-z0-9]*(?:(?:\.[a-z0-9\-\_]+)?(?:#[a-z0-9\-\_]+)?(?:\[[a-z0-9\-\_]+(?:\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\])?(?:\:[a-z\-]+(?:\((?:[^\)]*)?\))?)?)*\s*[>~]?)*/gi, function( fragment ){
 
 			if( isEmpty(fragment, true) ){
 
@@ -5068,7 +5093,7 @@
 			}
 			else {
 
-				fragment = fragment.replace(/(?:[a-z]*(?:(?:\[[a-z0-9\-\_]+(?:\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\])?(?:\.[a-z0-9\-\_]+)?(?:\:[a-z\-]+(?:\((?:[^\)]*)?\))?)?)*)*/gi, function( element ){
+				fragment = fragment.replace(/[>~]?(?:[a-z0-9]*(?:(?:\[[a-z0-9\-\_]+(?:\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\])?(?:\.[a-z0-9\-\_]+)?(?:#[a-z0-9\-\_]+)?(?:\:[a-z\-]+(?:\((?:[^\)]*)?\))?)?)*)*/gi, function( element ){
 
 					if( isEmpty(element, true) ){
 
@@ -5077,23 +5102,34 @@
 					}
 					else {
 
-						console.log("element", element);
+						element = element.replace(/\[[a-z0-9\-\_]+(?:\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\]|\.[a-z0-9\-\_]+|#[a-z0-9\-\_]+|\:(first|last|nth|only)(-child|-of-type)?(\((?:[^\)]*)?\))?|[>~]|[a-z0-9]+|\s+|,/gi, function( detail, target, type, number ){
 
-						element = element.replace(/\[[a-z0-9\-\_]+(?:\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\]|\.[a-z\-\_]+|\:(first|last|nth|only)(-child|-of-type)?(\((?:[^\)]*)?\))?|^\s*[a-z]+/gi, function( detail, target, type, number ){
+							if( isEmpty(detail, true) ){
 
-							console.log("detail", detail);
-							if( /^:/.test(detail) ){
+								return "";
 
-								detail =  ":" + target + (isEmpty(type) ? "-child" : "") + (isEmpty(number) ? "" : number);
+							}
+							else {
+
+								detail = detail.replace(/^\s*\:(first|last|nth|only)(-child|-of-type)?(\((?:[^\)]*)?\))?/, function( match, target, type, number ){
+
+									return ":" + target + (isEmpty(type) ? "-child" : type) + (isEmpty(number) ? "" : number);
+
+								});
 
 							};
 
+							if( output === "detail" ){
+
+								returned.push(detail);
+
+							};
 
 							return detail;
 
 						});
 
-						if( type === "element" ){
+						if( output === "element" ){
 
 							returned.push(element);
 
@@ -5105,11 +5141,16 @@
 
 				});
 
-				if( type === "fragment" ){
+				if( output === "fragment" ){
 
 					returned.push(fragment);
 
-				};
+				}
+				else if( output !== "global" ){
+
+					returned.push(",");
+
+				}
 
 				return fragment;
 
@@ -5117,55 +5158,36 @@
 
 		});
 
-		if( type === "global" ){
+		if( output === "global" ){
 
 			returned.push(selector);
 
-		};
+		}
+		else if( isTrue(regroup) ){
 
-		console.log("prepareCSSSelector", returned);
+			var buffer = new Array();
+			buffer.push(new Array());
 
-		return returned;
+			for( var index = 0, length = returned.length - 1; index < length; index++ ){
 
-		var returned = selector.replace(/\s+/gi, " ").split(",");
+				if( !/^\s*,\s*$/.test(returned[index]) ){
 
-		for( var key = 0, keyLength = returned.length; key < keyLength; key++ ){
+					buffer[buffer.length - 1].push(returned[index]);
 
-			returned[key] = returned[key].split(/\s/gi);
+				}
+				else {
 
-			for( var subkey = 0, subkeyLength = returned[key].length; subkey < subkeyLength; subkey++ ){
+					buffer.push(new Array());
 
-				returned[key][subkey] = returned[key][subkey].replace(/([#\.:\[])([^#\.:\[\|\>]+)/gi, function(all, type, curiosity){
-
-					if( type === "." &&  /\]$/gi.test(curiosity) ){
-
-						return all;
-
-					};
-
-					return "|" + all;
-
-				}).split("|");
-
-				for( var lastkey = 0, lastkeyLength = returned[key][subkey].length; lastkey < lastkeyLength; lastkey++ ){
-
-					returned[key][subkey][lastkey] = returned[key][subkey][lastkey].replace(/^:(first|last|nth|only)(-child|-of-type)?(\([0-9n\+\-]+\))?/gi, function(all, target, type, number){
-
-						return ":" + target + (isEmpty(type) ? "-child" : type) + (isEmpty(number) ? "" : number);
-
-					});
-
-				};
-
-				returned[key][subkey] = returned[key][subkey].join("");
+				}
 
 			};
 
-			returned[key] = returned[key].join(" ");
+			returned = buffer;
 
 		};
 
-		return returned.join(",");
+		return returned;
 
 	};
 
@@ -5339,14 +5361,15 @@
 		};
 
 		var removeIdAfter = false;
-		var oldElement = element;
+		var originElement = element;
+		var searchMore = //;
 
-		if( /^\s*>/gi.test(selector) ){
+		if( /^\s*[>~]/gi.test(selector) ){
 
-			if( isEmpty(element.id, true) ){
+			if( isEmpty(element.getAttribute("id"), true) ){
 
 				removeIdAfter = true;
-				element.id = "Jo_" + Math.random().toString(36).substr(2, 9) + new Date().getTime().toString(36);
+				element.setAttribute("id", "Jo_" + Math.random().toString(36).substr(2, 9) + new Date().getTime().toString(36));
 
 			};
 
@@ -5357,17 +5380,104 @@
 
 		selector = prepareCSSSelector(selector, "fragment");
 
-		var nodes = element.querySelectorAll(selector);
+		for( var selected = 0, selectedLength = selector.length; selected < selectedLength; selected++ ){
 
-		if( isTrue(removeIdAfter) ){
+			var selection = selector[selected];
 
-			oldElement.id = null;
+			var more = {
+				option: null,
+				target: null
+			};
+
+			selection = selection.replace(/\s*([>~]?)\s*(text|comment)\s*$/, function( match, option, target ){
+
+				more.target = target;
+				more.option = option;
+
+				return "";
+
+			});
+
+			var nodes;
+
+			if( !isEmpty(selection, true) ){
+
+				nodes = element.querySelectorAll(selection);
+
+			}
+			else {
+
+				nodes = [originElement];
+
+			};
+
+			if( isEmpty(more.target) ){
+
+				for( var node = 0, nodesLength = nodes.length; node < nodesLength; node++ ){
+
+					returned.push(nodes[node]);
+
+				};
+
+			}
+			else {
+
+				for( var node = 0, nodesLength = nodes.length; node < nodesLength; node++ ){
+
+					var origin = nodes[node];
+					var treeFilter;
+
+					if( more.target === "text" ){
+
+						treeFilter = NodeFilter.SHOW_TEXT;
+
+					}
+					else if( more.target === "comment" ){
+
+						treeFilter = NodeFilter.SHOW_COMMENT;
+
+					};
+
+					if( more.option === "~" ){
+
+						origin = origin.parentElement; 
+
+					};
+
+					var treeWalker = document.createTreeWalker(origin, treeFilter, {
+						acceptNode: function( match ){
+
+							if( isEmpty(more.option, true) ){
+
+								return NodeFilter.FILTER_ACCEPT;
+
+							}
+							else if( match.parentElement === origin ){
+
+								return NodeFilter.FILTER_ACCEPT;
+
+							};
+
+							return NodeFilter.FILTER_REJECT;
+
+						}
+					});
+
+					while( treeWalker.nextNode() ){
+
+						returned.push(treeWalker.currentNode);
+
+					};
+
+				};
+
+			};
 
 		};
 
-		for( var node = 0, length = nodes.length; node < length; node++ ){
+		if( isTrue(removeIdAfter) ){
 
-			returned.push(nodes[node]);
+			originElement.removeAttribute("id");
 
 		};
 
