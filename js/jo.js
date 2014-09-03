@@ -607,9 +607,9 @@
 
 			if( isJo(selector) ){
 
-				this.each(function( index ){
+				this.each(function(){
 
-					if( this !== selector.found[index] ){
+					if( selector.found.indexOf(this) === -1 ){
 
 						returned = false;
 
@@ -646,19 +646,28 @@
 			}
 			else if( isString(selector) ){
 
-				selector = prepareCSSSelector(selector, "fragment");
+				if( !/(?:text|comment)\s*$/.test(selector) ){
 
-				this.each(function(){
+					selector = prepareCSSSelector(selector, "fragment");
 
-					this.matches = (this.matches || this.matchesSelector || this.msMatchesSelector || this.mozMatchesSelector || this.webkitMatchesSelector || this.oMatchesSelector || function(){ return false });
+					this.each(function(){
 
-					if( isFalse(this.matches(selector)) ){
+						this.matches = (this.matches || this.matchesSelector || this.msMatchesSelector || this.mozMatchesSelector || this.webkitMatchesSelector || this.oMatchesSelector || function(){ return false });
 
-						returned = false;
+						if( isFalse(this.matches(selector)) ){
 
-					};
+							returned = false;
 
-				});
+						};
+
+					});
+
+				}
+				else {
+
+					returned = this.is(Jo(selector));
+
+				};
 				
 			};
 
@@ -1341,18 +1350,18 @@
 		},
 		toString: function(){
 
-			var returned = "";
+			var returned = new Array();
 
 			this.each(function(){
 
 				if( isText(this) ){
 
-					returned += this.textContent;
+					returned.push(this.textContent);
 
 				}
 				else {
 
-					returned += this.outerHTML;
+					returned.push(this.outerHTML);
 
 				};
 
@@ -2282,7 +2291,16 @@
 			var task = {
 				this: this,
 				elements: new Array(),
-				options: options
+				options: options,
+				each: function( fn ){
+
+					for( var element = 0, length = this.elements.length; element < length; element++ ){
+
+						fn.call(null, this.elements[element]);
+
+					};
+
+				}
 			};
 
 			this.each(function( index ){
@@ -2487,16 +2505,6 @@
 		},
 		add: function( task ){
 
-			task.each = function( fn ){
-
-				for( var element = 0, length = task.elements.length; element < length; element++ ){
-
-					fn.call(null, task.elements[element]);
-
-				};
-
-			};
-
 			this.tasks.push(task);
 
 			if( this.active === false ){
@@ -2559,7 +2567,10 @@
 
 			task.each(function( element ){
 
+
 				for( var property in element.properties ){
+
+					console.log(property);
 
 					if( element.properties.hasOwnProperty(property) ){
 
@@ -2568,7 +2579,7 @@
 
 						for( var value = 0, length = currentProperty.values.length; value < length; value++ ){
 
-							var newValue = (currentProperty.values[value].from + (Jo.easing[task.options.easing](elapsedTime, task.options.duration) * currentProperty.values[value].difference));
+							var newValue = (currentProperty.values[value].from + (Jo.easing(task.options.easing, elapsedTime, task.options.duration) * currentProperty.values[value].difference));
 
 							if( isTrue(currentProperty.values[value].integer) ){
 
@@ -5342,7 +5353,7 @@
 
 		if( isEmpty(element) ){
 
-			element = document;
+			element = documentRoot;
 
 		}
 		else if( !isTag(element) ){
@@ -5350,6 +5361,7 @@
 			return returned;
 
 		};
+
 
 		var removeIdAfter = false;
 		var originElement = element;
