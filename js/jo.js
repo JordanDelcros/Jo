@@ -1240,20 +1240,11 @@
 
 				this.each(function(){
 
-					if( Jo(this).is("text") ){
-
-						this.nodeValue = text;
-
-					}
-					else {
-
-						this.innerText = text;
-
-					};
+					this.textContent = text;
 
 				});
 
-				this.found = this.found;//updateNodes(this);
+				this.found = this.found;
 				this.length = this.found.length;
 
 				return this;
