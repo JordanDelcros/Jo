@@ -41,8 +41,14 @@ li {
 	background-color: rgba(100,100,100,1);
 	background-image: url("img/thick.png");
 	background-size: 50px 50px;
-	transform: rotateZ(180deg);
+	transform: none;
+	/*transition: all 1s ease-in-out;*/
 }
+
+/*li:hover {
+	background-color: blue;
+	transform: matrix3d(-1.0000000000,0.0000000000,0.0000000000,0.0000000000,-0.0000000000,-0.9396926208,0.3420201433,0.0000000000,0.0000000000,0.3420201433,0.9396926208,0.0000000000,0.0000000000,0.0000000000,0.0000000000,1.0000000000) ;
+}*/
 
 li:first-child {
 	/*transform: skew(10deg, 40deg);*/

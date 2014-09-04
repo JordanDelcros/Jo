@@ -1986,16 +1986,11 @@
 
 			};
 
-			console.log("replace", html)
-
 			this.each(function(){
 
 				if( html.length === 1 ){
 
-					console.log("UNIQUE");
-
 					var node = html[0].cloneNode(true);
-					console.log(node);
 
 					this.parentNode.replaceChild(node, this);
 
@@ -2419,8 +2414,6 @@
 
 			});
 
-			console.log(task);
-
 			Animations.add(task);
 
 			return this;
@@ -2575,10 +2568,11 @@
 
 						var currentProperty = element.properties[property];
 						var model = currentProperty.model;
+						var easing = Jo.easing(task.options.easing, elapsedTime, task.options.duration);
 
 						for( var value = 0, length = currentProperty.values.length; value < length; value++ ){
 
-							var newValue = (currentProperty.values[value].from + (Jo.easing(task.options.easing, elapsedTime, task.options.duration) * currentProperty.values[value].difference));
+							var newValue = (currentProperty.values[value].from + (easing * currentProperty.values[value].difference));
 
 							if( isTrue(currentProperty.values[value].integer) ){
 
@@ -2614,7 +2608,7 @@
 
 	});
 
-	var CSSMatrix = (window.WebKitCSSMatrix || window.CSSMatrix);
+	window.CSSMatrix = (window.WebKitCSSMatrix || window.CSSMatrix);
 
 	Jo.matrix = function( matrix ){
 
@@ -2625,24 +2619,6 @@
 	Jo.matrix.fn = Jo.matrix.prototype = {
 		constructor: Jo.matrix,
 		init: function( matrix ){
-
-			if( !isEmpty(CSSMatrix) ){
-
-				if( isString(matrix) ){
-
-					matrix = matrix.replace(/\d+?\.?\d+e[+-]\d+/g, function( match ){
-
-						return parseFloat(match).toFixed(20);
-
-					});
-
-				};
-
-				this.matrix = new CSSMatrix(matrix || "");
-
-				return this;
-
-			};
 
 			this.identity = {
 				m00: 1,
@@ -2661,6 +2637,24 @@
 				m31: 0,
 				m32: 0,
 				m33: 1
+			};
+
+			if( !isEmpty(window.CSSMatrix) ){
+
+				if( isString(matrix) ){
+
+					matrix = matrix.replace(/\d+?\.?\d+e[+-]\d+/g, function( match ){
+
+						return parseFloat(match).toFixed(20);
+
+					});
+
+				};
+
+				this.matrix = new window.CSSMatrix(matrix || "");
+
+				return this;
+
 			};
 
 			if( isEmpty(matrix) ){
@@ -2793,7 +2787,7 @@
 
 			var clone = this.clone();
 
-			if( clone.matrix instanceof CSSMatrix ){
+			if( clone.matrix instanceof window.CSSMatrix ){
 
 				var scaled = Jo.matrix();
 
@@ -2816,7 +2810,7 @@
 
 			var clone = this.clone();
 
-			if( clone.matrix instanceof CSSMatrix ){
+			if( clone.matrix instanceof window.CSSMatrix ){
 
 				var scaled = Jo.matrix();
 
@@ -2839,7 +2833,7 @@
 
 			var clone = this.clone();
 
-			if( clone.matrix instanceof CSSMatrix ){
+			if( clone.matrix instanceof window.CSSMatrix ){
 
 				var scaled = Jo.matrix();
 
@@ -2881,7 +2875,7 @@
 
 			var clone = Jo.matrix();
 
-			if( clone.matrix instanceof CSSMatrix ){
+			if( clone.matrix instanceof window.CSSMatrix ){
 
 				clone.matrix.translate(pixels, 0, 0);
 
@@ -2899,7 +2893,7 @@
 
 			var clone = Jo.matrix();
 
-			if( clone.matrix instanceof CSSMatrix ){
+			if( clone.matrix instanceof window.CSSMatrix ){
 
 				clone.matrix.translate(0, pixels, 0);
 
@@ -2917,7 +2911,7 @@
 
 			var clone = Jo.matrix();
 
-			if( clone.matrix instanceof CSSMatrix ){
+			if( clone.matrix instanceof window.CSSMatrix ){
 
 				clone.matrix.translate(0, 0, pixels);
 
@@ -2953,7 +2947,7 @@
 
 			var clone = Jo.matrix();
 
-			if( clone.matrix instanceof CSSMatrix ){
+			if( clone.matrix instanceof window.CSSMatrix ){
 
 				clone.matrix = clone.matrix.skewX(degrees);
 
@@ -2972,7 +2966,7 @@
 
 			var clone = Jo.matrix();
 
-			if( clone.matrix instanceof CSSMatrix ){
+			if( clone.matrix instanceof window.CSSMatrix ){
 
 				clone.matrix = clone.matrix.skewY(degrees);
 
@@ -3001,7 +2995,7 @@
 
 			var clone = this.clone();
 
-			if( clone.matrix instanceof CSSMatrix ){
+			if( clone.matrix instanceof window.CSSMatrix ){
 
 				clone.matrix = clone.matrix.rotate(degrees, 0, 0);
 
@@ -3030,7 +3024,7 @@
 
 			var clone = this.clone();
 
-			if( clone.matrix instanceof CSSMatrix ){
+			if( clone.matrix instanceof window.CSSMatrix ){
 
 				clone.matrix = clone.matrix.rotate(0, degrees, 0);
 
@@ -3059,7 +3053,7 @@
 
 			var clone = this.clone();
 
-			if( clone.matrix instanceof CSSMatrix ){
+			if( clone.matrix instanceof window.CSSMatrix ){
 
 				clone.matrix = clone.matrix.rotate(0, 0, degrees);
 
@@ -3120,9 +3114,9 @@
 
 			if( !isEmpty(matrix) ){
 
-				if( clone.matrix instanceof CSSMatrix ){
+				if( clone.matrix instanceof window.CSSMatrix ){
 
-					clone.matrix = clone.matrix.multiply(new CSSMatrix(matrix));
+					clone.matrix = clone.matrix.multiply(new window.CSSMatrix(matrix));
 
 					return clone;
 
@@ -3402,7 +3396,7 @@
 
 			var clone = this.clone();
 
-			if( clone.matrix instanceof CSSMatrix ){
+			if( clone.matrix instanceof window.CSSMatrix ){
 
 				clone.matrix = clone.matrix.multiply(matrix);
 
@@ -3438,7 +3432,7 @@
 
 			var clone = this.clone();
 
-			if( clone.matrix instanceof CSSMatrix ){
+			if( clone.matrix instanceof window.CSSMatrix ){
 
 				clone.matrix = clone.matrix.inverse();
 

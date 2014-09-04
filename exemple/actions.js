@@ -1,73 +1,36 @@
 // JUST TEST SPEED
-window.onload = function(){
-	//pure js
-	// var bef = +new Date();
-	// var container = document.querySelector("#container");
-	// for( var howMuch = 0; howMuch < 10; howMuch++ ){
-	// 	var li = document.createElement("li");
-	// 	container.appendChild(li);
-	// 	li.appendChild(document.createElement("ul"))
-	// };
-	// console.log("pure", +new Date - bef);
-	// container.innerHTML = "";
+Jo(function(){
 
-	//jo
 	var bef = +new Date();
 	var $container = Jo("#container");
-	for( var howMuch = 0; howMuch < 100; howMuch++ ){
+
+	for( var howMuch = 0; howMuch < 1; howMuch++ ){
 		Jo("<li/>")
 			.addClass("jo")
 			.insertEndTo($container)
 			
 	};
-	Jo("li")
-		.css("transform", "rotateZ(181deg)")
+
+	var $li = Jo("li")
 		.animate({
-			left: "10%",
-			top: "10%",
-			transform: "rotateZ(10deg) rotateX(25deg)",
+			// left: "10%",
+			// top: "10%",
+			transform: "rotateZ(180deg)",
 			backgroundColor: "rgb(0, 255, 0)"
 		}, {
-			easing: "easeInOutQuad",
-			duration: 5000,
+			easing: "easeOutBounce",
+			duration: 1000,
 			complete: function(){
 				console.log("jo finish");
 			}
 		});
-	console.log("jo", +new Date() - bef);
 
-	// $container.empty();
-
-	//jquery
-	// var bef = +new Date();
-	// var $container = jQuery("#container");
-	// for( var howMuch = 0; howMuch < 1; howMuch++ ){
-	// 	jQuery("<li/>")
-	// 		.addClass("jq")
-	// 		.appendTo($container)
-	// 		.animate({
-	// 			left: "10%",
-	// 			transform: "rotateZ(5deg)"
-	// 		}, {
-	// 			// easing: "easeInOutQuad",
-	// 			duration: 5000,
-	// 			complete: function(){
-	// 				console.log("jq finish");
-	// 			}
-	// 		});
-	// };
-	// console.log("jquery", +new Date() - bef);
-	// $container.html("");
-};
-
-Jo(function( $ ){
-
-	// isReady();
+	console.log("time: ", +new Date() - bef);
 
 });
 
-var media;
-var peer;
+// var media;
+// var peer;
 
 // var isReady = function(){
 
