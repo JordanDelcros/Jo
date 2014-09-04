@@ -23,8 +23,10 @@ window.onload = function(){
 	Jo("li")
 		.css("transform", "rotateZ(181deg)")
 		.animate({
-			transform: "rotateZ(10deg)",
-			left: "10%"
+			left: "10%",
+			top: "10%",
+			transform: "rotateZ(10deg) rotateX(25deg)",
+			backgroundColor: "rgb(0, 255, 0)"
 		}, {
 			easing: "easeInOutQuad",
 			duration: 5000,

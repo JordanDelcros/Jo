@@ -108,7 +108,6 @@
 
 			var found = new Array();
 
-
 			$this.each(function(){
 
 				found = found.concat(getNodes(selector, this));
@@ -249,7 +248,7 @@
 			return $this;
 
 		},
-		child: function( selector ){
+		children: function( selector ){
 
 			var $this = Jo(this);
 
@@ -608,9 +607,9 @@
 
 			if( isJo(selector) ){
 
-				this.each(function( index ){
+				this.each(function(){
 
-					if( this !== selector.found[index] ){
+					if( selector.found.indexOf(this) === -1 ){
 
 						returned = false;
 
@@ -647,19 +646,28 @@
 			}
 			else if( isString(selector) ){
 
-				selector = prepareSelector(selector);
+				if( !/(?:text|comment)\s*$/.test(selector) ){
 
-				this.each(function(){
+					selector = prepareCSSSelector(selector, "fragment");
 
-					this.matches = (this.matches || this.matchesSelector || this.msMatchesSelector || this.mozMatchesSelector || this.webkitMatchesSelector || this.oMatchesSelector || function(){ return false });
+					this.each(function(){
 
-					if( isFalse(this.matches(selector)) ){
+						this.matches = (this.matches || this.matchesSelector || this.msMatchesSelector || this.mozMatchesSelector || this.webkitMatchesSelector || this.oMatchesSelector || function(){ return false });
 
-						returned = false;
+						if( isFalse(this.matches(selector)) ){
 
-					};
+							returned = false;
 
-				});
+						};
+
+					});
+
+				}
+				else {
+
+					returned = this.is(Jo(selector));
+
+				};
 				
 			};
 
@@ -1241,20 +1249,11 @@
 
 				this.each(function(){
 
-					if( Jo(this).is("text") ){
-
-						this.nodeValue = text;
-
-					}
-					else {
-
-						this.innerText = text;
-
-					};
+					this.textContent = text;
 
 				});
 
-				this.found = this.found;//updateNodes(this);
+				this.found = this.found;
 				this.length = this.found.length;
 
 				return this;
@@ -1351,18 +1350,18 @@
 		},
 		toString: function(){
 
-			var returned = "";
+			var returned = new Array();
 
 			this.each(function(){
 
 				if( isText(this) ){
 
-					returned += this.textContent;
+					returned.push(this.textContent);
 
 				}
 				else {
 
-					returned += this.outerHTML;
+					returned.push(this.outerHTML);
 
 				};
 
@@ -2292,7 +2291,16 @@
 			var task = {
 				this: this,
 				elements: new Array(),
-				options: options
+				options: options,
+				each: function( fn ){
+
+					for( var element = 0, length = this.elements.length; element < length; element++ ){
+
+						fn.call(null, this.elements[element]);
+
+					};
+
+				}
 			};
 
 			this.each(function( index ){
@@ -2358,19 +2366,19 @@
 
 									var redValue = parseInt(red);
 									values[++valueIndex].from = redValue;
-									values[valueIndex].difference = Math.abs(redValue - values[valueIndex].to) * (redValue > values[valueIndex].to);
+									values[valueIndex].difference = Math.abs(redValue - values[valueIndex].to) * (redValue > values[valueIndex].to ? -1 : 1);
 
 									var greenValue = parseInt(green);
 									values[++valueIndex].from = greenValue;
-									values[valueIndex].difference = Math.abs(greenValue - values[valueIndex].to) * (greenValue > values[valueIndex].to);
+									values[valueIndex].difference = Math.abs(greenValue - values[valueIndex].to) * (greenValue > values[valueIndex].to ? -1 : 1);
 
 									var blue = parseInt(blue);
 									values[++valueIndex].from = blue;
-									values[valueIndex].difference = Math.abs(blue - values[valueIndex].to) * (blue > values[valueIndex].to);
+									values[valueIndex].difference = Math.abs(blue - values[valueIndex].to) * (blue > values[valueIndex].to ? -1 : 1);
 
 									var alphaValue = parseInt(alpha);
 									values[++valueIndex].from = alphaValue;
-									values[valueIndex].difference = Math.abs(alphaValue - values[valueIndex].to) * (alphaValue > values[valueIndex].to);
+									values[valueIndex].difference = Math.abs(alphaValue - values[valueIndex].to) * (alphaValue > values[valueIndex].to ? -1 : 1);
 
 									return "#" + (valueIndex - 1);
 
@@ -2410,6 +2418,8 @@
 				task.elements.push(element);
 
 			});
+
+			console.log(task);
 
 			Animations.add(task);
 
@@ -2462,6 +2472,8 @@
 		},
 		loop: function( now ){
 
+			this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
+
 			if( this.active === false ){
 
 				return window.cancelAnimationFrame(this.animationFrame);
@@ -2479,8 +2491,6 @@
 
 			};
 
-			this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
-
 			return this;
 
 		},
@@ -2496,16 +2506,6 @@
 
 		},
 		add: function( task ){
-
-			task.each = function( fn ){
-
-				for( var element = 0, length = task.elements.length; element < length; element++ ){
-
-					fn.call(null, task.elements[element]);
-
-				};
-
-			};
 
 			this.tasks.push(task);
 
@@ -2578,7 +2578,7 @@
 
 						for( var value = 0, length = currentProperty.values.length; value < length; value++ ){
 
-							var newValue = (currentProperty.values[value].from + (Jo.easing[task.options.easing](elapsedTime, task.options.duration) * currentProperty.values[value].difference));
+							var newValue = (currentProperty.values[value].from + (Jo.easing(task.options.easing, elapsedTime, task.options.duration) * currentProperty.values[value].difference));
 
 							if( isTrue(currentProperty.values[value].integer) ){
 
@@ -3527,6 +3527,25 @@
 
 	Jo.merge = function( returned ){
 
+		if( !isEmpty(returned) && isEmpty(arguments[1]) ){
+
+			var type;
+
+			if( isArray(returned) ){
+
+				type = new Array();
+
+			}
+			else {
+
+				type = new Object();
+
+			};
+
+			return Jo.merge(type, returned);
+
+		};
+
 		if( !isArray(returned) && !isObject(returned) ){
 
 			if( !isEmpty(arguments[1]) && isArray(arguments[1]) ){
@@ -3566,6 +3585,12 @@
 		};
 
 		return returned;
+
+	};
+
+	Jo.clone = function( returned ){
+
+		return Jo.merge(returned);
 
 	};
 
@@ -3635,7 +3660,8 @@
 		init: function( settings ){
 
 			settings = Jo.merge({
-				console: true
+				console: true,
+				parameters: new Array()
 			}, settings);
 
 			if( isFunction(settings.code) ){
@@ -4562,7 +4588,7 @@
 
 	Jo.easing = function( type, elapsed, duration ){
 
-		return new Jo.easing.fn.init(type, elapsed, duration);
+		return Jo.easing.fn.init(type, elapsed, duration);
 
 	};
 
@@ -5055,53 +5081,114 @@
 
 	};
 
-	function createNodes( html ){
+	function prepareCSSSelector( selector, output, regroup ){
 
+		var returned = new Array();
 
+		selector = selector.replace(/(?:[a-z0-9]*(?:(?:\.[a-z0-9\-\_]+)?(?:#[a-z0-9\-\_]+)?(?:\[[a-z0-9\-\_]+(?:\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\])?(?:\:[a-z\-]+(?:\((?:[^\)]*)?\))?)?)*\s*[>~]?)*/gi, function( fragment ){
 
-	};
+			if( isEmpty(fragment, true) ){
 
-	function prepareSelector( selector ){
+				return "";
 
-		var returned = selector.replace(/\s+/gi, " ").split(",");
+			}
+			else {
 
-		for( var key = 0, keyLength = returned.length; key < keyLength; key++ ){
+				fragment = fragment.replace(/[>~]?(?:[a-z0-9]*(?:(?:\[[a-z0-9\-\_]+(?:\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\])?(?:\.[a-z0-9\-\_]+)?(?:#[a-z0-9\-\_]+)?(?:\:[a-z\-]+(?:\((?:[^\)]*)?\))?)?)*)*/gi, function( element ){
 
-			returned[key] = returned[key].split(/\s/gi);
+					if( isEmpty(element, true) ){
 
-			for( var subkey = 0, subkeyLength = returned[key].length; subkey < subkeyLength; subkey++ ){
+						return "";
 
-				returned[key][subkey] = returned[key][subkey].replace(/([#\.:\[])([^#\.:\[\|\>]+)/gi, function(all, type, curiosity){
+					}
+					else {
 
-					if( type === "." &&  /\]$/gi.test(curiosity) ){
+						element = element.replace(/\[[a-z0-9\-\_]+(?:\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\]|\.[a-z0-9\-\_]+|#[a-z0-9\-\_]+|\:(first|last|nth|only)(-child|-of-type)?(\((?:[^\)]*)?\))?|[>~]|[a-z0-9]+|\s+|,/gi, function( detail, target, type, number ){
 
-						return all;
+							if( isEmpty(detail, true) ){
+
+								return "";
+
+							}
+							else {
+
+								detail = detail.replace(/^\s*\:(first|last|nth|only)(-child|-of-type)?(\((?:[^\)]*)?\))?/, function( match, target, type, number ){
+
+									return ":" + target + (isEmpty(type) ? "-child" : type) + (isEmpty(number) ? "" : number);
+
+								});
+
+							};
+
+							if( output === "detail" ){
+
+								returned.push(detail);
+
+							};
+
+							return detail;
+
+						});
+
+						if( output === "element" ){
+
+							returned.push(element);
+
+						};
+
+						return element;
 
 					};
 
-					return "|" + all;
+				});
 
-				}).split("|");
+				if( output === "fragment" ){
 
-				for( var lastkey = 0, lastkeyLength = returned[key][subkey].length; lastkey < lastkeyLength; lastkey++ ){
+					returned.push(fragment);
 
-					returned[key][subkey][lastkey] = returned[key][subkey][lastkey].replace(/^:(first|last|nth|only)(-child|-of-type)?(\([0-9n\+\-]+\))?/gi, function(all, target, type, number){
+				}
+				else if( output !== "global" ){
 
-						return ":" + target + (isEmpty(type) ? "-child" : type) + (isEmpty(number) ? "" : number);
+					returned.push(",");
 
-					});
+				}
 
-				};
-
-				returned[key][subkey] = returned[key][subkey].join("");
+				return fragment;
 
 			};
 
-			returned[key] = returned[key].join(" ");
+		});
+
+		if( output === "global" ){
+
+			returned.push(selector);
+
+		}
+		else if( isTrue(regroup) ){
+
+			var buffer = new Array();
+			buffer.push(new Array());
+
+			for( var index = 0, length = returned.length - 1; index < length; index++ ){
+
+				if( !/^\s*,\s*$/.test(returned[index]) ){
+
+					buffer[buffer.length - 1].push(returned[index]);
+
+				}
+				else {
+
+					buffer.push(new Array());
+
+				}
+
+			};
+
+			returned = buffer;
 
 		};
 
-		return returned.join(",");
+		return returned;
 
 	};
 
@@ -5229,7 +5316,7 @@
 
 	};
 
-	function getNodes( selector, element ){	
+	function getNodesXPath( path, element ){
 
 		var returned = new Array();
 
@@ -5244,54 +5331,144 @@
 
 		};
 
-		selector = prepareSelector(selector);
+		var XPath = new XPathEvaluator();
+		var NSResolver = XPath.createNSResolver(element.ownerDocument === null ? element.documentElement : element.ownerDocument.documentElement);
 
-		var elementId = element.id ? element.id : null;
-		var removeIdAfter = false;
-		var oldElement = element;
-		var searchTextNode = /\btext\b\s*$/.test(selector) ? true : false;
+		var evaluated = XPath.evaluate(selector, element, NSResolver, 0, null);
 
+		while( node = evaluated.iterateNext() ){
 
-		if( isTrue(searchTextNode) ){
-
-			selector = selector.replace(/[\s>~]*text\s*$/gi, " *");
+			returned.push(node);
 
 		};
 
-		if( /^\s*>/gi.test(selector) ){
+		return returned;
 
-			if( isEmpty(elementId) ){
+	};
+
+	function getNodes( selector, element ){	
+
+		var returned = new Array();
+
+		if( isEmpty(element) ){
+
+			element = documentRoot;
+
+		}
+		else if( !isTag(element) ){
+
+			return returned;
+
+		};
+
+
+		var removeIdAfter = false;
+		var originElement = element;
+
+		if( /^\s*[>~]/gi.test(selector) ){
+
+			if( isEmpty(element.getAttribute("id"), true) ){
 
 				removeIdAfter = true;
-				elementId = element.id = "Jo_" + Math.random().toString(36).substr(2, 9) + new Date().getTime().toString(36);
+				element.setAttribute("id", "Jo_" + Math.random().toString(36).substr(2, 9) + new Date().getTime().toString(36));
 
 			};
 
-			selector = "#" + element.id + selector;
+			selector = "#" + element.id + " " + selector;
 			element = document;
 
 		};
 
-		var nodes = element.querySelectorAll(selector);
+		selector = prepareCSSSelector(selector, "fragment");
 
-		if( isTrue(removeIdAfter) ){
+		for( var selected = 0, selectedLength = selector.length; selected < selectedLength; selected++ ){
 
-			oldElement.removeAttribute("id");
+			var selection = selector[selected];
 
-		};
+			var more = {
+				option: null,
+				target: null
+			};
 
-		if( isTrue(searchTextNode) ){
+			selection = selection.replace(/\s*([>~]?)\s*(text|comment)\s*$/, function( match, option, target ){
 
-			var elements = nodes;
-			nodes = new Array();
+				more.target = target;
+				more.option = option;
 
-			for( var element = 0, length = elements.length; element < length; element++ ){
+				return "";
 
-				var walker = document.createTreeWalker(elements[element], NodeFilter.SHOW_TEXT, null, false);
+			});
 
-				while( node = walker.nextNode() ){
+			var nodes;
 
-					nodes.push(node);
+			if( !isEmpty(selection, true) ){
+
+				nodes = element.querySelectorAll(selection);
+
+			}
+			else {
+
+				nodes = [originElement];
+
+			};
+
+			if( isEmpty(more.target) ){
+
+				for( var node = 0, nodesLength = nodes.length; node < nodesLength; node++ ){
+
+					returned.push(nodes[node]);
+
+				};
+
+			}
+			else {
+
+				for( var node = 0, nodesLength = nodes.length; node < nodesLength; node++ ){
+
+					var origin = nodes[node];
+					var treeFilter;
+
+					if( more.target === "text" ){
+
+						treeFilter = NodeFilter.SHOW_TEXT;
+
+					}
+					else if( more.target === "comment" ){
+
+						treeFilter = NodeFilter.SHOW_COMMENT;
+
+					};
+
+					if( more.option === "~" ){
+
+						origin = origin.parentElement; 
+
+					};
+
+					var treeWalker = document.createTreeWalker(origin, treeFilter, {
+						acceptNode: function( match ){
+
+							if( isEmpty(more.option, true) ){
+
+								return NodeFilter.FILTER_ACCEPT;
+
+							}
+							else if( match.parentElement === origin ){
+
+								return NodeFilter.FILTER_ACCEPT;
+
+							};
+
+							return NodeFilter.FILTER_REJECT;
+
+						}
+					});
+
+					while( treeWalker.nextNode() ){
+
+						returned.push(treeWalker.currentNode);
+
+					};
 
 				};
 
@@ -5299,9 +5476,9 @@
 
 		};
 
-		for( var node = 0, length = nodes.length; node < length; node++ ){
+		if( isTrue(removeIdAfter) ){
 
-			returned.push(nodes[node]);
+			originElement.removeAttribute("id");
 
 		};
 
@@ -5329,13 +5506,17 @@
 
 	function camelize( text ){
 
-		return text.replace(new RegExp("([a-z])(-\\s)*([A-Z])", "g"), "$1$3").toLowerCase();
+		return text.replace(/-([a-z])/g, function( match, letter ){
+
+			return letter.toUpperCase();
+
+		});
 
 	};
 
 	function uncamelize( text ){
 
-		return text.replace(new RegExp("([a-z])([A-Z])", "g"), "$1-$2").toLowerCase();
+		return text.replace(/([A-Z])/g, "-$1").toLowerCase();
 
 	};
 
