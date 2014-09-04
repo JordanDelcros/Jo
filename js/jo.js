@@ -2366,19 +2366,19 @@
 
 									var redValue = parseInt(red);
 									values[++valueIndex].from = redValue;
-									values[valueIndex].difference = Math.abs(redValue - values[valueIndex].to) * (redValue > values[valueIndex].to);
+									values[valueIndex].difference = Math.abs(redValue - values[valueIndex].to) * (redValue > values[valueIndex].to ? -1 : 1);
 
 									var greenValue = parseInt(green);
 									values[++valueIndex].from = greenValue;
-									values[valueIndex].difference = Math.abs(greenValue - values[valueIndex].to) * (greenValue > values[valueIndex].to);
+									values[valueIndex].difference = Math.abs(greenValue - values[valueIndex].to) * (greenValue > values[valueIndex].to ? -1 : 1);
 
 									var blue = parseInt(blue);
 									values[++valueIndex].from = blue;
-									values[valueIndex].difference = Math.abs(blue - values[valueIndex].to) * (blue > values[valueIndex].to);
+									values[valueIndex].difference = Math.abs(blue - values[valueIndex].to) * (blue > values[valueIndex].to ? -1 : 1);
 
 									var alphaValue = parseInt(alpha);
 									values[++valueIndex].from = alphaValue;
-									values[valueIndex].difference = Math.abs(alphaValue - values[valueIndex].to) * (alphaValue > values[valueIndex].to);
+									values[valueIndex].difference = Math.abs(alphaValue - values[valueIndex].to) * (alphaValue > values[valueIndex].to ? -1 : 1);
 
 									return "#" + (valueIndex - 1);
 
@@ -2418,6 +2418,8 @@
 				task.elements.push(element);
 
 			});
+
+			console.log(task);
 
 			Animations.add(task);
 
@@ -2470,6 +2472,8 @@
 		},
 		loop: function( now ){
 
+			this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
+
 			if( this.active === false ){
 
 				return window.cancelAnimationFrame(this.animationFrame);
@@ -2486,8 +2490,6 @@
 				this.then = now - (this.deltaTime % this.interval);
 
 			};
-
-			this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
 
 			return this;
 
@@ -2567,10 +2569,7 @@
 
 			task.each(function( element ){
 
-
 				for( var property in element.properties ){
-
-					console.log(property);
 
 					if( element.properties.hasOwnProperty(property) ){
 
@@ -4589,7 +4588,7 @@
 
 	Jo.easing = function( type, elapsed, duration ){
 
-		return new Jo.easing.fn.init(type, elapsed, duration);
+		return Jo.easing.fn.init(type, elapsed, duration);
 
 	};
 
@@ -5507,13 +5506,17 @@
 
 	function camelize( text ){
 
-		return text.replace(new RegExp("([a-z])(-\\s)*([A-Z])", "g"), "$1$3").toLowerCase();
+		return text.replace(/-([a-z])/g, function( match, letter ){
+
+			return letter.toUpperCase();
+
+		});
 
 	};
 
 	function uncamelize( text ){
 
-		return text.replace(new RegExp("([a-z])([A-Z])", "g"), "$1-$2").toLowerCase();
+		return text.replace(/([A-Z])/g, "-$1").toLowerCase();
 
 	};
 
