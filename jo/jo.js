@@ -2247,6 +2247,8 @@
 
 						var matrix = Jo.matrix(styles[property]);
 
+						console.log("anim", matrix.matrix);
+
 						valuesTo[property].model = "matrix3d(#0,#1,#2,#3,#4,#5,#6,#7,#8,#9,#10,#11,#12,#13,#14,#15)";
 
 						for( var column = 1; column < 5; column++ ){
@@ -2264,16 +2266,17 @@
 
 						};
 
-						continue;
-
 					};
 
-					var preparedProperty = prepareCSSProperty(property, styles[property]);
+					var preparedProperty = prepareCSSProperty(property);
 
 					if( preparedProperty !== property ){
 
 						styles[preparedProperty] = styles[property];
 						delete styles[property];
+
+						valuesTo[preparedProperty] = valuesTo[property];
+						delete valuesTo[property];
 
 					};
 
@@ -2314,6 +2317,7 @@
 						var from = currentStyles[index].getPropertyValue(uncamelizedProperty);
 						var model = valuesTo[property].model;
 						var values = valuesTo[property].values;
+						var isTransform = /^\s*(?:\-(?:webkit|moz|o|ms)?\-)?transform/i.test(property);
 
 						var valueIndex = -1;
 						if( from === "auto" && !isEmpty(this[camelize("offset-" + property)]) ){
@@ -2323,7 +2327,7 @@
 						}
 						else if( from === "none" ){
 
-							if( property === "transform" ){
+							if( isTrue(isTransform) ){
 
 								from = Jo.matrix().toString();
 
@@ -2336,7 +2340,7 @@
 
 						};
 
-						if( property !== "transform" ){
+						if( isFalse(isTransform) ){
 
 							from
 								.replace(regularExpressions.length, function( match, number, unit ){
@@ -2662,6 +2666,11 @@
 				this.copy(this.identity);
 
 			}
+			else if( isString(matrix) ){
+
+				this.add(matrix);
+
+			}
 			else if( matrix.constructor === Jo.matrix ){
 
 				this.matrix = new Object();
@@ -2682,6 +2691,8 @@
 				this.copy(matrix);
 
 			};
+
+			console.log("mat init", this, matrix);
 			
 			return this;
 
@@ -2787,7 +2798,7 @@
 
 			var clone = this.clone();
 
-			if( clone.matrix instanceof window.CSSMatrix ){
+			if( !isEmpty(window.CSSMatrix) ){
 
 				var scaled = Jo.matrix();
 
@@ -2810,7 +2821,7 @@
 
 			var clone = this.clone();
 
-			if( clone.matrix instanceof window.CSSMatrix ){
+			if( !isEmpty(window.CSSMatrix) ){
 
 				var scaled = Jo.matrix();
 
@@ -2833,7 +2844,7 @@
 
 			var clone = this.clone();
 
-			if( clone.matrix instanceof window.CSSMatrix ){
+			if( !isEmpty(window.CSSMatrix) ){
 
 				var scaled = Jo.matrix();
 
@@ -2875,7 +2886,7 @@
 
 			var clone = Jo.matrix();
 
-			if( clone.matrix instanceof window.CSSMatrix ){
+			if( !isEmpty(window.CSSMatrix) ){
 
 				clone.matrix.translate(pixels, 0, 0);
 
@@ -2893,7 +2904,7 @@
 
 			var clone = Jo.matrix();
 
-			if( clone.matrix instanceof window.CSSMatrix ){
+			if( !isEmpty(window.CSSMatrix) ){
 
 				clone.matrix.translate(0, pixels, 0);
 
@@ -2911,7 +2922,7 @@
 
 			var clone = Jo.matrix();
 
-			if( clone.matrix instanceof window.CSSMatrix ){
+			if( !isEmpty(window.CSSMatrix) ){
 
 				clone.matrix.translate(0, 0, pixels);
 
@@ -2947,7 +2958,7 @@
 
 			var clone = Jo.matrix();
 
-			if( clone.matrix instanceof window.CSSMatrix ){
+			if( !isEmpty(window.CSSMatrix) ){
 
 				clone.matrix = clone.matrix.skewX(degrees);
 
@@ -2966,7 +2977,7 @@
 
 			var clone = Jo.matrix();
 
-			if( clone.matrix instanceof window.CSSMatrix ){
+			if( !isEmpty(window.CSSMatrix) ){
 
 				clone.matrix = clone.matrix.skewY(degrees);
 
@@ -2995,7 +3006,7 @@
 
 			var clone = this.clone();
 
-			if( clone.matrix instanceof window.CSSMatrix ){
+			if( !isEmpty(window.CSSMatrix) ){
 
 				clone.matrix = clone.matrix.rotate(degrees, 0, 0);
 
@@ -3024,7 +3035,7 @@
 
 			var clone = this.clone();
 
-			if( clone.matrix instanceof window.CSSMatrix ){
+			if( !isEmpty(window.CSSMatrix) ){
 
 				clone.matrix = clone.matrix.rotate(0, degrees, 0);
 
@@ -3053,7 +3064,7 @@
 
 			var clone = this.clone();
 
-			if( clone.matrix instanceof window.CSSMatrix ){
+			if( !isEmpty(window.CSSMatrix) ){
 
 				clone.matrix = clone.matrix.rotate(0, 0, degrees);
 
@@ -3114,7 +3125,18 @@
 
 			if( !isEmpty(matrix) ){
 
-				if( clone.matrix instanceof window.CSSMatrix ){
+
+				if( !isEmpty(window.CSSMatrix) ){
+
+					matrix = matrix.replace(/\([^\)]*\)/g, function( match ){
+
+						return match.replace(/[0-9\.]+e?[\-\+]?[0-9]*/g, function( number ){
+
+							return parseFloat(number).toFixed(20);
+
+						})
+
+					});
 
 					clone.matrix = clone.matrix.multiply(new window.CSSMatrix(matrix));
 
@@ -3131,7 +3153,7 @@
 					return clone.multiply(matrix);
 
 				}
-				else {
+				else if( isString(matrix) ){
 
 					var transforms = matrix.match(/((scale|scaleX|scaleY|scaleZ|scale3d|rotate|rotateX|rotateY|rotateZ|rotate3d|translate|translateX|translateY|translateZ|translate3d|matrix|matrix3d)\([^\)]*\))/g);
 
@@ -3396,7 +3418,7 @@
 
 			var clone = this.clone();
 
-			if( clone.matrix instanceof window.CSSMatrix ){
+			if( !isEmpty(window.CSSMatrix) ){
 
 				clone.matrix = clone.matrix.multiply(matrix);
 
@@ -3432,7 +3454,7 @@
 
 			var clone = this.clone();
 
-			if( clone.matrix instanceof window.CSSMatrix ){
+			if( !isEmpty(window.CSSMatrix) ){
 
 				clone.matrix = clone.matrix.inverse();
 
@@ -3487,11 +3509,13 @@
 
 			this.matrix = new Object();
 
-			for( var m in matrix ){
+			for( var column = 1; column < 5; column++ ){
 
-				if( matrix.hasOwnProperty(m) ){
+				for( var line = 1; line < 5; line++ ){
 
-					this.matrix[m] = matrix[m] || this.identity[m];
+					var m = "m" + column.toString() + line.toString();
+
+					this.matrix[m] = matrix[m] || this.identity[m]
 
 				};
 
@@ -3503,10 +3527,10 @@
 		toString: function(){
 
 			return "matrix3d("
-				+ this.matrix.m11 + "," + this.matrix.m12 + "," + this.matrix.m13 + "," + this.matrix.m14 + ","
-				+ this.matrix.m21 + "," + this.matrix.m22 + "," + this.matrix.m23 + "," + this.matrix.m24 + ","
-				+ this.matrix.m31 + "," + this.matrix.m32 + "," + this.matrix.m33 + "," + this.matrix.m34 + ","
-				+ this.matrix.m41 + "," + this.matrix.m42 + "," + this.matrix.m43 + "," + this.matrix.m44
+				+ this.matrix.m11.toFixed(20) + "," + this.matrix.m12.toFixed(20) + "," + this.matrix.m13.toFixed(20) + "," + this.matrix.m14.toFixed(20) + ","
+				+ this.matrix.m21.toFixed(20) + "," + this.matrix.m22.toFixed(20) + "," + this.matrix.m23.toFixed(20) + "," + this.matrix.m24.toFixed(20) + ","
+				+ this.matrix.m31.toFixed(20) + "," + this.matrix.m32.toFixed(20) + "," + this.matrix.m33.toFixed(20) + "," + this.matrix.m34.toFixed(20) + ","
+				+ this.matrix.m41.toFixed(20) + "," + this.matrix.m42.toFixed(20) + "," + this.matrix.m43.toFixed(20) + "," + this.matrix.m44.toFixed(20)
 			+ ")";
 
 		},

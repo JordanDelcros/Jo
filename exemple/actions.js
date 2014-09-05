@@ -15,7 +15,7 @@ Jo(function(){
 		.animate({
 			// left: "10%",
 			// top: "10%",
-			transform: "rotateZ(180deg)",
+			transform: "rotateZ(185deg)",
 			backgroundColor: "rgb(0, 255, 0)"
 		}, {
 			easing: "easeOutBounce",
