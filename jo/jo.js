@@ -2201,7 +2201,7 @@
 							})
 							.replace(regularExpressions.RGBColor, function( match, red, green, blue, alpha ){
 
-								if( isEmpty(alpha) ){
+								if( isEmpty(alpha, true) ){
 
 									alpha = 1;
 
@@ -2238,6 +2238,8 @@
 									unit: ""
 								});
 
+								console.log("create anim", alpha)
+
 								return "rgba(#" + (redIndex - 1) + ", #" + (greenIndex - 1) + ", #" + (blueIndex - 1) + ", #" + (alphaIndex - 1) + ")";
 
 							});
@@ -2246,8 +2248,6 @@
 					else {
 
 						var matrix = Jo.matrix(styles[property]);
-
-						console.log("anim", matrix.matrix);
 
 						valuesTo[property].model = "matrix3d(#0,#1,#2,#3,#4,#5,#6,#7,#8,#9,#10,#11,#12,#13,#14,#15)";
 
@@ -2357,7 +2357,7 @@
 								}.bind(this))
 								.replace(regularExpressions.RGBColor, function( match, red, green, blue, alpha ){
 
-									if( isEmpty(alpha) ){
+									if( isEmpty(alpha, true) ){
 
 										alpha = 1;
 
@@ -2504,6 +2504,8 @@
 		},
 		add: function( task ){
 
+			console.log("add", task);
+
 			this.tasks.push(task);
 
 			if( this.active === false ){
@@ -2625,22 +2627,22 @@
 		init: function( matrix ){
 
 			this.identity = {
-				m00: 1,
-				m01: 0,
-				m02: 0,
-				m03: 0,
-				m10: 0,
 				m11: 1,
 				m12: 0,
 				m13: 0,
-				m20: 0,
+				m14: 0,
 				m21: 0,
 				m22: 1,
 				m23: 0,
-				m30: 0,
+				m24: 0,
 				m31: 0,
 				m32: 0,
-				m33: 1
+				m33: 1,
+				m34: 0,
+				m41: 0,
+				m42: 0,
+				m43: 0,
+				m44: 1
 			};
 
 			if( !isEmpty(window.CSSMatrix) ){
@@ -2663,12 +2665,12 @@
 
 			if( isEmpty(matrix) ){
 
-				this.copy(this.identity);
+				this.matrix = this.copy(this.identity).matrix;
 
 			}
 			else if( isString(matrix) ){
 
-				this.add(matrix);
+				this.matrix = this.add(matrix).matrix;
 
 			}
 			else if( matrix.constructor === Jo.matrix ){
@@ -2688,11 +2690,9 @@
 			}
 			else if( isObject(matrix) ){
 
-				this.copy(matrix);
+				this.matrix = this.copy(matrix).matrix;
 
 			};
-
-			console.log("mat init", this, matrix);
 			
 			return this;
 
@@ -3125,7 +3125,6 @@
 
 			if( !isEmpty(matrix) ){
 
-
 				if( !isEmpty(window.CSSMatrix) ){
 
 					matrix = matrix.replace(/\([^\)]*\)/g, function( match ){
@@ -3159,7 +3158,7 @@
 
 					for( var transform = 0, length = transforms.length; transform < length; transform++ ){
 
-						var values = transforms[transform].match(/\-?\s*\d+(\.\d+)?/g);
+						var values = transforms[transform].replace(/3d/, "").match(/\d+(?:\.\d+)?/g);
 
 						if( /^scale\(/.test(transforms[transform]) ){
 
@@ -3323,80 +3322,56 @@
 							};
 
 						}
-						else if( /^matrix\(/.test(transforms[transform]) ){
+						else if( /^matrix/.test(transforms[transform]) ){
 
 							var newMatrix;
 
 							if( values.length === 6 ){
 
 								newMatrix = {
-									m00: parseFloat(values[0]).toFixed(20) || 1,
-									m01: parseFloat(values[2]).toFixed(20) || 0,
-									m02: parseFloat(values[4]).toFixed(20) || 0,
-									m03: 0,
-									m10: parseFloat(values[1]).toFixed(20) || 0,
-									m11: parseFloat(values[3]).toFixed(20) || 1,
-									m12: parseFloat(values[5]).toFixed(20) || 0,
-									m13: 0,
-									m20: 0,
-									m21: 0,
-									m22: 1,
-									m23: 0,
-									m30: 0,
+									m11: parseFloat(values[0]).toFixed(20) || 1,
+									m12: parseFloat(values[2]).toFixed(20) || 0,
+									m13: parseFloat(values[4]).toFixed(20) || 0,
+									m14: 0,
+									m21: parseFloat(values[1]).toFixed(20) || 0,
+									m22: parseFloat(values[3]).toFixed(20) || 1,
+									m23: parseFloat(values[5]).toFixed(20) || 0,
+									m24: 0,
 									m31: 0,
 									m32: 0,
-									m33: 1
+									m33: 1,
+									m34: 0,
+									m41: 0,
+									m42: 0,
+									m43: 0,
+									m44: 1
 								};
 
 							}
 							else if( values.length === 16 ){
 
 								newMatrix = {
-									m00: parseFloat(values[1]).toFixed(20) || 1,
-									m01: parseFloat(values[2]).toFixed(20) || 0,
-									m02: parseFloat(values[3]).toFixed(20) || 0,
-									m03: parseFloat(values[4]).toFixed(20) || 0,
-									m10: parseFloat(values[5]).toFixed(20) || 0,
-									m11: parseFloat(values[6]).toFixed(20) || 1,
-									m12: parseFloat(values[7]).toFixed(20) || 0,
-									m13: parseFloat(values[8]).toFixed(20) || 0,
-									m20: parseFloat(values[9]).toFixed(20) || 0,
-									m21: parseFloat(values[10]).toFixed(20) || 0,
-									m22: parseFloat(values[11]).toFixed(20) || 1,
-									m23: parseFloat(values[12]).toFixed(20) || 0,
-									m30: parseFloat(values[13]).toFixed(20) || 0,
-									m31: parseFloat(values[14]).toFixed(20) || 0,
-									m32: parseFloat(values[15]).toFixed(20) || 0,
-									m33: parseFloat(values[16]).toFixed(20) || 1
+									m11: parseFloat(values[0]).toFixed(20) || 1,
+									m12: parseFloat(values[1]).toFixed(20) || 0,
+									m13: parseFloat(values[2]).toFixed(20) || 0,
+									m14: parseFloat(values[3]).toFixed(20) || 0,
+									m21: parseFloat(values[4]).toFixed(20) || 0,
+									m22: parseFloat(values[5]).toFixed(20) || 1,
+									m23: parseFloat(values[6]).toFixed(20) || 0,
+									m24: parseFloat(values[7]).toFixed(20) || 0,
+									m31: parseFloat(values[8]).toFixed(20) || 0,
+									m32: parseFloat(values[9]).toFixed(20) || 0,
+									m33: parseFloat(values[10]).toFixed(20) || 1,
+									m34: parseFloat(values[11]).toFixed(20) || 0,
+									m41: parseFloat(values[12]).toFixed(20) || 0,
+									m42: parseFloat(values[13]).toFixed(20) || 0,
+									m43: parseFloat(values[14]).toFixed(20) || 0,
+									m44: parseFloat(values[15]).toFixed(20) || 1
 								};
 
 							};
 
 							clone = clone.multiply(newMatrix)
-
-						}
-						else if( /^matrix3d/.test(transforms[transform]) ){
-
-							var newMatrix = {
-								m00: parseFloat(values[1]) || 1,
-								m01: parseFloat(values[2]) || 0,
-								m02: parseFloat(values[3]) || 0,
-								m03: parseFloat(values[4]) || 0,
-								m10: parseFloat(values[5]) || 0,
-								m11: parseFloat(values[6]) || 1,
-								m12: parseFloat(values[7]) || 0,
-								m13: parseFloat(values[8]) || 0,
-								m20: parseFloat(values[9]) || 0,
-								m21: parseFloat(values[10]) || 0,
-								m22: parseFloat(values[11]) || 1,
-								m23: parseFloat(values[12]) || 0,
-								m30: parseFloat(values[13]) || 0,
-								m31: parseFloat(values[14]) || 0,
-								m32: parseFloat(values[15]) || 0,
-								m33: parseFloat(values[16]) || 1
-							};
-
-							clone = clone.multiply(newMatrix);
 
 						};
 

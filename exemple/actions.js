@@ -16,10 +16,10 @@ Jo(function(){
 			// left: "10%",
 			// top: "10%",
 			transform: "rotateZ(185deg)",
-			backgroundColor: "rgb(0, 255, 0)"
+			// backgroundColor: "rgb(0, 255, 0)"
 		}, {
 			easing: "easeOutBounce",
-			duration: 1000,
+			duration: 10000,
 			complete: function(){
 				console.log("jo finish");
 			}
