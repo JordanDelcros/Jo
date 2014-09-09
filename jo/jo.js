@@ -2397,23 +2397,6 @@
 
 							};
 
-							// var matrix = Jo.matrix(from).matrix;
-
-							// for( var column = 1; column < 5; column++ ){
-
-							// 	for( var row = 1; row < 5; row++ ){
-
-							// 		valueIndex++;
-
-							// 		var cell = matrix["m" + column.toString() + row.toString()];
-
-							// 		values[valueIndex].from = cell;
-							// 		values[valueIndex].difference = Math.abs(cell - values[valueIndex].to) * (cell > values[valueIndex].to ? -1 : 1);
-
-							// 	};
-
-							// };
-
 						};
 
 						element.properties[property].model = valuesTo[property].model;
@@ -3365,16 +3348,18 @@
 		},
 		toString: function(){
 
-			// if( !isEmpty(window.CSSMatrix) ){
+			// THERE just exchange matrix names for firefox
+			// its not 11 12 13 14 BUT 11 21 31 41...
+			if( prefix.lowercase === "moz" ){
 
-			// 	return this.matrix.toString();
+				return "matrix3d(" + this.matrix.m11.toFixed(6) + "," + this.matrix.m21.toFixed(6) + "," + this.matrix.m31.toFixed(6) + "," + this.matrix.m41.toFixed(6) + "," + this.matrix.m12.toFixed(6) + "," + this.matrix.m22.toFixed(6) + "," + this.matrix.m32.toFixed(6) + "," + this.matrix.m42.toFixed(6) + "," + this.matrix.m13.toFixed(6) + "," + this.matrix.m23.toFixed(6) + "," + this.matrix.m33.toFixed(6) + "," + this.matrix.m43.toFixed(6) + "," + this.matrix.m14.toFixed(6) + "," + this.matrix.m24.toFixed(6) + "," + this.matrix.m34.toFixed(6) + "," + this.matrix.m44.toFixed(6) + ")";
 
-			// }
-			// else {
+			}
+			else {
 
 				return "matrix3d(" + this.matrix.m11.toFixed(6) + "," + this.matrix.m12.toFixed(6) + "," + this.matrix.m13.toFixed(6) + "," + this.matrix.m14.toFixed(6) + "," + this.matrix.m21.toFixed(6) + "," + this.matrix.m22.toFixed(6) + "," + this.matrix.m23.toFixed(6) + "," + this.matrix.m24.toFixed(6) + "," + this.matrix.m31.toFixed(6) + "," + this.matrix.m32.toFixed(6) + "," + this.matrix.m33.toFixed(6) + "," + this.matrix.m34.toFixed(6) + "," + this.matrix.m41.toFixed(6) + "," + this.matrix.m42.toFixed(6) + "," + this.matrix.m43.toFixed(6) + "," + this.matrix.m44.toFixed(6) + ")";
 				
-			// };
+			};
 
 		}
 	};
