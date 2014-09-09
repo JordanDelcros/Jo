@@ -2145,8 +2145,6 @@
 		},
 		animate: function( styles, options ){
 
-			var before = +new Date();
-
 			options = Jo.merge({
 				duration: 1000,
 				easing: "linear"
@@ -2161,7 +2159,7 @@
 					valuesTo[property] = new Object();
 					valuesTo[property].values = new Array();
 
-					if( property !== "transform" ){
+					// if( property !== "transform" ){
 
 						valuesTo[property].model = styles[property].toString()
 							.replace(regularExpressions.length, function( match, number, unit ){
@@ -2242,30 +2240,30 @@
 
 							});
 
-					}
-					else {
+					// }
+					// else {
 
-						var matrix = Jo.matrix(styles[property]);
-						console.log("END JO", matrix.toString());
+					// 	var matrix = Jo.matrix(styles[property]);
+					// 	console.log("END JO", matrix.toString());
 
-						valuesTo[property].model = "matrix3d(#0,#1,#2,#3,#4,#5,#6,#7,#8,#9,#10,#11,#12,#13,#14,#15)";
+					// 	valuesTo[property].model = "matrix3d(#0,#1,#2,#3,#4,#5,#6,#7,#8,#9,#10,#11,#12,#13,#14,#15)";
 
-						for( var column = 1; column < 5; column++ ){
+					// 	for( var column = 1; column < 5; column++ ){
 
-							for( var row = 1; row < 5; row++ ){
+					// 		for( var row = 1; row < 5; row++ ){
 
-								valuesTo[property].values.push({
-									from: null,
-									to: matrix.matrix["m" + column.toString() + row.toString()],
-									difference: 0,
-									unit: null
-								});
+					// 			valuesTo[property].values.push({
+					// 				from: null,
+					// 				to: matrix.matrix["m" + column.toString() + row.toString()],
+					// 				difference: 0,
+					// 				unit: null
+					// 			});
 
-							};
+					// 		};
 
-						};
+					// 	};
 
-					};
+					// };
 
 					var preparedProperty = prepareCSSProperty(property);
 
@@ -2310,6 +2308,8 @@
 				for( var property in styles ){
 
 					if( styles.hasOwnProperty(property) ){
+
+						element.properties[property] = new Object();
 
 						var uncamelizedProperty = uncamelize(property);
 
@@ -2385,29 +2385,39 @@
 						}
 						else {
 
-							var matrix = Jo.matrix(from).matrix;
 
-							for( var column = 1; column < 5; column++ ){
+							element.properties[property].origin = Jo.matrix(from);
 
-								for( var row = 1; row < 5; row++ ){
+							for( var transformation = 0, length = values.length; transformation < length; transformation++ ){
 
-									valueIndex++;
+								valueIndex++;
 
-									var cell = matrix["m" + column.toString() + row.toString()];
-
-									values[valueIndex].from = cell;
-									values[valueIndex].difference = Math.abs(cell - values[valueIndex].to) * (cell > values[valueIndex].to ? -1 : 1);
-
-								};
+								values[valueIndex].from = 0;
+								values[valueIndex].difference = values[valueIndex].to;
 
 							};
 
+							// var matrix = Jo.matrix(from).matrix;
+
+							// for( var column = 1; column < 5; column++ ){
+
+							// 	for( var row = 1; row < 5; row++ ){
+
+							// 		valueIndex++;
+
+							// 		var cell = matrix["m" + column.toString() + row.toString()];
+
+							// 		values[valueIndex].from = cell;
+							// 		values[valueIndex].difference = Math.abs(cell - values[valueIndex].to) * (cell > values[valueIndex].to ? -1 : 1);
+
+							// 	};
+
+							// };
+
 						};
 
-						element.properties[property] = {
-							model: valuesTo[property].model,
-							values: valuesTo[property].values
-						};
+						element.properties[property].model = valuesTo[property].model;
+						element.properties[property].values = valuesTo[property].values;
 
 					};
 
@@ -2586,6 +2596,12 @@
 							};
 
 							model = model.replace("#" + value, newValue + element.properties[property].values[value].unit);
+
+						};
+
+						if( property === "transform" ){
+
+							model = currentProperty.origin.add(model).toString();
 
 						};
 
@@ -2986,22 +3002,13 @@
 
 			if( !isEmpty(matrix) ){
 
-				if( !isEmpty(window.CSSMatrix) ){
+				if( !isString(matrix) ){
 
-					clone = clone.multiply(Jo.matrix(matrix)); 
+					matrix = Jo(matrix).toString();
 
-				}
-				else if( matrix.constructor === Jo.matrix ){
-
-					clone = clone.multiply(matrix);
-
-				}
-				else if( isObject(matrix) ){
-
-					clone = clone.multiply(matrix);
-
-				}
-				else if( isString(matrix) ){
+				};
+				
+				if( isString(matrix) ){
 
 					var transforms = matrix.match(/((scale|scaleX|scaleY|scaleZ|scale3d|rotate|rotateX|rotateY|rotateZ|rotate3d|translate|translateX|translateY|translateZ|translate3d|matrix|matrix3d)\([^\)]*\))/g);
 
@@ -3358,16 +3365,16 @@
 		},
 		toString: function(){
 
-			if( !isEmpty(window.CSSMatrix) ){
+			// if( !isEmpty(window.CSSMatrix) ){
 
-				return this.matrix.toString();
+			// 	return this.matrix.toString();
 
-			}
-			else {
+			// }
+			// else {
 
 				return "matrix3d(" + this.matrix.m11.toFixed(6) + "," + this.matrix.m12.toFixed(6) + "," + this.matrix.m13.toFixed(6) + "," + this.matrix.m14.toFixed(6) + "," + this.matrix.m21.toFixed(6) + "," + this.matrix.m22.toFixed(6) + "," + this.matrix.m23.toFixed(6) + "," + this.matrix.m24.toFixed(6) + "," + this.matrix.m31.toFixed(6) + "," + this.matrix.m32.toFixed(6) + "," + this.matrix.m33.toFixed(6) + "," + this.matrix.m34.toFixed(6) + "," + this.matrix.m41.toFixed(6) + "," + this.matrix.m42.toFixed(6) + "," + this.matrix.m43.toFixed(6) + "," + this.matrix.m44.toFixed(6) + ")";
 				
-			};
+			// };
 
 		}
 	};
@@ -5390,7 +5397,7 @@
 	var regularExpressions = {
 		singleTag: /^<(\w+)\s*\/?>(?:<\/\1>|)$/,
 		onlySpaces: /^\s+$/g,
-		length: /(\d*\.?\d+)(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%)/gi, //!!! < ?
+		length: /(\-?\s*\d*\.?\d+)(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%)/gi, //!!! < ?
 		RGBColor: /rgba?\(([0-9]{1,3})[,\s]{1,}([0-9]{1,3})[,\s]{1,}([0-9]{1,3})[,\s]{0,}([0-1]{1}\.?[0-9]*)?\)/gi,
 		hexColor: /^#([a-f0-9]{1,2})([a-f0-9]{1,2})([a-f0-9]{1,2})$/gi
 	};
