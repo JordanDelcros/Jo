@@ -13,13 +13,12 @@ Jo(function(){
 
 	var $li = Jo("li")
 		.animate({
-			// left: "10%",
 			// top: "10%",
 			transform: "rotateZ(185deg)",
 			// backgroundColor: "rgb(0, 255, 0)"
 		}, {
 			easing: "easeOutBounce",
-			duration: 10000,
+			duration: 1000,
 			complete: function(){
 				console.log("jo finish");
 			}
