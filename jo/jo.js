@@ -3012,12 +3012,10 @@
 		},
 		rotate3d: function( x, y, z, degrees ){
 
-			var clone = this
+			return this
 				.rotateX((x < 0) ? -degrees : degrees)
 				.rotateY((y < 0) ? -degrees : degrees)
 				.rotateZ((z < 0) ? -degrees : degrees);
-
-			return clone;
 
 		},
 		add: function( matrix ){
@@ -3206,6 +3204,8 @@
 
 							var identity = Jo.matrix();
 
+							console.log("ADD", matrix);
+
 							if( values.length === 6 ){
 
 								identity = identity
@@ -3219,23 +3219,48 @@
 							}
 							else if( values.length === 16 ){
 
-								identity = identity
-									.set("m11", parseFloat(values[0]) || 1)
-									.set("m12", parseFloat(values[1]) || 0)
-									.set("m13", parseFloat(values[2]) || 0)
-									.set("m14", parseFloat(values[3]) || 0)
-									.set("m21", parseFloat(values[4]) || 0)
-									.set("m22", parseFloat(values[5]) || 1)
-									.set("m23", parseFloat(values[6]) || 0)
-									.set("m24", parseFloat(values[7]) || 0)
-									.set("m31", parseFloat(values[8]) || 0)
-									.set("m32", parseFloat(values[9]) || 0)
-									.set("m33", parseFloat(values[10]) || 1)
-									.set("m34", parseFloat(values[11]) || 0)
-									.set("m41", parseFloat(values[12]) || 0)
-									.set("m42", parseFloat(values[13]) || 0)
-									.set("m43", parseFloat(values[14]) || 0)
-									.set("m44", parseFloat(values[15]) || 1);
+								// if( prefix.lowercase === "moz" ){
+
+								// 	identity = identity
+								// 		.set("m11", parseFloat(values[0]))
+								// 		.set("m12", parseFloat(values[4]))
+								// 		.set("m13", parseFloat(values[8]))
+								// 		.set("m14", parseFloat(values[12]))
+								// 		.set("m21", parseFloat(values[1]))
+								// 		.set("m22", parseFloat(values[5]))
+								// 		.set("m23", parseFloat(values[9]))
+								// 		.set("m24", parseFloat(values[13]))
+								// 		.set("m31", parseFloat(values[2]))
+								// 		.set("m32", parseFloat(values[6]))
+								// 		.set("m33", parseFloat(values[10]))
+								// 		.set("m34", parseFloat(values[14]))
+								// 		.set("m41", parseFloat(values[3]))
+								// 		.set("m42", parseFloat(values[7]))
+								// 		.set("m43", parseFloat(values[11]))
+								// 		.set("m44", parseFloat(values[15]));
+
+								// }
+								// else {
+
+									identity = identity
+										.set("m11", parseFloat(values[0]))
+										.set("m12", parseFloat(values[1]))
+										.set("m13", parseFloat(values[2]))
+										.set("m14", parseFloat(values[3]))
+										.set("m21", parseFloat(values[4]))
+										.set("m22", parseFloat(values[5]))
+										.set("m23", parseFloat(values[6]))
+										.set("m24", parseFloat(values[7]))
+										.set("m31", parseFloat(values[8]))
+										.set("m32", parseFloat(values[9]))
+										.set("m33", parseFloat(values[10]))
+										.set("m34", parseFloat(values[11]))
+										.set("m41", parseFloat(values[12]))
+										.set("m42", parseFloat(values[13]))
+										.set("m43", parseFloat(values[14]))
+										.set("m44", parseFloat(values[15]));
+
+								// };
 
 							};
 
