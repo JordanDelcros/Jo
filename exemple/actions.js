@@ -12,9 +12,9 @@ Jo(function(){
 	};
 
 	var $li = Jo("li")
-		// .css("transform", "rotateZ(45deg)")
+		.css("transform", "rotateZ(45deg) rotateX(40deg) translateX(100px)")
 		.animate({
-			transform: "translateX(100px) rotateZ(45deg) rotateX(60deg)"
+			transform: "translateX(100px) translateZ(-100px) rotateY(40deg) rotateZ(45deg)"
 		}, {
 			easing: "easeOutBounce",
 			duration: 10000,

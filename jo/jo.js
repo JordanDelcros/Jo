@@ -3093,21 +3093,23 @@
 
 							if( values.length === 6 ){
 
-								// identity = identity
-								// 	.set("m11", parseFloat(values[3]))
-								// 	.set("m21", parseFloat(values[0]))
-								// 	.set("m12", parseFloat(values[1]))
-								// 	.set("m22", parseFloat(values[2]))
-								// 	.set("m13", parseFloat(values[5]))
-								// 	.set("m23", parseFloat(values[5]));
-
 								identity = identity
-									.set("m11", parseFloat(values[1]))
+									.set("m11", parseFloat(values[0]))
+									.set("m12", parseFloat(values[1]))
+									.set("m13", 0)
+									.set("m14", 0)
 									.set("m21", parseFloat(values[2]))
-									.set("m12", parseFloat(values[0]))
 									.set("m22", parseFloat(values[3]))
-									.set("m13", parseFloat(values[4]))
-									.set("m23", parseFloat(values[5]));
+									.set("m23", 0)
+									.set("m24", 0)
+									.set("m31", 0)
+									.set("m32", 0)
+									.set("m33", 1)
+									.set("m34", 0)
+									.set("m41", parseFloat(values[4]))
+									.set("m42", parseFloat(values[5]))
+									.set("m43", 0)
+									.set("m44", 1)
 
 							}
 							else if( values.length === 16 ){
@@ -3135,6 +3137,8 @@
 						};
 
 						clone = clone.multiply(identity);
+
+						console.log(clone.toString());
 
 					};
 
