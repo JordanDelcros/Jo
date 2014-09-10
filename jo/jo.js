@@ -2912,7 +2912,12 @@
 
 				};
 				
-				if( isString(matrix) ){
+				if( !isEmpty(window.CSSMatrix) ){
+
+					clone = clone.matrix.multiply(new window.CSSMatrix(matrix));
+
+				}
+				else if( isString(matrix) ){
 
 					var transforms = matrix.match(/((scale|scaleX|scaleY|scaleZ|scale3d|rotate|rotateX|rotateY|rotateZ|rotate3d|translate|translateX|translateY|translateZ|translate3d|matrix|matrix3d)\([^\)]*\))/g);
 
@@ -2920,17 +2925,19 @@
 
 						var values = transforms[transform].replace(/3d/, "").match(/[\-]?\s*\d+(?:\.\d+)?/g);
 
+						var identity = Jo.matrix();
+
 						if( /^scale\(/.test(transforms[transform]) ){
 
 							if( !isEmpty(values[0]) ){
 
-								clone = clone.scaleX(parseFloat(values[0]));
+								identity = identity.scaleX(parseFloat(values[0]));
 
 							};
 
 							if( !isEmpty(values[1]) ){
 
-								clone = clone.scaleX(parseFloat(values[1]));
+								identity = identity.scaleX(parseFloat(values[1]));
 
 							};
 
@@ -2939,7 +2946,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								clone = clone.scaleX(parseFloat(values[0]));
+								identity = identity.scaleX(parseFloat(values[0]));
 
 							};
 
@@ -2948,7 +2955,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								clone = clone.scaleY(parseFloat(values[0]));
+								identity = identity.scaleY(parseFloat(values[0]));
 
 							};
 
@@ -2957,7 +2964,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								clone = clone.scaleX(parseFloat(values[0]));
+								identity = identity.scaleX(parseFloat(values[0]));
 
 							};
 
@@ -2966,13 +2973,13 @@
 
 							if( !isEmpty(values[0]) ){
 
-								clone = clone.translateX(parseFloat(values[0]));
+								identity = identity.translateX(parseFloat(values[0]));
 
 							};
 
 							if( !isEmpty(values[1]) ){
 
-								clone = clone.translateY(parseFloat(values[1]));
+								identity = identity.translateY(parseFloat(values[1]));
 
 							};
 
@@ -2981,7 +2988,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								clone = clone.translateX(parseFloat(values[0]));
+								identity = identity.translateX(parseFloat(values[0]));
 
 							};
 
@@ -2990,7 +2997,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								clone = clone.translateY(parseFloat(values[0]));
+								identity = identity.translateY(parseFloat(values[0]));
 
 							};
 
@@ -2999,7 +3006,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								clone = clone.translateZ(parseFloat(values[0]));
+								identity = identity.translateZ(parseFloat(values[0]));
 
 							};
 
@@ -3008,7 +3015,7 @@
 
 							if( !isEmpty(values[0]) && !isEmpty(values[1]) && !isEmpty(values[2]) ){
 
-								clone = clone.translate(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]));
+								identity = identity.translate(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]));
 
 							};
 
@@ -3017,13 +3024,13 @@
 
 							if( !isEmpty(values[0]) ){
 
-								clone = clone.skewX(parseFloat(values[0]));
+								identity = identity.skewX(parseFloat(values[0]));
 
 							};
 
 							if( !isEmpty(values[1]) ){
 
-								clone = clone.skewY(parseFloat(values[1]));
+								identity = identity.skewY(parseFloat(values[1]));
 
 							};
 
@@ -3032,7 +3039,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								clone = clone.skewX(parseFloat(values[0]));
+								identity = identity.skewX(parseFloat(values[0]));
 
 							};
 
@@ -3041,7 +3048,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								clone = clone.skewY(parseFloat(values[0]));
+								identity = identity.skewY(parseFloat(values[0]));
 
 							};
 
@@ -3050,7 +3057,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								clone = clone.rotateZ(parseFloat(values[0]));
+								identity = identity.rotateZ(parseFloat(values[0]));
 
 							};
 
@@ -3059,7 +3066,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								clone = clone.rotateX(parseFloat(values[0]));
+								identity = identity.rotateX(parseFloat(values[0]));
 
 							};
 
@@ -3068,7 +3075,7 @@
 
 							if( !isEmpty(values[0]) ){
 
-								clone = clone.rotateY(parseFloat(values[0]));
+								identity = identity.rotateY(parseFloat(values[0]));
 
 							};
 
@@ -3077,25 +3084,30 @@
 
 							if( !isEmpty(values[0]) && !isEmpty(values[1]) && !isEmpty(values[2]) && !isEmpty(values[3]) ){
 
-								clone = clone.rotate3d(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), parseFloat(values[3]));
+								identity = identity.rotate3d(parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2]), parseFloat(values[3]));
 
 							};
 
 						}
 						else if( /^matrix/.test(transforms[transform]) ){
 
-							var identity = Jo.matrix();
-
 							if( values.length === 6 ){
+
+								// identity = identity
+								// 	.set("m11", parseFloat(values[3]))
+								// 	.set("m21", parseFloat(values[0]))
+								// 	.set("m12", parseFloat(values[1]))
+								// 	.set("m22", parseFloat(values[2]))
+								// 	.set("m13", parseFloat(values[5]))
+								// 	.set("m23", parseFloat(values[5]));
 
 								identity = identity
 									.set("m11", parseFloat(values[1]))
-									.set("m21", parseFloat(values[0]))
-									.set("m12", parseFloat(values[2]))
+									.set("m21", parseFloat(values[2]))
+									.set("m12", parseFloat(values[0]))
 									.set("m22", parseFloat(values[3]))
 									.set("m13", parseFloat(values[4]))
 									.set("m23", parseFloat(values[5]));
-
 
 							}
 							else if( values.length === 16 ){
@@ -3120,9 +3132,9 @@
 
 							};
 
-							clone.matrix = clone.multiply(identity).matrix;
-
 						};
+
+						clone = clone.multiply(identity);
 
 					};
 
@@ -4149,7 +4161,7 @@
 				},
 				error: function( message ){
 
-					console.log(message)
+					console.error(message)
 
 				}
 			}, settings);

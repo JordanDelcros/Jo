@@ -12,12 +12,12 @@ Jo(function(){
 	};
 
 	var $li = Jo("li")
-		.css("transform", "rotateZ(45deg)")
+		// .css("transform", "rotateZ(45deg)")
 		.animate({
-			transform: "rotateY(60deg) rotateZ(-180deg)"
+			transform: "translateX(100px) rotateZ(45deg) rotateX(60deg)"
 		}, {
 			easing: "easeOutBounce",
-			duration: 1000,
+			duration: 10000,
 			complete: function(){
 
 				console.log("jo finish");
