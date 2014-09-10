@@ -291,8 +291,6 @@
 
 			var found = new Array();
 
-			console.log("PARENT")
-
 			$this.each(function(){
 
 				if( !isEmpty(selector) ){
@@ -954,12 +952,6 @@
 				if( !isEmpty(value) ){
 
 					value = value.toString();
-
-					if( property === "transform" ){
-
-						value = Jo.matrix().add(value);
-
-					};
 
 					this.each(function(){
 
@@ -2159,111 +2151,84 @@
 					valuesTo[property] = new Object();
 					valuesTo[property].values = new Array();
 
-					// if( property !== "transform" ){
+					valuesTo[property].model = styles[property].toString()
+						.replace(regularExpressions.length, function( match, number, unit ){
 
-						valuesTo[property].model = styles[property].toString()
-							.replace(regularExpressions.length, function( match, number, unit ){
-
-								var index = valuesTo[property].values.push({
-									from: null,
-									to: parseFloat(number),
-									difference: 0,
-									unit: unit
-								});
-
-								return "#" + (index - 1);
-
-							})
-							.replace(regularExpressions.hexaColor, function( match, red, green, blue ){
-
-								if( red.length === 1 ){
-
-									red = red + red;
-
-								};
-
-								if( green.length === 1 ){
-
-									green = green + green;
-
-								};
-
-								if( blue.length === 1 ){
-
-									blue = blue + blue;
-
-								};
-
-								return "rgba(" + parseInt(red, 16) + ", " + parseInt(green, 16) + ", " + parseInt(blue, 16) + ", 1)";
-
-							})
-							.replace(regularExpressions.RGBColor, function( match, red, green, blue, alpha ){
-
-								if( isEmpty(alpha, true) ){
-
-									alpha = 1;
-
-								};
-
-								var redIndex = valuesTo[property].values.push({
-									from: null,
-									to: parseInt(red),
-									difference: 0,
-									unit: "",
-									integer: true
-								});
-
-								var greenIndex = valuesTo[property].values.push({
-									from: null,
-									to: parseInt(green),
-									difference: 0,
-									unit: "",
-									integer: true
-								});
-
-								var blueIndex = valuesTo[property].values.push({
-									from: null,
-									to: parseInt(blue),
-									difference: 0,
-									unit: "",
-									integer: true
-								});
-
-								var alphaIndex = valuesTo[property].values.push({
-									from: null,
-									to: parseInt(alpha),
-									difference: 0,
-									unit: ""
-								});
-
-								return "rgba(#" + (redIndex - 1) + ", #" + (greenIndex - 1) + ", #" + (blueIndex - 1) + ", #" + (alphaIndex - 1) + ")";
-
+							var index = valuesTo[property].values.push({
+								from: null,
+								to: parseFloat(number),
+								difference: 0,
+								unit: unit
 							});
 
-					// }
-					// else {
+							return "#" + (index - 1);
 
-					// 	var matrix = Jo.matrix(styles[property]);
-					// 	console.log("END JO", matrix.toString());
+						})
+						.replace(regularExpressions.hexaColor, function( match, red, green, blue ){
 
-					// 	valuesTo[property].model = "matrix3d(#0,#1,#2,#3,#4,#5,#6,#7,#8,#9,#10,#11,#12,#13,#14,#15)";
+							if( red.length === 1 ){
 
-					// 	for( var column = 1; column < 5; column++ ){
+								red = red + red;
 
-					// 		for( var row = 1; row < 5; row++ ){
+							};
 
-					// 			valuesTo[property].values.push({
-					// 				from: null,
-					// 				to: matrix.matrix["m" + column.toString() + row.toString()],
-					// 				difference: 0,
-					// 				unit: null
-					// 			});
+							if( green.length === 1 ){
 
-					// 		};
+								green = green + green;
 
-					// 	};
+							};
 
-					// };
+							if( blue.length === 1 ){
+
+								blue = blue + blue;
+
+							};
+
+							return "rgba(" + parseInt(red, 16) + ", " + parseInt(green, 16) + ", " + parseInt(blue, 16) + ", 1)";
+
+						})
+						.replace(regularExpressions.RGBColor, function( match, red, green, blue, alpha ){
+
+							if( isEmpty(alpha, true) ){
+
+								alpha = 1;
+
+							};
+
+							var redIndex = valuesTo[property].values.push({
+								from: null,
+								to: parseInt(red),
+								difference: 0,
+								unit: "",
+								integer: true
+							});
+
+							var greenIndex = valuesTo[property].values.push({
+								from: null,
+								to: parseInt(green),
+								difference: 0,
+								unit: "",
+								integer: true
+							});
+
+							var blueIndex = valuesTo[property].values.push({
+								from: null,
+								to: parseInt(blue),
+								difference: 0,
+								unit: "",
+								integer: true
+							});
+
+							var alphaIndex = valuesTo[property].values.push({
+								from: null,
+								to: parseInt(alpha),
+								difference: 0,
+								unit: ""
+							});
+
+							return "rgba(#" + (redIndex - 1) + ", #" + (greenIndex - 1) + ", #" + (blueIndex - 1) + ", #" + (alphaIndex - 1) + ")";
+
+						});
 
 					var preparedProperty = prepareCSSProperty(property);
 
@@ -2387,8 +2352,6 @@
 
 							element.properties[property].origin = Jo.matrix(from);
 
-							console.log(Jo.matrix(from).toString());
-
 							for( var transformation = 0, length = values.length; transformation < length; transformation++ ){
 
 								valueIndex++;
@@ -2410,8 +2373,6 @@
 				task.elements.push(element);
 
 			});
-
-			console.log(task);
 
 			Animations.add(task);
 
@@ -2632,63 +2593,6 @@
 			}
 			else {
 
-				if( prefix.lowercase === "moz" ){
-
-					this.map = {
-						a: "m11",
-						b: "m21",
-						c: "m12",
-						d: "m22",
-						e: "m13",
-						f: "m23",
-						m11: "m11",
-						m12: "m21",
-						m13: "m31",
-						m14: "m41",
-						m21: "m12",
-						m22: "m22",
-						m23: "m32",
-						m24: "m42",
-						m31: "m13",
-						m32: "m23",
-						m33: "m33",
-						m34: "m43",
-						m41: "m14",
-						m42: "m24",
-						m43: "m34",
-						m44: "m44",
-					};
-
-				}
-				else {
-
-					this.map = {
-						a: "m11",
-						b: "m21",
-						c: "m12",
-						d: "m22",
-						e: "m13",
-						f: "m23",
-						m11: "m11",
-						m12: "m12",
-						m13: "m13",
-						m14: "m14",
-						m21: "m21",
-						m22: "m22",
-						m23: "m23",
-						m24: "m24",
-						m31: "m31",
-						m32: "m32",
-						m33: "m33",
-						m34: "m34",
-						m41: "m41",
-						m42: "m42",
-						m43: "m43",
-						m44: "m44",
-					};
-
-				};
-
 				if( isEmpty(matrix) ){
 
 					this.matrix = this.getIdentity();
@@ -2717,36 +2621,14 @@
 		},
 		get: function( name ){
 
-			if( !isEmpty(window.CSSMatrix) ){
-
-				return this.matrix[name];
-
-			}
-			else {
-
-				return this.matrix[this.map[name]];
-
-			};
+			return this.matrix[name];
 
 		},
 		set: function( name, number ){
 
 			var clone = this.clone();
 
-			if( !isEmpty(window.CSSMatrix) ){
-
-				clone.matrix[name] = number;
-
-			}
-			else {
-
-				if( !isEmpty(this.matrix[this.map[name]]) ){
-
-					clone.matrix[this.map[name]] = parseFloat(number);
-
-				};
-
-			};
+			clone.matrix[name] = number;
 
 			return clone;
 
@@ -3204,63 +3086,37 @@
 
 							var identity = Jo.matrix();
 
-							console.log("ADD", matrix);
-
 							if( values.length === 6 ){
 
 								identity = identity
-									.set("m11", parseFloat(values[0]) || 1)
-									.set("m12", parseFloat(values[2]) || 1)
-									.set("m13", parseFloat(values[4]) || 1)
-									.set("m21", parseFloat(values[1]) || 1)
-									.set("m22", parseFloat(values[3]) || 1)
-									.set("m23", parseFloat(values[5]) || 1);
+									.set("m11", parseFloat(values[1]))
+									.set("m21", parseFloat(values[0]))
+									.set("m12", parseFloat(values[2]))
+									.set("m22", parseFloat(values[3]))
+									.set("m13", parseFloat(values[4]))
+									.set("m23", parseFloat(values[5]));
+
 
 							}
 							else if( values.length === 16 ){
 
-								// if( prefix.lowercase === "moz" ){
-
-								// 	identity = identity
-								// 		.set("m11", parseFloat(values[0]))
-								// 		.set("m12", parseFloat(values[4]))
-								// 		.set("m13", parseFloat(values[8]))
-								// 		.set("m14", parseFloat(values[12]))
-								// 		.set("m21", parseFloat(values[1]))
-								// 		.set("m22", parseFloat(values[5]))
-								// 		.set("m23", parseFloat(values[9]))
-								// 		.set("m24", parseFloat(values[13]))
-								// 		.set("m31", parseFloat(values[2]))
-								// 		.set("m32", parseFloat(values[6]))
-								// 		.set("m33", parseFloat(values[10]))
-								// 		.set("m34", parseFloat(values[14]))
-								// 		.set("m41", parseFloat(values[3]))
-								// 		.set("m42", parseFloat(values[7]))
-								// 		.set("m43", parseFloat(values[11]))
-								// 		.set("m44", parseFloat(values[15]));
-
-								// }
-								// else {
-
-									identity = identity
-										.set("m11", parseFloat(values[0]))
-										.set("m12", parseFloat(values[1]))
-										.set("m13", parseFloat(values[2]))
-										.set("m14", parseFloat(values[3]))
-										.set("m21", parseFloat(values[4]))
-										.set("m22", parseFloat(values[5]))
-										.set("m23", parseFloat(values[6]))
-										.set("m24", parseFloat(values[7]))
-										.set("m31", parseFloat(values[8]))
-										.set("m32", parseFloat(values[9]))
-										.set("m33", parseFloat(values[10]))
-										.set("m34", parseFloat(values[11]))
-										.set("m41", parseFloat(values[12]))
-										.set("m42", parseFloat(values[13]))
-										.set("m43", parseFloat(values[14]))
-										.set("m44", parseFloat(values[15]));
-
-								// };
+								identity = identity
+									.set("m11", parseFloat(values[0]))
+									.set("m12", parseFloat(values[1]))
+									.set("m13", parseFloat(values[2]))
+									.set("m14", parseFloat(values[3]))
+									.set("m21", parseFloat(values[4]))
+									.set("m22", parseFloat(values[5]))
+									.set("m23", parseFloat(values[6]))
+									.set("m24", parseFloat(values[7]))
+									.set("m31", parseFloat(values[8]))
+									.set("m32", parseFloat(values[9]))
+									.set("m33", parseFloat(values[10]))
+									.set("m34", parseFloat(values[11]))
+									.set("m41", parseFloat(values[12]))
+									.set("m42", parseFloat(values[13]))
+									.set("m43", parseFloat(values[14]))
+									.set("m44", parseFloat(values[15]));
 
 							};
 
