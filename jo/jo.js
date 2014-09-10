@@ -16,8 +16,8 @@
 	};
 
 	Jo.fn = Jo.prototype = {
-		Jo: "0.1",
 		constructor: Jo,
+		version: "0.1b",
 		init: function( selector, context ){
 
 			var found = new Array();
