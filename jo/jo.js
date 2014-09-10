@@ -3138,8 +3138,6 @@
 
 						clone = clone.multiply(identity);
 
-						console.log(clone.toString());
-
 					};
 
 				};
