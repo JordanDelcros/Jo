@@ -2385,8 +2385,9 @@
 						}
 						else {
 
-
 							element.properties[property].origin = Jo.matrix(from);
+
+							console.log(Jo.matrix(from).toString());
 
 							for( var transformation = 0, length = values.length; transformation < length; transformation++ ){
 
@@ -2631,6 +2632,62 @@
 			}
 			else {
 
+				if( prefix.lowercase === "moz" ){
+
+					this.map = {
+						a: "m11",
+						b: "m21",
+						c: "m12",
+						d: "m22",
+						e: "m13",
+						f: "m23",
+						m11: "m11",
+						m12: "m21",
+						m13: "m31",
+						m14: "m41",
+						m21: "m12",
+						m22: "m22",
+						m23: "m32",
+						m24: "m42",
+						m31: "m13",
+						m32: "m23",
+						m33: "m33",
+						m34: "m43",
+						m41: "m14",
+						m42: "m24",
+						m43: "m34",
+						m44: "m44",
+					};
+
+				}
+				else {
+
+					this.map = {
+						a: "m11",
+						b: "m21",
+						c: "m12",
+						d: "m22",
+						e: "m13",
+						f: "m23",
+						m11: "m11",
+						m12: "m12",
+						m13: "m13",
+						m14: "m14",
+						m21: "m21",
+						m22: "m22",
+						m23: "m23",
+						m24: "m24",
+						m31: "m31",
+						m32: "m32",
+						m33: "m33",
+						m34: "m34",
+						m41: "m41",
+						m42: "m42",
+						m43: "m43",
+						m44: "m44",
+					};
+
+				};
 
 				if( isEmpty(matrix) ){
 
@@ -2658,72 +2715,48 @@
 			return this;
 
 		},
-		getA: function(){
+		get: function( name ){
 
-			return 	this.matrix.m11;
+			if( !isEmpty(window.CSSMatrix) ){
 
-		},
-		getB: function(){
+				return this.matrix[name];
 
-			return 	this.matrix.m21;
+			}
+			else {
 
-		},
-		getC: function(){
+				return this.matrix[this.map[name]];
 
-			return 	this.matrix.m12;
-
-		},
-		getD: function(){
-
-			return 	this.matrix.m22;
+			};
 
 		},
-		getE: function(){
+		set: function( name, number ){
 
-			return 	this.matrix.m13;
+			var clone = this.clone();
 
-		},
-		getF: function(){
+			if( !isEmpty(window.CSSMatrix) ){
 
-			return 	this.matrix.m23;
+				clone.matrix[name] = number;
 
-		},
-		setA: function( value ){
+			}
+			else {
 
-			this.matrix.m11 = value;
+				if( !isEmpty(this.matrix[this.map[name]]) ){
 
-		},
-		setB: function( value ){
+					clone.matrix[this.map[name]] = parseFloat(number);
 
-			this.matrix.m21 = value;
+				};
 
-		},
-		setC: function( value ){
+			};
 
-			this.matrix.m12 = value;
-
-		},
-		setD: function( value ){
-
-			this.matrix.m22 = value;
-
-		},
-		setE: function( value ){
-
-			this.matrix.m13 = value;
-
-		},
-		setF: function( value ){
-
-			this.matrix.m23 = value;
+			return clone;
 
 		},
 		getScale: function(){
 
 			return {
-				x: Math.sqrt(this.matrix.m11 * this.matrix.m11 + this.matrix.m21 * this.matrix.m21),
-				y: Math.sqrt(this.matrix.m12 * this.matrix.m12 + this.matrix.m22 * this.matrix.m22),
-				z: Math.sqrt(this.matrix.m13 * this.matrix.m13 + this.matrix.m23 * this.matrix.m23)
+				x: Math.sqrt(this.get("m11") * this.get("m11") + this.get("m21") * this.get("m21")),
+				y: Math.sqrt(this.get("m12") * this.get("m12") + this.get("m22") * this.get("m22")),
+				z: Math.sqrt(this.get("m13") * this.get("m13") + this.get("m23") * this.get("m23"))
 			};
 
 		},
@@ -2740,28 +2773,31 @@
 
 				if( !isEmpty(x) ){
 
-					clone.matrix.m11 *= x;
-					clone.matrix.m12 *= x;
-					clone.matrix.m13 *= x;
-					clone.matrix.m14 *= x;
+					clone = clone
+						.set("m11", clone.get("m11") * x)
+						.set("m12", clone.get("m12") * x)
+						.set("m13", clone.get("m13") * x)
+						.set("m14", clone.get("m14") * x);
 
 				};
 
 				if( !isEmpty(y) ){
 
-					clone.matrix.m21 *= y;
-					clone.matrix.m22 *= y;
-					clone.matrix.m23 *= y;
-					clone.matrix.m24 *= y;
+					clone = clone
+						.set("m21", clone.get("m21") * y)
+						.set("m22", clone.get("m22") * y)
+						.set("m23", clone.get("m23") * y)
+						.set("m24", clone.get("m24") * y);
 
 				};
 
 				if( !isEmpty(z) ){
 
-					clone.matrix.m31 *= z;
-					clone.matrix.m32 *= z;
-					clone.matrix.m33 *= z;
-					clone.matrix.m34 *= z;
+					clone = clone
+						.set("m31", clone.get("m31") * z)
+						.set("m32", clone.get("m32") * z)
+						.set("m33", clone.get("m33") * z)
+						.set("m34", clone.get("m34") * z);
 
 				};
 				
@@ -2788,9 +2824,9 @@
 		getTranslate: function(){
 
 			return {
-				x: this.matrix.m41,
-				y: this.matrix.m42,
-				z: this.matrix.m43
+				x: this.get("m41"),
+				y: this.get("m42"),
+				z: this.get("m43")
 			};
 
 		},
@@ -2805,10 +2841,11 @@
 			}
 			else {
 
-				clone.matrix.m41 = clone.matrix.m11 * x + clone.matrix.m21 * y + clone.matrix.m31 * z + clone.matrix.m41;
-				clone.matrix.m42 = clone.matrix.m12 * x + clone.matrix.m22 * y + clone.matrix.m32 * z + clone.matrix.m42;
-				clone.matrix.m43 = clone.matrix.m13 * x + clone.matrix.m14 * y + clone.matrix.m33 * z + clone.matrix.m43;
-				clone.matrix.m44 = clone.matrix.m14 * x + clone.matrix.m24 * y + clone.matrix.m34 * z + clone.matrix.m44;
+				clone = clone
+					.set("m41", clone.get("m11") * x + clone.get("m21") * y + clone.get("m31") * z + clone.get("m41"))
+					.set("m42", clone.get("m12") * x + clone.get("m22") * y + clone.get("m32") * z + clone.get("m42"))
+					.set("m43", clone.get("m13") * x + clone.get("m14") * y + clone.get("m33") * z + clone.get("m43"))
+					.set("m44", clone.get("m14") * x + clone.get("m24") * y + clone.get("m34") * z + clone.get("m44"));
 
 			};
 
@@ -2843,8 +2880,9 @@
 			}
 			else {
 
-				identity.matrix.m23 = Math.tan(x * Math.PI / 180);
-				identity.matrix.m12 = Math.tan(y * Math.PI / 180);
+				identity = identity
+					.set("m23", Math.tan(x * Math.PI / 180))
+					.set("m12", Math.tan(y * Math.PI / 180));
 
 			};
 
@@ -2863,13 +2901,13 @@
 		},
 		getRotation: function(){
 
-			var rotationX = Math.atan2(this.matrix.m23, this.matrix.m33);
-			var rotationY = Math.asin(-this.matrix.m13);
-			var rotationZ = Math.atan2(this.matrix.m12, this.matrix.m11);
+			var rotationX = Math.atan2(this.get("m23"), this.get("m33"));
+			var rotationY = Math.asin(-this.get("m13"));
+			var rotationZ = Math.atan2(this.get("m12"), this.get("m11"));
 
 			if( Math.cos(rotationY) === 0 ){
 
-				rotationX = Math.atan2(-this.matrix.m31, this.matrix.m22);
+				rotationX = Math.atan2(-this.get("m31"), this.get("m22"));
 				rotationZ = 0;
 
 			};
@@ -2899,15 +2937,16 @@
 					var sine = Math.sin(radians);
 					var clone = this.clone();
 
-					clone.matrix.m12 = cosine * this.matrix.m12 + sine * this.matrix.m13;
-					clone.matrix.m22 = cosine * this.matrix.m22 + sine * this.matrix.m23;
-					clone.matrix.m32 = cosine * this.matrix.m32 + sine * this.matrix.m33;
-					clone.matrix.m42 = cosine * this.matrix.m42 + sine * this.matrix.m43;
+					clone = clone
+						.set("m12", cosine * this.get("m12") + sine * this.get("m13"))
+						.set("m22", cosine * this.get("m22") + sine * this.get("m23"))
+						.set("m32", cosine * this.get("m32") + sine * this.get("m33"))
+						.set("m42", cosine * this.get("m42") + sine * this.get("m43"))
 
-					clone.matrix.m13 = cosine * this.matrix.m13 - sine * this.matrix.m12;
-					clone.matrix.m23 = cosine * this.matrix.m23 - sine * this.matrix.m22;
-					clone.matrix.m33 = cosine * this.matrix.m33 - sine * this.matrix.m32;
-					clone.matrix.m43 = cosine * this.matrix.m43 - sine * this.matrix.m42;
+						.set("m13", cosine * this.get("m13") - sine * this.get("m12"))
+						.set("m23", cosine * this.get("m23") - sine * this.get("m22"))
+						.set("m33", cosine * this.get("m33") - sine * this.get("m32"))
+						.set("m43", cosine * this.get("m43") - sine * this.get("m42"));
 
 				};
 
@@ -2918,15 +2957,16 @@
 					var sine = Math.sin(radians);
 					var clone = this.clone();
 
-					clone.matrix.m11 = cosine * this.matrix.m11 - sine * this.matrix.m13;
-					clone.matrix.m21 = cosine * this.matrix.m21 - sine * this.matrix.m23;
-					clone.matrix.m31 = cosine * this.matrix.m31 - sine * this.matrix.m33;
-					clone.matrix.m41 = cosine * this.matrix.m41 - sine * this.matrix.m43;
+					clone = clone
+						.set("m11", cosine * this.get("m11") - sine * this.get("m13"))
+						.set("m21", cosine * this.get("m21") - sine * this.get("m23"))
+						.set("m31", cosine * this.get("m31") - sine * this.get("m33"))
+						.set("m41", cosine * this.get("m41") - sine * this.get("m43"))
 
-					clone.matrix.m13 = cosine * this.matrix.m13 + sine * this.matrix.m11;
-					clone.matrix.m23 = cosine * this.matrix.m23 + sine * this.matrix.m21;
-					clone.matrix.m33 = cosine * this.matrix.m33 + sine * this.matrix.m31;
-					clone.matrix.m43 = cosine * this.matrix.m43 + sine * this.matrix.m41;
+						.set("m13", cosine * this.get("m13") + sine * this.get("m11"))
+						.set("m23", cosine * this.get("m23") + sine * this.get("m21"))
+						.set("m33", cosine * this.get("m33") + sine * this.get("m31"))
+						.set("m43", cosine * this.get("m43") + sine * this.get("m41"));
 
 				};
 
@@ -2937,15 +2977,16 @@
 					var sine = Math.sin(radians);
 					var clone = this.clone();
 
-					clone.matrix.m11 = cosine * this.matrix.m11 + sine * this.matrix.m12;
-					clone.matrix.m21 = cosine * this.matrix.m21 + sine * this.matrix.m22;
-					clone.matrix.m31 = cosine * this.matrix.m31 + sine * this.matrix.m32;
-					clone.matrix.m41 = cosine * this.matrix.m41 + sine * this.matrix.m42;
+					clone = clone
+						.set("m11", cosine * this.get("m11") + sine * this.get("m12"))
+						.set("m21", cosine * this.get("m21") + sine * this.get("m22"))
+						.set("m31", cosine * this.get("m31") + sine * this.get("m32"))
+						.set("m41", cosine * this.get("m41") + sine * this.get("m42"))
 
-					clone.matrix.m12 = cosine * this.matrix.m12 - sine * this.matrix.m11;
-					clone.matrix.m22 = cosine * this.matrix.m22 - sine * this.matrix.m21;
-					clone.matrix.m32 = cosine * this.matrix.m32 - sine * this.matrix.m31;
-					clone.matrix.m42 = cosine * this.matrix.m42 - sine * this.matrix.m41;
+						.set("m12", cosine * this.get("m12") - sine * this.get("m11"))
+						.set("m22", cosine * this.get("m22") - sine * this.get("m21"))
+						.set("m32", cosine * this.get("m32") - sine * this.get("m31"))
+						.set("m42", cosine * this.get("m42") - sine * this.get("m41"));
 
 				};
 
@@ -3167,33 +3208,34 @@
 
 							if( values.length === 6 ){
 
-								identity.matrix.m11 = parseFloat(values[0]) || 1;
-								identity.matrix.m12 = parseFloat(values[2]) || 1;
-								identity.matrix.m13 = parseFloat(values[4]) || 1;
-
-								identity.matrix.m21 = parseFloat(values[1]) || 1;
-								identity.matrix.m22 = parseFloat(values[3]) || 1;
-								identity.matrix.m23 = parseFloat(values[5]) || 1
+								identity = identity
+									.set("m11", parseFloat(values[0]) || 1)
+									.set("m12", parseFloat(values[2]) || 1)
+									.set("m13", parseFloat(values[4]) || 1)
+									.set("m21", parseFloat(values[1]) || 1)
+									.set("m22", parseFloat(values[3]) || 1)
+									.set("m23", parseFloat(values[5]) || 1);
 
 							}
 							else if( values.length === 16 ){
 
-								identity.matrix.m11 = parseFloat(values[0]) || 1;
-								identity.matrix.m12 = parseFloat(values[1]) || 0;
-								identity.matrix.m13 = parseFloat(values[2]) || 0;
-								identity.matrix.m14 = parseFloat(values[3]) || 0;
-								identity.matrix.m21 = parseFloat(values[4]) || 0;
-								identity.matrix.m22 = parseFloat(values[5]) || 1;
-								identity.matrix.m23 = parseFloat(values[6]) || 0;
-								identity.matrix.m24 = parseFloat(values[7]) || 0;
-								identity.matrix.m31 = parseFloat(values[8]) || 0;
-								identity.matrix.m32 = parseFloat(values[9]) || 0;
-								identity.matrix.m33 = parseFloat(values[10]) || 1;
-								identity.matrix.m34 = parseFloat(values[11]) || 0;
-								identity.matrix.m41 = parseFloat(values[12]) || 0;
-								identity.matrix.m42 = parseFloat(values[13]) || 0;
-								identity.matrix.m43 = parseFloat(values[14]) || 0;
-								identity.matrix.m44 = parseFloat(values[15]) || 1;
+								identity = identity
+									.set("m11", parseFloat(values[0]) || 1)
+									.set("m12", parseFloat(values[1]) || 0)
+									.set("m13", parseFloat(values[2]) || 0)
+									.set("m14", parseFloat(values[3]) || 0)
+									.set("m21", parseFloat(values[4]) || 0)
+									.set("m22", parseFloat(values[5]) || 1)
+									.set("m23", parseFloat(values[6]) || 0)
+									.set("m24", parseFloat(values[7]) || 0)
+									.set("m31", parseFloat(values[8]) || 0)
+									.set("m32", parseFloat(values[9]) || 0)
+									.set("m33", parseFloat(values[10]) || 1)
+									.set("m34", parseFloat(values[11]) || 0)
+									.set("m41", parseFloat(values[12]) || 0)
+									.set("m42", parseFloat(values[13]) || 0)
+									.set("m43", parseFloat(values[14]) || 0)
+									.set("m44", parseFloat(values[15]) || 1);
 
 							};
 
@@ -3221,22 +3263,23 @@
 			}
 			else {
 
-				clone.matrix.m11 = clone.matrix.m23 * clone.matrix.m34 * clone.matrix.m42 - clone.matrix.m24 * clone.matrix.m33 * clone.matrix.m42 + clone.matrix.m24 * clone.matrix.m32 * clone.matrix.m43 - clone.matrix.m22 * clone.matrix.m34 * clone.matrix.m43 - clone.matrix.m23 * clone.matrix.m32 * clone.matrix.m44 + clone.matrix.m22 * clone.matrix.m33 * clone.matrix.m44;
-				clone.matrix.m12 = clone.matrix.m14 * clone.matrix.m33 * clone.matrix.m42 - clone.matrix.m13 * clone.matrix.m34 * clone.matrix.m42 - clone.matrix.m14 * clone.matrix.m32 * clone.matrix.m43 + clone.matrix.m12 * clone.matrix.m34 * clone.matrix.m43 + clone.matrix.m13 * clone.matrix.m32 * clone.matrix.m44 - clone.matrix.m12 * clone.matrix.m33 * clone.matrix.m44;
-				clone.matrix.m13 = clone.matrix.m13 * clone.matrix.m24 * clone.matrix.m42 - clone.matrix.m14 * clone.matrix.m23 * clone.matrix.m42 + clone.matrix.m14 * clone.matrix.m22 * clone.matrix.m43 - clone.matrix.m12 * clone.matrix.m24 * clone.matrix.m43 - clone.matrix.m13 * clone.matrix.m22 * clone.matrix.m44 + clone.matrix.m12 * clone.matrix.m23 * clone.matrix.m44;
-				clone.matrix.m14 = clone.matrix.m14 * clone.matrix.m23 * clone.matrix.m32 - clone.matrix.m13 * clone.matrix.m24 * clone.matrix.m32 - clone.matrix.m14 * clone.matrix.m22 * clone.matrix.m33 + clone.matrix.m12 * clone.matrix.m24 * clone.matrix.m33 + clone.matrix.m13 * clone.matrix.m22 * clone.matrix.m34 - clone.matrix.m12 * clone.matrix.m23 * clone.matrix.m34;
-				clone.matrix.m21 = clone.matrix.m24 * clone.matrix.m33 * clone.matrix.m41 - clone.matrix.m23 * clone.matrix.m34 * clone.matrix.m41 - clone.matrix.m24 * clone.matrix.m31 * clone.matrix.m43 + clone.matrix.m21 * clone.matrix.m34 * clone.matrix.m43 + clone.matrix.m23 * clone.matrix.m31 * clone.matrix.m44 - clone.matrix.m21 * clone.matrix.m33 * clone.matrix.m44;
-				clone.matrix.m22 = clone.matrix.m13 * clone.matrix.m34 * clone.matrix.m41 - clone.matrix.m14 * clone.matrix.m33 * clone.matrix.m41 + clone.matrix.m14 * clone.matrix.m31 * clone.matrix.m43 - clone.matrix.m11 * clone.matrix.m34 * clone.matrix.m43 - clone.matrix.m13 * clone.matrix.m31 * clone.matrix.m44 + clone.matrix.m11 * clone.matrix.m33 * clone.matrix.m44;
-				clone.matrix.m23 = clone.matrix.m14 * clone.matrix.m23 * clone.matrix.m41 - clone.matrix.m13 * clone.matrix.m24 * clone.matrix.m41 - clone.matrix.m14 * clone.matrix.m21 * clone.matrix.m43 + clone.matrix.m11 * clone.matrix.m24 * clone.matrix.m43 + clone.matrix.m13 * clone.matrix.m21 * clone.matrix.m44 - clone.matrix.m11 * clone.matrix.m23 * clone.matrix.m44;
-				clone.matrix.m24 = clone.matrix.m13 * clone.matrix.m24 * clone.matrix.m31 - clone.matrix.m14 * clone.matrix.m23 * clone.matrix.m31 + clone.matrix.m14 * clone.matrix.m21 * clone.matrix.m33 - clone.matrix.m11 * clone.matrix.m24 * clone.matrix.m33 - clone.matrix.m13 * clone.matrix.m21 * clone.matrix.m34 + clone.matrix.m11 * clone.matrix.m23 * clone.matrix.m34;
-				clone.matrix.m31 = clone.matrix.m22 * clone.matrix.m34 * clone.matrix.m41 - clone.matrix.m24 * clone.matrix.m32 * clone.matrix.m41 + clone.matrix.m24 * clone.matrix.m31 * clone.matrix.m42 - clone.matrix.m21 * clone.matrix.m34 * clone.matrix.m42 - clone.matrix.m22 * clone.matrix.m31 * clone.matrix.m44 + clone.matrix.m21 * clone.matrix.m32 * clone.matrix.m44;
-				clone.matrix.m32 = clone.matrix.m14 * clone.matrix.m32 * clone.matrix.m41 - clone.matrix.m12 * clone.matrix.m34 * clone.matrix.m41 - clone.matrix.m14 * clone.matrix.m31 * clone.matrix.m42 + clone.matrix.m11 * clone.matrix.m34 * clone.matrix.m42 + clone.matrix.m12 * clone.matrix.m31 * clone.matrix.m44 - clone.matrix.m11 * clone.matrix.m32 * clone.matrix.m44;
-				clone.matrix.m33 = clone.matrix.m12 * clone.matrix.m24 * clone.matrix.m41 - clone.matrix.m14 * clone.matrix.m22 * clone.matrix.m41 + clone.matrix.m14 * clone.matrix.m21 * clone.matrix.m42 - clone.matrix.m11 * clone.matrix.m24 * clone.matrix.m42 - clone.matrix.m12 * clone.matrix.m21 * clone.matrix.m44 + clone.matrix.m11 * clone.matrix.m22 * clone.matrix.m44;
-				clone.matrix.m34 = clone.matrix.m14 * clone.matrix.m22 * clone.matrix.m31 - clone.matrix.m12 * clone.matrix.m24 * clone.matrix.m31 - clone.matrix.m14 * clone.matrix.m21 * clone.matrix.m32 + clone.matrix.m11 * clone.matrix.m24 * clone.matrix.m32 + clone.matrix.m12 * clone.matrix.m21 * clone.matrix.m34 - clone.matrix.m11 * clone.matrix.m22 * clone.matrix.m34;
-				clone.matrix.m41 = clone.matrix.m23 * clone.matrix.m32 * clone.matrix.m41 - clone.matrix.m22 * clone.matrix.m33 * clone.matrix.m41 - clone.matrix.m23 * clone.matrix.m31 * clone.matrix.m42 + clone.matrix.m21 * clone.matrix.m33 * clone.matrix.m42 + clone.matrix.m22 * clone.matrix.m31 * clone.matrix.m43 - clone.matrix.m21 * clone.matrix.m32 * clone.matrix.m43;
-				clone.matrix.m42 = clone.matrix.m12 * clone.matrix.m33 * clone.matrix.m41 - clone.matrix.m13 * clone.matrix.m32 * clone.matrix.m41 + clone.matrix.m13 * clone.matrix.m31 * clone.matrix.m42 - clone.matrix.m11 * clone.matrix.m33 * clone.matrix.m42 - clone.matrix.m12 * clone.matrix.m31 * clone.matrix.m43 + clone.matrix.m11 * clone.matrix.m32 * clone.matrix.m43;
-				clone.matrix.m43 = clone.matrix.m13 * clone.matrix.m22 * clone.matrix.m41 - clone.matrix.m12 * clone.matrix.m23 * clone.matrix.m41 - clone.matrix.m13 * clone.matrix.m21 * clone.matrix.m42 + clone.matrix.m11 * clone.matrix.m23 * clone.matrix.m42 + clone.matrix.m12 * clone.matrix.m21 * clone.matrix.m43 - clone.matrix.m11 * clone.matrix.m22 * clone.matrix.m43;
-				clone.matrix.m44 = clone.matrix.m12 * clone.matrix.m23 * clone.matrix.m31 - clone.matrix.m13 * clone.matrix.m22 * clone.matrix.m31 + clone.matrix.m13 * clone.matrix.m21 * clone.matrix.m32 - clone.matrix.m11 * clone.matrix.m23 * clone.matrix.m32 - clone.matrix.m12 * clone.matrix.m21 * clone.matrix.m33 + clone.matrix.m11 * clone.matrix.m22 * clone.matrix.m33;
+				clone
+					.set("m11", clone.get("m23") * clone.get("m34") * clone.get("m42") - clone.get("m24") * clone.get("m33") * clone.get("m42") + clone.get("m24") * clone.get("m32") * clone.get("m43") - clone.get("m22") * clone.get("m34") * clone.get("m43") - clone.get("m23") * clone.get("m32") * clone.get("m44") + clone.get("m22") * clone.get("m33") * clone.get("m44"))
+					.set("m12", clone.get("m14") * clone.get("m33") * clone.get("m42") - clone.get("m13") * clone.get("m34") * clone.get("m42") - clone.get("m14") * clone.get("m32") * clone.get("m43") + clone.get("m12") * clone.get("m34") * clone.get("m43") + clone.get("m13") * clone.get("m32") * clone.get("m44") - clone.get("m12") * clone.get("m33") * clone.get("m44"))
+					.set("m13", clone.get("m13") * clone.get("m24") * clone.get("m42") - clone.get("m14") * clone.get("m23") * clone.get("m42") + clone.get("m14") * clone.get("m22") * clone.get("m43") - clone.get("m12") * clone.get("m24") * clone.get("m43") - clone.get("m13") * clone.get("m22") * clone.get("m44") + clone.get("m12") * clone.get("m23") * clone.get("m44"))
+					.set("m14", clone.get("m14") * clone.get("m23") * clone.get("m32") - clone.get("m13") * clone.get("m24") * clone.get("m32") - clone.get("m14") * clone.get("m22") * clone.get("m33") + clone.get("m12") * clone.get("m24") * clone.get("m33") + clone.get("m13") * clone.get("m22") * clone.get("m34") - clone.get("m12") * clone.get("m23") * clone.get("m34"))
+					.set("m21", clone.get("m24") * clone.get("m33") * clone.get("m41") - clone.get("m23") * clone.get("m34") * clone.get("m41") - clone.get("m24") * clone.get("m31") * clone.get("m43") + clone.get("m21") * clone.get("m34") * clone.get("m43") + clone.get("m23") * clone.get("m31") * clone.get("m44") - clone.get("m21") * clone.get("m33") * clone.get("m44"))
+					.set("m22", clone.get("m13") * clone.get("m34") * clone.get("m41") - clone.get("m14") * clone.get("m33") * clone.get("m41") + clone.get("m14") * clone.get("m31") * clone.get("m43") - clone.get("m11") * clone.get("m34") * clone.get("m43") - clone.get("m13") * clone.get("m31") * clone.get("m44") + clone.get("m11") * clone.get("m33") * clone.get("m44"))
+					.set("m23", clone.get("m14") * clone.get("m23") * clone.get("m41") - clone.get("m13") * clone.get("m24") * clone.get("m41") - clone.get("m14") * clone.get("m21") * clone.get("m43") + clone.get("m11") * clone.get("m24") * clone.get("m43") + clone.get("m13") * clone.get("m21") * clone.get("m44") - clone.get("m11") * clone.get("m23") * clone.get("m44"))
+					.set("m24", clone.get("m13") * clone.get("m24") * clone.get("m31") - clone.get("m14") * clone.get("m23") * clone.get("m31") + clone.get("m14") * clone.get("m21") * clone.get("m33") - clone.get("m11") * clone.get("m24") * clone.get("m33") - clone.get("m13") * clone.get("m21") * clone.get("m34") + clone.get("m11") * clone.get("m23") * clone.get("m34"))
+					.set("m31", clone.get("m22") * clone.get("m34") * clone.get("m41") - clone.get("m24") * clone.get("m32") * clone.get("m41") + clone.get("m24") * clone.get("m31") * clone.get("m42") - clone.get("m21") * clone.get("m34") * clone.get("m42") - clone.get("m22") * clone.get("m31") * clone.get("m44") + clone.get("m21") * clone.get("m32") * clone.get("m44"))
+					.set("m32", clone.get("m14") * clone.get("m32") * clone.get("m41") - clone.get("m12") * clone.get("m34") * clone.get("m41") - clone.get("m14") * clone.get("m31") * clone.get("m42") + clone.get("m11") * clone.get("m34") * clone.get("m42") + clone.get("m12") * clone.get("m31") * clone.get("m44") - clone.get("m11") * clone.get("m32") * clone.get("m44"))
+					.set("m33", clone.get("m12") * clone.get("m24") * clone.get("m41") - clone.get("m14") * clone.get("m22") * clone.get("m41") + clone.get("m14") * clone.get("m21") * clone.get("m42") - clone.get("m11") * clone.get("m24") * clone.get("m42") - clone.get("m12") * clone.get("m21") * clone.get("m44") + clone.get("m11") * clone.get("m22") * clone.get("m44"))
+					.set("m34", clone.get("m14") * clone.get("m22") * clone.get("m31") - clone.get("m12") * clone.get("m24") * clone.get("m31") - clone.get("m14") * clone.get("m21") * clone.get("m32") + clone.get("m11") * clone.get("m24") * clone.get("m32") + clone.get("m12") * clone.get("m21") * clone.get("m34") - clone.get("m11") * clone.get("m22") * clone.get("m34"))
+					.set("m41", clone.get("m23") * clone.get("m32") * clone.get("m41") - clone.get("m22") * clone.get("m33") * clone.get("m41") - clone.get("m23") * clone.get("m31") * clone.get("m42") + clone.get("m21") * clone.get("m33") * clone.get("m42") + clone.get("m22") * clone.get("m31") * clone.get("m43") - clone.get("m21") * clone.get("m32") * clone.get("m43"))
+					.set("m42", clone.get("m12") * clone.get("m33") * clone.get("m41") - clone.get("m13") * clone.get("m32") * clone.get("m41") + clone.get("m13") * clone.get("m31") * clone.get("m42") - clone.get("m11") * clone.get("m33") * clone.get("m42") - clone.get("m12") * clone.get("m31") * clone.get("m43") + clone.get("m11") * clone.get("m32") * clone.get("m43"))
+					.set("m43", clone.get("m13") * clone.get("m22") * clone.get("m41") - clone.get("m12") * clone.get("m23") * clone.get("m41") - clone.get("m13") * clone.get("m21") * clone.get("m42") + clone.get("m11") * clone.get("m23") * clone.get("m42") + clone.get("m12") * clone.get("m21") * clone.get("m43") - clone.get("m11") * clone.get("m22") * clone.get("m43"))
+					.set("m44", clone.get("m12") * clone.get("m23") * clone.get("m31") - clone.get("m13") * clone.get("m22") * clone.get("m31") + clone.get("m13") * clone.get("m21") * clone.get("m32") - clone.get("m11") * clone.get("m23") * clone.get("m32") - clone.get("m12") * clone.get("m21") * clone.get("m33") + clone.get("m11") * clone.get("m22") * clone.get("m33"));
 
 			};
 
@@ -3256,25 +3299,23 @@
 
 				matrix = matrix.clone();
 
-				matrix.matrix.m11 = matrix.matrix.m11 * clone.matrix.m11 + matrix.matrix.m12 * clone.matrix.m21 + matrix.matrix.m13 * clone.matrix.m31 + matrix.matrix.m14 * clone.matrix.m41;
-				matrix.matrix.m12 = matrix.matrix.m11 * clone.matrix.m12 + matrix.matrix.m12 * clone.matrix.m22 + matrix.matrix.m13 * clone.matrix.m32 + matrix.matrix.m14 * clone.matrix.m42;
-				matrix.matrix.m13 = matrix.matrix.m11 * clone.matrix.m13 + matrix.matrix.m12 * clone.matrix.m23 + matrix.matrix.m13 * clone.matrix.m33 + matrix.matrix.m14 * clone.matrix.m43;
-				matrix.matrix.m14 = matrix.matrix.m11 * clone.matrix.m14 + matrix.matrix.m12 * clone.matrix.m24 + matrix.matrix.m13 * clone.matrix.m34 + matrix.matrix.m14 * clone.matrix.m44;
-
-				matrix.matrix.m21 = matrix.matrix.m21 * clone.matrix.m11 + matrix.matrix.m22 * clone.matrix.m21 + matrix.matrix.m23 * clone.matrix.m31 + matrix.matrix.m24 * clone.matrix.m41;
-				matrix.matrix.m22 = matrix.matrix.m21 * clone.matrix.m12 + matrix.matrix.m22 * clone.matrix.m22 + matrix.matrix.m23 * clone.matrix.m32 + matrix.matrix.m24 * clone.matrix.m42;
-				matrix.matrix.m23 = matrix.matrix.m21 * clone.matrix.m13 + matrix.matrix.m22 * clone.matrix.m23 + matrix.matrix.m23 * clone.matrix.m33 + matrix.matrix.m24 * clone.matrix.m43;
-				matrix.matrix.m24 = matrix.matrix.m21 * clone.matrix.m14 + matrix.matrix.m22 * clone.matrix.m24 + matrix.matrix.m23 * clone.matrix.m34 + matrix.matrix.m24 * clone.matrix.m44;
-
-				matrix.matrix.m31 = matrix.matrix.m31 * clone.matrix.m11 + matrix.matrix.m32 * clone.matrix.m21 + matrix.matrix.m33 * clone.matrix.m31 + matrix.matrix.m34 * clone.matrix.m41;
-				matrix.matrix.m32 = matrix.matrix.m31 * clone.matrix.m12 + matrix.matrix.m32 * clone.matrix.m22 + matrix.matrix.m33 * clone.matrix.m32 + matrix.matrix.m34 * clone.matrix.m42;
-				matrix.matrix.m33 = matrix.matrix.m31 * clone.matrix.m13 + matrix.matrix.m32 * clone.matrix.m23 + matrix.matrix.m33 * clone.matrix.m33 + matrix.matrix.m34 * clone.matrix.m43;
-				matrix.matrix.m34 = matrix.matrix.m31 * clone.matrix.m14 + matrix.matrix.m32 * clone.matrix.m24 + matrix.matrix.m33 * clone.matrix.m34 + matrix.matrix.m34 * clone.matrix.m44;
-
-				matrix.matrix.m41 = matrix.matrix.m41 * clone.matrix.m11 + matrix.matrix.m42 * clone.matrix.m21 + matrix.matrix.m43 * clone.matrix.m31 + matrix.matrix.m44 * clone.matrix.m41;
-				matrix.matrix.m42 = matrix.matrix.m41 * clone.matrix.m12 + matrix.matrix.m42 * clone.matrix.m22 + matrix.matrix.m43 * clone.matrix.m32 + matrix.matrix.m44 * clone.matrix.m42;
-				matrix.matrix.m43 = matrix.matrix.m41 * clone.matrix.m13 + matrix.matrix.m42 * clone.matrix.m23 + matrix.matrix.m43 * clone.matrix.m33 + matrix.matrix.m44 * clone.matrix.m43;
-				matrix.matrix.m44 = matrix.matrix.m41 * clone.matrix.m14 + matrix.matrix.m42 * clone.matrix.m24 + matrix.matrix.m43 * clone.matrix.m34 + matrix.matrix.m44 * clone.matrix.m44;
+				matrix = matrix
+					.set("m11", matrix.get("m11") * clone.get("m11") + matrix.get("m12") * clone.get("m21") + matrix.get("m13") * clone.get("m31") + matrix.get("m14") * clone.get("m41"))
+					.set("m12", matrix.get("m11") * clone.get("m12") + matrix.get("m12") * clone.get("m22") + matrix.get("m13") * clone.get("m32") + matrix.get("m14") * clone.get("m42"))
+					.set("m13", matrix.get("m11") * clone.get("m13") + matrix.get("m12") * clone.get("m23") + matrix.get("m13") * clone.get("m33") + matrix.get("m14") * clone.get("m43"))
+					.set("m14", matrix.get("m11") * clone.get("m14") + matrix.get("m12") * clone.get("m24") + matrix.get("m13") * clone.get("m34") + matrix.get("m14") * clone.get("m44"))
+					.set("m21", matrix.get("m21") * clone.get("m11") + matrix.get("m22") * clone.get("m21") + matrix.get("m23") * clone.get("m31") + matrix.get("m24") * clone.get("m41"))
+					.set("m22", matrix.get("m21") * clone.get("m12") + matrix.get("m22") * clone.get("m22") + matrix.get("m23") * clone.get("m32") + matrix.get("m24") * clone.get("m42"))
+					.set("m23", matrix.get("m21") * clone.get("m13") + matrix.get("m22") * clone.get("m23") + matrix.get("m23") * clone.get("m33") + matrix.get("m24") * clone.get("m43"))
+					.set("m24", matrix.get("m21") * clone.get("m14") + matrix.get("m22") * clone.get("m24") + matrix.get("m23") * clone.get("m34") + matrix.get("m24") * clone.get("m44"))
+					.set("m31", matrix.get("m31") * clone.get("m11") + matrix.get("m32") * clone.get("m21") + matrix.get("m33") * clone.get("m31") + matrix.get("m34") * clone.get("m41"))
+					.set("m32", matrix.get("m31") * clone.get("m12") + matrix.get("m32") * clone.get("m22") + matrix.get("m33") * clone.get("m32") + matrix.get("m34") * clone.get("m42"))
+					.set("m33", matrix.get("m31") * clone.get("m13") + matrix.get("m32") * clone.get("m23") + matrix.get("m33") * clone.get("m33") + matrix.get("m34") * clone.get("m43"))
+					.set("m34", matrix.get("m31") * clone.get("m14") + matrix.get("m32") * clone.get("m24") + matrix.get("m33") * clone.get("m34") + matrix.get("m34") * clone.get("m44"))
+					.set("m41", matrix.get("m41") * clone.get("m11") + matrix.get("m42") * clone.get("m21") + matrix.get("m43") * clone.get("m31") + matrix.get("m44") * clone.get("m41"))
+					.set("m42", matrix.get("m41") * clone.get("m12") + matrix.get("m42") * clone.get("m22") + matrix.get("m43") * clone.get("m32") + matrix.get("m44") * clone.get("m42"))
+					.set("m43", matrix.get("m41") * clone.get("m13") + matrix.get("m42") * clone.get("m23") + matrix.get("m43") * clone.get("m33") + matrix.get("m44") * clone.get("m43"))
+					.set("m44", matrix.get("m41") * clone.get("m14") + matrix.get("m42") * clone.get("m24") + matrix.get("m43") * clone.get("m34") + matrix.get("m44") * clone.get("m44"));
 
 			};
 
@@ -3284,37 +3325,37 @@
 		getDeterminant: function(){
 
 			return (
-				this.matrix.m41 * (
-					+ this.matrix.m14 * this.matrix.m23 * this.matrix.m32
-					- this.matrix.m13 * this.matrix.m24 * this.matrix.m32
-					- this.matrix.m14 * this.matrix.m22 * this.matrix.m33
-					+ this.matrix.m12 * this.matrix.m24 * this.matrix.m33
-					+ this.matrix.m13 * this.matrix.m22 * this.matrix.m34
-					- this.matrix.m12 * this.matrix.m23 * this.matrix.m34
+				this.get("m41") * (
+					+ this.get("m14") * this.get("m23") * this.get("m32")
+					- this.get("m13") * this.get("m24") * this.get("m32")
+					- this.get("m14") * this.get("m22") * this.get("m33")
+					+ this.get("m12") * this.get("m24") * this.get("m33")
+					+ this.get("m13") * this.get("m22") * this.get("m34")
+					- this.get("m12") * this.get("m23") * this.get("m34")
 				)
-				+ this.matrix.m42 * (
-					+ this.matrix.m11 * this.matrix.m23 * this.matrix.m34
-					- this.matrix.m11 * this.matrix.m24 * this.matrix.m33
-					+ this.matrix.m14 * this.matrix.m21 * this.matrix.m33
-					- this.matrix.m13 * this.matrix.m21 * this.matrix.m34
-					+ this.matrix.m13 * this.matrix.m24 * this.matrix.m31
-					- this.matrix.m14 * this.matrix.m23 * this.matrix.m31
+				+ this.get("m42") * (
+					+ this.get("m11") * this.get("m23") * this.get("m34")
+					- this.get("m11") * this.get("m24") * this.get("m33")
+					+ this.get("m14") * this.get("m21") * this.get("m33")
+					- this.get("m13") * this.get("m21") * this.get("m34")
+					+ this.get("m13") * this.get("m24") * this.get("m31")
+					- this.get("m14") * this.get("m23") * this.get("m31")
 				)
-				+ this.matrix.m43 * (
-					+ this.matrix.m11 * this.matrix.m24 * this.matrix.m32
-					- this.matrix.m11 * this.matrix.m22 * this.matrix.m34
-					- this.matrix.m14 * this.matrix.m21 * this.matrix.m32
-					+ this.matrix.m12 * this.matrix.m21 * this.matrix.m34
-					+ this.matrix.m14 * this.matrix.m22 * this.matrix.m31
-					- this.matrix.m12 * this.matrix.m24 * this.matrix.m31
+				+ this.get("m43") * (
+					+ this.get("m11") * this.get("m24") * this.get("m32")
+					- this.get("m11") * this.get("m22") * this.get("m34")
+					- this.get("m14") * this.get("m21") * this.get("m32")
+					+ this.get("m12") * this.get("m21") * this.get("m34")
+					+ this.get("m14") * this.get("m22") * this.get("m31")
+					- this.get("m12") * this.get("m24") * this.get("m31")
 				)
-				+ this.matrix.m44 * (
-					- this.matrix.m13 * this.matrix.m22 * this.matrix.m31
-					- this.matrix.m11 * this.matrix.m23 * this.matrix.m32
-					+ this.matrix.m11 * this.matrix.m22 * this.matrix.m33
-					+ this.matrix.m13 * this.matrix.m21 * this.matrix.m32
-					- this.matrix.m12 * this.matrix.m21 * this.matrix.m33
-					+ this.matrix.m12 * this.matrix.m23 * this.matrix.m31
+				+ this.get("m44") * (
+					- this.get("m13") * this.get("m22") * this.get("m31")
+					- this.get("m11") * this.get("m23") * this.get("m32")
+					+ this.get("m11") * this.get("m22") * this.get("m33")
+					+ this.get("m13") * this.get("m21") * this.get("m32")
+					- this.get("m12") * this.get("m21") * this.get("m33")
+					+ this.get("m12") * this.get("m23") * this.get("m31")
 				)
 			);
 
@@ -3322,6 +3363,7 @@
 		getIdentity: function(){
 
 			return {
+				a: 1, b: 0, c: 0, d: 1, e: 0, f: 0,
 				m11: 1, m12: 0, m13: 0, m14: 0,
 				m21: 0, m22: 1, m23: 0, m24: 0,
 				m31: 0, m32: 0, m33: 1, m34: 0,
@@ -3348,18 +3390,7 @@
 		},
 		toString: function(){
 
-			// THERE just exchange matrix names for firefox
-			// its not 11 12 13 14 BUT 11 21 31 41...
-			if( prefix.lowercase === "moz" ){
-
-				return "matrix3d(" + this.matrix.m11.toFixed(6) + "," + this.matrix.m21.toFixed(6) + "," + this.matrix.m31.toFixed(6) + "," + this.matrix.m41.toFixed(6) + "," + this.matrix.m12.toFixed(6) + "," + this.matrix.m22.toFixed(6) + "," + this.matrix.m32.toFixed(6) + "," + this.matrix.m42.toFixed(6) + "," + this.matrix.m13.toFixed(6) + "," + this.matrix.m23.toFixed(6) + "," + this.matrix.m33.toFixed(6) + "," + this.matrix.m43.toFixed(6) + "," + this.matrix.m14.toFixed(6) + "," + this.matrix.m24.toFixed(6) + "," + this.matrix.m34.toFixed(6) + "," + this.matrix.m44.toFixed(6) + ")";
-
-			}
-			else {
-
-				return "matrix3d(" + this.matrix.m11.toFixed(6) + "," + this.matrix.m12.toFixed(6) + "," + this.matrix.m13.toFixed(6) + "," + this.matrix.m14.toFixed(6) + "," + this.matrix.m21.toFixed(6) + "," + this.matrix.m22.toFixed(6) + "," + this.matrix.m23.toFixed(6) + "," + this.matrix.m24.toFixed(6) + "," + this.matrix.m31.toFixed(6) + "," + this.matrix.m32.toFixed(6) + "," + this.matrix.m33.toFixed(6) + "," + this.matrix.m34.toFixed(6) + "," + this.matrix.m41.toFixed(6) + "," + this.matrix.m42.toFixed(6) + "," + this.matrix.m43.toFixed(6) + "," + this.matrix.m44.toFixed(6) + ")";
-				
-			};
+			return "matrix3d(" + this.get("m11").toFixed(6) + "," + this.get("m12").toFixed(6) + "," + this.get("m13").toFixed(6) + "," + this.get("m14").toFixed(6) + "," + this.get("m21").toFixed(6) + "," + this.get("m22").toFixed(6) + "," + this.get("m23").toFixed(6) + "," + this.get("m24").toFixed(6) + "," + this.get("m31").toFixed(6) + "," + this.get("m32").toFixed(6) + "," + this.get("m33").toFixed(6) + "," + this.get("m34").toFixed(6) + "," + this.get("m41").toFixed(6) + "," + this.get("m42").toFixed(6) + "," + this.get("m43").toFixed(6) + "," + this.get("m44").toFixed(6) + ")";
 
 		}
 	};

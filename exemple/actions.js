@@ -17,7 +17,7 @@ Jo(function(){
 			transform: "rotateY(60deg) rotateZ(-180deg)"
 		}, {
 			easing: "easeOutBounce",
-			duration: 10000,
+			duration: 1000,
 			complete: function(){
 
 				console.log("jo finish");
