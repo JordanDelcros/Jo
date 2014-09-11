@@ -2586,6 +2586,31 @@
 		constructor: Jo.matrix,
 		init: function( matrix ){
 
+			this.map = {
+				a: "m11",
+				b: "m12",
+				c: "m21",
+				d: "m22",
+				e: "m41",
+				f: "m42",
+				m11: "a",
+				m12: "b",
+				m13: "m13",
+				m14: "m14",
+				m21: "c",
+				m22: "d",
+				m23: "m23",
+				m24: "m24",
+				m31: "m31",
+				m32: "m32",
+				m33: "m33",
+				m34: "m34",
+				m41: "e",
+				m42: "f",
+				m43: "m43",
+				m44: "m44"
+			};
+
 			if( !isEmpty(window.CSSMatrix) ){
 
 				this.matrix = new window.CSSMatrix(matrix || "");
@@ -2621,13 +2646,14 @@
 		},
 		get: function( name ){
 
-			return this.matrix[name];
+			return this.matrix[this.map[name]];
 
 		},
 		set: function( name, number ){
 
 			var clone = this.clone();
 
+			clone.matrix[this.map[name]] = number;
 			clone.matrix[name] = number;
 
 			return clone;
@@ -2751,6 +2777,14 @@
 			return this.translate(null, null, pixels);
 
 		},
+		getSkew: function(){
+
+			return {
+				x: ((Math.atan2(this.get("d"), this.get("c")) * (180 / Math.PI)) - 90) * -1,
+				y: Math.atan2(this.get("b"), this.get("a")) * (180 / Math.PI)
+			};
+
+		},
 		skew: function( x, y ){
 
 			var identity = Jo.matrix();
@@ -2781,7 +2815,7 @@
 			return this.skew(null, degrees);
 
 		},
-		getRotation: function(){
+		getRotate: function(){
 
 			var rotationX = Math.atan2(this.get("m23"), this.get("m33"));
 			var rotationY = Math.asin(-this.get("m13"));
@@ -3286,6 +3320,16 @@
 		toString: function(){
 
 			return "matrix3d(" + this.get("m11").toFixed(6) + "," + this.get("m12").toFixed(6) + "," + this.get("m13").toFixed(6) + "," + this.get("m14").toFixed(6) + "," + this.get("m21").toFixed(6) + "," + this.get("m22").toFixed(6) + "," + this.get("m23").toFixed(6) + "," + this.get("m24").toFixed(6) + "," + this.get("m31").toFixed(6) + "," + this.get("m32").toFixed(6) + "," + this.get("m33").toFixed(6) + "," + this.get("m34").toFixed(6) + "," + this.get("m41").toFixed(6) + "," + this.get("m42").toFixed(6) + "," + this.get("m43").toFixed(6) + "," + this.get("m44").toFixed(6) + ")";
+
+		},
+		toHumanString: function(){
+
+			var scale = this.getScale();
+			var translate = this.getTranslate();
+			var skew = this.getSkew();
+			var rotate = this.getRotate();
+
+			return "scaleX(" + scale.x.toFixed(6) + ") scaleY(" + scale.y.toFixed(6) + ") scaleZ(" + scale.z.toFixed(6) + ") translateX(" + translate.x.toFixed(6) + "px) translateY(" + translate.y.toFixed(6) + "px) translateZ(" + translate.z.toFixed(6) + "px) skewX(" + skew.x.toFixed(6) + "deg) skewY(" + skew.y.toFixed(6) + "deg) rotateX(" + rotate.x.toFixed(6) + "deg) rotateY(" + rotate.y.toFixed(6) + "deg) rotateZ(" + rotate.z.toFixed(6) + "deg)";
 
 		}
 	};
