@@ -24,12 +24,8 @@
 
 			if( !isEmpty(selector) ){
 
-				if( isFunction(selector) ){
-
-					Jo(document).on("ready", selector.bind(this, Jo), false);
-					
-				}
-				else if( isString(selector) ){
+				
+				if( isString(selector) ){
 
 					if( selector.charAt(0) === "<" && selector.charAt(selector.length - 1) === ">" ){
 
@@ -83,6 +79,11 @@
 
 					found = selector.found;
 
+				}
+				else if( isFunction(selector) ){
+
+					Jo(document).on("ready", selector.bind(this, Jo), false);
+					
 				};
 
 			};
@@ -947,7 +948,7 @@
 
 					this.each(function(){
 
-						if( isTrue(unverify) ){
+						if( !isFalse(unverify) ){
  
 							property = prepareCSSProperty(property);
 
@@ -968,12 +969,11 @@
 
 						if( !isEmpty(computedStyles) ){
 
-							if( isTrue(value) ){
+							if( !isFalse(value) ){
 
 								property = prepareCSSProperty(property);
 
 							};
-
 
 							var display = computedStyles.getPropertyValue("display");
 
@@ -1014,6 +1014,29 @@
 				};
 
 			}
+			else if( isObject(property) ){
+
+				this.each(function(){
+
+					for( var parameter in property ){
+
+						if( property.hasOwnProperty(parameter) ){
+
+							if( !isFalse(value) ){
+
+								parameter = prepareCSSProperty(parameter);
+
+							};
+
+							this.style[parameter] = property[parameter];
+
+						};
+
+					};
+
+				});
+
+			}
 			else if( isArray(property) ){
 
 				var returned = Object();
@@ -1035,29 +1058,6 @@
 				});
 
 				return returned;
-
-			}
-			else if( isObject(property) ){
-
-				this.each(function(){
-
-					for( var parameter in property ){
-
-						if( property.hasOwnProperty(parameter) ){
-
-							if( isTrue(value) ){
-
-								parameter = prepareCSSProperty(parameter);
-
-							};
-
-							this.style[parameter] = property[parameter];
-
-						};
-
-					};
-
-				});
 
 			}
 			else if( isEmpty(property) ){
@@ -2347,7 +2347,7 @@
 
 							if( isFalse(options.additional) ){
 
-								valuesTo.transform.model.replace(/([a-z]+)\(([^\)]+)\)/gi, function( match, name, ids ){
+								valuesTo[property].model.replace(/([a-z]+)\(([^\)]+)\)/gi, function( match, name, ids ){
 
 									ids = ids.replace(/#/g, "").split(",");
 
