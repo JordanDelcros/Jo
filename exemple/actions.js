@@ -1,36 +1,61 @@
-// JUST TEST SPEED
-Jo(function(){
+if( window.location.hash === "#jquery" ){
 
-	console.log("doc ready")
+	jQuery(function(){
 
-	var bef = +new Date();
-	var $container = Jo("#container");
+		console.log("doc ready")
 
-	for( var howMuch = 0; howMuch < 1; howMuch++ ){
-		Jo("<li/>")
-			.addClass("jo")
-			.insertEndTo($container)
-			
-	};
+		var bef = +new Date();
+		var $container = jQuery("#container");
 
-	var $li = Jo("li")
-		.css("transform", "rotateZ(180deg)")
-		.animate({
-			transform: "rotateZ(0deg)"
-		}, {
-			easing: "easeOutBounce",
-			duration: 10000,
-			additional: false,
-			complete: function(){
+		for( var howMuch = 0; howMuch < 1000; howMuch++ ){
 
-				console.log("jo finish");
+			jQuery("<li/>")
+				.addClass("jo")
+				.appendTo($container)
+				.animate({
+					left: (Math.round(Math.random() * $(window).width()) + 1) + "px",
+					top: (Math.round(Math.random() * $(window).height()) + 1) + "px"
+				}, {
+					duration: 3000
+				})
+				
+		};
 
-			}
-		});
+		console.log("time: ", +new Date() - bef);
 
-	console.log("time: ", +new Date() - bef);
+	});
 
-});
+}
+else {
+
+	Jo(function(){
+
+		console.log("doc ready")
+
+		var bef = +new Date();
+		var $container = Jo("#container");
+
+		for( var howMuch = 0; howMuch < 1000; howMuch++ ){
+			Jo("<li/>")
+				.addClass("jo")
+				.insertEndTo($container)
+				.animate({
+					left: (Math.round(Math.random() * $(window).width()) + 1) + "px",
+					top: (Math.round(Math.random() * $(window).height()) + 1) + "px"
+				}, {
+					duration: 3000,
+					easing: "easeInOutQuad"
+				})
+				
+		};
+
+	});
+
+};
+
+// 	console.log("time: ", +new Date() - bef);
+
+// });
 
 // var media;
 // var peer;

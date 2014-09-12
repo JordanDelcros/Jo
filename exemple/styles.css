@@ -26,6 +26,7 @@ ul {
 	/*position: absolute;*/
 	height: 100%;
 	perspective: 500px;
+	overflow: hidden;
 }
 
 li {
@@ -35,12 +36,12 @@ li {
 	top: 50%;
 	left: 50%;
 	border-left: 40% solid red;
-	margin: -50px 0 0 -50px;
-	width: 100px;
-	height: 100px;
+	margin: -5px 0 0 -5px;
+	width: 10px;
+	height: 10px;
 	background-color: rgba(100,100,100,1);
 	background-image: url("img/thick.png");
-	background-size: 50px 50px;
+	background-size: 30px 30px;
 	transform: none;
 	/*transition: all 1s ease-in-out;*/
 }

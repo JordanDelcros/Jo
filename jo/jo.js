@@ -5190,12 +5190,12 @@
 
 					if( ["left", "width", "marginLeft", "marginRight", "borderLeft", "borderRight", "paddingLeft", "paddingRight"].indexOf(property) !== -1 ){
 
-						return element.offsetWidth / 100 * value;
+						return element.parentElement.offsetWidth / 100 * value;
 
 					}
 					else {
 
-						return element.offsetHeight / 100 * value;
+						return element.parentElement.offsetHeight / 100 * value;
 
 					};
 
