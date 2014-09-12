@@ -1,6 +1,8 @@
 // JUST TEST SPEED
 Jo(function(){
 
+	console.log("doc ready")
+
 	var bef = +new Date();
 	var $container = Jo("#container");
 
@@ -12,18 +14,19 @@ Jo(function(){
 	};
 
 	var $li = Jo("li")
-		.css("transform", "translateX(100px) rotateZ(20deg) skewX(-13deg) skewY(15deg)")
-		// .animate({
-		// 	transform: "translateX(100px) translateZ(-100px) rotateY(40deg) rotateZ(45deg)"
-		// }, {
-		// 	easing: "easeOutBounce",
-		// 	duration: 10000,
-		// 	complete: function(){
+		.css("transform", "rotateZ(180deg)")
+		.animate({
+			transform: "rotateZ(0deg)"
+		}, {
+			easing: "easeOutBounce",
+			duration: 10000,
+			additional: false,
+			complete: function(){
 
-		// 		console.log("jo finish");
+				console.log("jo finish");
 
-		// 	}
-		// });
+			}
+		});
 
 	console.log("time: ", +new Date() - bef);
 

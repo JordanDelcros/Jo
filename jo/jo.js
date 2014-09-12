@@ -26,15 +26,7 @@
 
 				if( isFunction(selector) ){
 
-					var previousOnload = window.onload;
-
-					window.onload = function(){
-						
-						if( isFunction(previousOnload) ) previousOnload();
-
-						selector.call(this, Jo);
-
-					};
+					Jo(document).on("ready", selector.bind(this, Jo), false);
 					
 				}
 				else if( isString(selector) ){
@@ -2139,7 +2131,8 @@
 
 			options = Jo.merge({
 				duration: 1000,
-				easing: "linear"
+				easing: "linear",
+				additional: true
 			}, options);
 
 			var valuesTo = new Object();
@@ -2350,14 +2343,94 @@
 						}
 						else {
 
-							element.properties[property].origin = Jo.matrix(from);
+							var fromMatrix = element.properties[property].origin = Jo.matrix(from);
 
-							for( var transformation = 0, length = values.length; transformation < length; transformation++ ){
+							if( isFalse(options.additional) ){
 
-								valueIndex++;
+								valuesTo.transform.model.replace(/([a-z]+)\(([^\)]+)\)/gi, function( match, name, ids ){
 
-								values[valueIndex].from = 0;
-								values[valueIndex].difference = values[valueIndex].to;
+									ids = ids.replace(/#/g, "").split(",");
+
+									var matrixValues = null;
+
+									if( /^scale/.test(name) ){
+
+										matrixValues = fromMatrix.getScale();
+
+									}
+									else if( /^translate/.test(name) ){
+
+										matrixValues = fromMatrix.getTranslate();
+
+									}
+									else if( /^skew/.test(name) ){
+
+										matrixValues = fromMatrix.getSkew();
+
+									}
+									else if( /^rotate/.test(name) ){
+
+										matrixValues = fromMatrix.getRotate();
+
+									};
+
+									var matrixValue = null;
+
+									for( var id = 0, length = ids.length; id < length; id++ ){
+
+										valueIndex = parseInt(ids[id]);
+
+										if( /^(?:scale|translate|skew|rotate)X/i.test(name) ){
+
+											matrixValue = matrixValues.x;
+
+										}
+										else if( /^(?:scale|translate|skew|rotate)Y/i.test(name) ){
+
+											matrixValue = matrixValues.y;
+
+										}
+										else if( /^(?:scale|translate|rotate)Z/i.test(name) ){
+
+											matrixValue = matrixValues.z;
+
+										}
+										else if( id === 0 ){
+
+											matrixValue = matrixValues.x;
+
+										}
+										else if( id === 1 ){
+
+											matrixValue = matrixValues.y;
+
+										}
+										else if( id === 2 ){
+
+											matrixValue = matrixValues.z;
+
+										};
+
+										values[valueIndex].from = matrixValue;
+										values[valueIndex].difference = Math.abs(matrixValue - values[valueIndex].to) * (matrixValue > values[valueIndex].to ? -1 : 1);
+
+									};
+
+									return "";
+
+								});
+
+							}
+							else {
+
+								for( var transformation = 0, length = values.length; transformation < length; transformation++ ){
+
+									valueIndex++;
+
+									values[valueIndex].from = 0;
+									values[valueIndex].difference = values[valueIndex].to;
+
+								};
 
 							};
 
@@ -2529,14 +2602,21 @@
 						var currentProperty = element.properties[property];
 						var model = currentProperty.model;
 						var easing = Jo.easing(task.options.easing, elapsedTime, task.options.duration);
+						var isTransform = (property === "transform") ? true : false;
 
 						for( var value = 0, length = currentProperty.values.length; value < length; value++ ){
 
-							var newValue = (currentProperty.values[value].from + (easing * currentProperty.values[value].difference));
+							var newValue = easing * currentProperty.values[value].difference;
 
-							if( isTrue(currentProperty.values[value].integer) ){
+							if( isFalse(isTransform) ){
 
-								newValue = parseInt(newValue);
+								newValue += currentProperty.values[value].from;
+
+								if( isTrue(currentProperty.values[value].integer) ){
+
+									newValue = parseInt(newValue);
+
+								};
 
 							};
 
@@ -2544,7 +2624,7 @@
 
 						};
 
-						if( property === "transform" ){
+						if( isTrue(isTransform) ){
 
 							model = currentProperty.origin.add(model).toString();
 
@@ -2612,6 +2692,16 @@
 			};
 
 			if( !isEmpty(window.CSSMatrix) ){
+
+				if( !isEmpty(matrix, true) ){
+
+					matrix = matrix.replace(/[0-9]+\.?[0-9]+e[+-][0-9]+/g, function( match ){
+
+						return parseFloat(match).toFixed(20);
+
+					});
+
+				};
 
 				this.matrix = new window.CSSMatrix(matrix || "");
 
