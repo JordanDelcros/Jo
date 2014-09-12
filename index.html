@@ -66,7 +66,7 @@
 						<ol>
 							<li>
 								<span class="parameter">[selector]</span>
-								<span class="type value">string | function | elements | jo</span>
+								<span class="type value">string | elements | jo | function</span>
 							</li>
 						</ol>
 					</div>
@@ -75,10 +75,10 @@
 						<p>HTML model :</p>
 						<code>
 							&lt;<span class="tagName">section</span>&gt;
-								<br/><span class="tabulation"></span>&lt;<span class="tagName">div</span>&gt;
-									<br/><span class="tabulation-2"></span>&lt;<span class="tagName">p</span>&gt;Hello World! My name is &lt;<span class="tagName">a</span>&gt;Jo&lt;/<span class="tagName">a</span>&gt;&lt;/<span class="tagName">p</span>&gt;
-								<br/><span class="tabulation"></span>&lt;/<span class="tagName">div</span>&gt;
-								<br/><span class="tabulation"></span>&lt;<span class="tagName">p</span>&gt;Follow us on &lt;<span class="tagName">a</span> <span class="tagAttributeName">href</span>=<span class="tagAttributeValue">https://twitter.com/JordanDelcros"</span>&gt;Twitter&lt;/<span class="tagName">a</span>&gt;&lt;/<span class="tagName">p</span>&gt;
+								<br/><span class="tabulation">&lt;<span class="tagName">div</span>&gt;</span>
+									<br/><span class="tabulation-2">&lt;<span class="tagName">p</span>&gt;Hello World! My name is &lt;<span class="tagName">a</span>&gt;Jo&lt;/<span class="tagName">a</span>&gt;&lt;/<span class="tagName">p</span>&gt;</span>
+								<br/><span class="tabulation">&lt;/<span class="tagName">div</span>&gt;</span>
+								<br/><span class="tabulation">&lt;<span class="tagName">p</span>&gt;Follow us on &lt;<span class="tagName">a</span> <span class="tagAttributeName">href</span>=<span class="tagAttributeValue">https://twitter.com/JordanDelcros"</span>&gt;Twitter&lt;/<span class="tagName">a</span>&gt;&lt;/<span class="tagName">p</span>&gt;</span>
 							<br/>&lt;<span class="tagName">section</span>&gt;
 						</code>
 						<ul>
@@ -93,10 +93,21 @@
 								</code>
 							</li>
 							<li>
+								<p>If <span class="parameter">[selector]</span> is an <span class="type value">element</span> :</p>
+								<code>
+									<span class="jsVariable">var</span> element = <span class="jsVariable">document</span>.<span class="jsFunction">createElement</span>(<span class="jsString">"section"</span>)<span>; <span class="comment">// or document.getElementsByTagName);</span>
+									<br/><span class="jsVariable">var</span> elements = Jo(element);
+								</code>
+								<p>The result will be an array containing :</p>
+								<code>
+									&lt;<span class="tagName">a</span> <span class="tagAttributeName">href</span>=<span class="tagAttributeValue">https://twitter.com/JordanDelcros"</span>&gt;Twitter&lt;/<span class="tagName">a</span>&gt;
+								</code>
+							</li>
+							<li>
 								<p>If <span class="parameter">[selector]</span> is a <span class="type value">function</span> :</p>
 								<code>
-									<span class="jsVariable">var</span> elements = Jo(<span class="jsFunction">function</span>(){
-										<br/>
+									Jo(<span class="jsFunction">function</span>(){
+										<br/><span class="tabulation comment">// Do stuff when document is ready</span>
 									<br/>});
 								</code>
 								<p>It is a shortens for <code>Jo(<span class="jsVariable">window</span>).on(<span class="jsString">"load"</span>, <span class="jsFunction">function</span>(){}, <span class="jsBoolean">false</span>);</code></p>
@@ -122,15 +133,15 @@
 						<p>HTML model :</p>
 						<code>
 							&lt;<span class="tagName">ul</span>&gt;
-								<br/><span class="tabulation"></span>&lt;<span class="tagName">li</span>&gt;one&lt;/<span class="tagName">li</span>&gt;
-								<br/><span class="tabulation"></span>&lt;<span class="tagName">li</span>&gt;two&lt;/<span class="tagName">li</span>&gt;
-								<br/><span class="tabulation"></span>&lt;<span class="tagName">li</span>&gt;three
-									<br/><span class="tabulation-2"></span>&lt;<span class="tagName">ul</span>&gt;subchild&lt;/<span class="tagName">ul</span>&gt;
-										<br/><span class="tabulation-3"></span>&lt;<span class="tagName">li</span>&gt;subchild&lt;/<span class="tagName">li</span>&gt;
-									<br/><span class="tabulation-2"></span>&lt;<span class="tagName">ul</span>&gt;subchild&lt;/<span class="tagName">ul</span>&gt;
-								<br/><span class="tabulation"></span>&lt;/<span class="tagName">li</span>&gt;
-								<br/><span class="tabulation"></span>&lt;<span class="tagName">li</span>&gt;four&lt;/<span class="tagName">li</span>&gt;
-								<br/><span class="tabulation"></span>&lt;<span class="tagName">li</span>&gt;five&lt;/<span class="tagName">li</span>&gt;
+								<br/><span class="tabulation">&lt;<span class="tagName">li</span>&gt;one&lt;/<span class="tagName">li</span>&gt;</span>
+								<br/><span class="tabulation">&lt;<span class="tagName">li</span>&gt;two&lt;/<span class="tagName">li</span>&gt;</span>
+								<br/><span class="tabulation">&lt;<span class="tagName">li</span>&gt;three</span>
+									<br/><span class="tabulation-2">&lt;<span class="tagName">ul</span>&gt;subchild&lt;/<span class="tagName">ul</span>&gt;</span>
+										<br/><span class="tabulation-3">&lt;<span class="tagName">li</span>&gt;subchild&lt;/<span class="tagName">li</span>&gt;</span>
+									<br/><span class="tabulation-2">&lt;<span class="tagName">ul</span>&gt;subchild&lt;/<span class="tagName">ul</span>&gt;</span>
+								<br/><span class="tabulation">&lt;/<span class="tagName">li</span>&gt;</span>
+								<br/><span class="tabulation">&lt;<span class="tagName">li</span>&gt;four&lt;/<span class="tagName">li</span>&gt;</span>
+								<br/><span class="tabulation">&lt;<span class="tagName">li</span>&gt;five&lt;/<span class="tagName">li</span>&gt;</span>
 							<br/>&lt;/<span class="tagName">ul</span>&gt;
 						</code>
 						<ul>
@@ -166,11 +177,11 @@
 						<p>HTML model :</p>
 						<code>
 							&lt;<span class="tagName">ul</span>&gt;
-								<br/><span class="tabulation"></span>&lt;<span class="tagName">li</span>&gt;one&lt;/<span class="tagName">li</span>&gt;
-								<br/><span class="tabulation"></span>&lt;<span class="tagName">li</span>&gt;two&lt;/<span class="tagName">li</span>&gt;
-								<br/><span class="tabulation"></span>&lt;<span class="tagName">li</span>&gt;three&lt;/<span class="tagName">li</span>&gt;
-								<br/><span class="tabulation"></span>&lt;<span class="tagName">li</span>&gt;four&lt;/<span class="tagName">li</span>&gt;
-								<br/><span class="tabulation"></span>&lt;<span class="tagName">li</span>&gt;five&lt;/<span class="tagName">li</span>&gt;
+								<br/><span class="tabulation">&lt;<span class="tagName">li</span>&gt;one&lt;/<span class="tagName">li</span>&gt;</span>
+								<br/><span class="tabulation">&lt;<span class="tagName">li</span>&gt;two&lt;/<span class="tagName">li</span>&gt;</span>
+								<br/><span class="tabulation">&lt;<span class="tagName">li</span>&gt;three&lt;/<span class="tagName">li</span>&gt;</span>
+								<br/><span class="tabulation">&lt;<span class="tagName">li</span>&gt;four&lt;/<span class="tagName">li</span>&gt;</span>
+								<br/><span class="tabulation">&lt;<span class="tagName">li</span>&gt;five&lt;/<span class="tagName">li</span>&gt;</span>
 							<br/>&lt;/<span class="tagName">ul</span>&gt;
 						</code>
 						<ul>

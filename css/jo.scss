@@ -2,48 +2,48 @@
 
 html {
 	font-size: 10px;
-}
+	
+	body {
+		line-height: 1.2rem;
+		font-family: "Ubuntu", sans-serif;
+		background-color: #EEEEEE;
+		
+		header h1 {
+			padding: 2rem;
+			width: 40%;
+			box-sizing: border-box;
+			font-size: 4rem;
+			font-weight: 500;
+			letter-spacing: 1px;
+			color: #EEEEEE;
+			background-color: #2B3036;
+		}
+		
+		section {
+			display: flex;
+			flex-direction: row;
+			align-items: stretch;
 
-body {
-	line-height: 1.2rem;
-	font-family: "Ubuntu", sans-serif;
-	background-color: #EEEEEE;
-}
+			&#what h2,
+			&#setup h2,
+			&#documentation h2,
+			&#documentation div.left {
+				padding: 2rem;
+				width: 40%;
+				box-sizing: border-box;
+				font-size: 1.5rem;
+				letter-spacing: 1px;
+				color: #EEEEEE;
+				background-color: #2B3036;
+			}
 
-header h1 {
-	padding: 2rem;
-	width: 40%;
-	box-sizing: border-box;
-	font-size: 4rem;
-	font-weight: 500;
-	letter-spacing: 1px;
-	color: #EEEEEE;
-	background-color: #2B3036;
-}
-
-section {
-	display: flex;
-	flex-direction: row;
-	align-items: stretch;
-}
-
-section#what h2,
-section#setup h2,
-section#documentation h2,
-section#documentation div.left {
-	padding: 2rem;
-	width: 40%;
-	box-sizing: border-box;
-	font-size: 1.5rem;
-	letter-spacing: 1px;
-	color: #EEEEEE;
-	background-color: #2B3036;
-}
-
-section#documentation div.right {
-	padding: 2rem;
-	width: 60%;
-	box-sizing: border-box;
+			&#documentation div.right {
+				padding: 2rem;
+				width: 60%;
+				box-sizing: border-box;
+			}
+		}
+	}
 }
 
 section#what p,
@@ -148,17 +148,17 @@ p code {
 
 code span.tabulation {
 	display: inline-block;
-	padding-left: 3rem;
+	width: 3rem;
 }
 
 code span.tabulation-2 {
 	display: inline-block;
-	padding-left: 6rem;
+	width: 6rem;
 }
 
 code span.tabulation-3 {
 	display: inline-block;
-	padding-left: 9rem;
+	width: 9rem;
 }
 
 code span.tagName {
@@ -170,7 +170,7 @@ code span.tagAttributeName {
 }
 
 code span.comment {
-	color: #777;
+	color: #333333;
 }
 
 code span.tagAttributeValue,
