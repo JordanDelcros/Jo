@@ -23,7 +23,6 @@
 			var found = new Array();
 
 			if( !isEmpty(selector) ){
-
 				
 				if( isString(selector) ){
 
@@ -4221,7 +4220,7 @@
 
 	Jo.blob.fn.init.prototype = Jo.blob.fn;
 
-	var getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+	navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
 
 	Jo.media = function( settings ){
 
@@ -4235,12 +4234,14 @@
 
 			settings = Jo.merge({
 				video: true,
-				audio: true
+				audio: true,
+				success: function(){},
+				error: function(){}
 			}, settings);
 
-			var media = getUserMedia({
-				video: true,
-				audio: true
+			var media = navigator.getUserMedia({
+				video: settings.video,
+				audio: settings.audio
 			}, function( stream ){
 
 				this.stream = stream;
@@ -4255,6 +4256,8 @@
 
 			}.bind(this));
 
+			return this;
+
 		},
 		stop: function(){
 
@@ -4265,6 +4268,8 @@
 				videoTracks[track].stop();
 
 			};
+
+			return this;
 
 		}
 	};
@@ -5261,7 +5266,6 @@
 			return returned;
 
 		};
-
 
 		var removeIdAfter = false;
 		var originElement = element;
