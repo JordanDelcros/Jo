@@ -3,7 +3,7 @@
 // 	console.log("doc ready")
 
 // 	var bef = +new Date();
-// 	var $container = jQuery("#container");
+// 	var $container = jQuery("body");
 
 // 	for( var howMuch = 0; howMuch < 1000; howMuch++ ){
 // 		jQuery("<li/>")
@@ -22,8 +22,34 @@
 
 // });
 
+// Jo(function(){
+
+// 	console.log("doc ready")
+
+// 	var bef = +new Date();
+// 	var $container = Jo("body");
+
+// 	for( var howMuch = 0; howMuch < 1000; howMuch++ ){
+// 		Jo("<li/>")
+// 			.insertEndTo($container)
+// 			.animate({
+// 				left: (Math.round(Math.random() * $(window).width()) + 1) + "px",
+// 				top: (Math.round(Math.random() * $(window).height()) + 1) + "px",
+// 				// transform: "rotateZ(180deg)"
+// 			}, {
+// 				duration: 5000
+// 			})
+			
+// 	};
+
+// 	console.log("time: ", +new Date() - bef);
+
+// });
+
 var media;
 var peer;
+
+window.MediaSource = (window.MediaSource || window.WebKitMediaSource);
 
 Jo(function(){
 
@@ -32,7 +58,7 @@ Jo(function(){
 	// KEEP INTACT AFTER THIS LINE, TO FINISH
 
 	socket = Jo.socket({
-		url: "192.168.23.182:9000", //window.location.host + ":9000",
+		url: "192.168.23.226:9000", //window.location.host + ":9000",
 		open: function(){
 
 			console.log("SOCKET IS OPEN");
@@ -40,6 +66,38 @@ Jo(function(){
 		}
 	});
 
+	var localVideo = Jo("video").found[0];
+	var remoteVideo = Jo("video").found[1];
+
+	// Jo("input").on("change", function( event ){
+
+	// 	var file = this.files[0];
+	// 	var type = file.type;
+
+
+	// 	if( localVideo.canPlayType(type) ){
+
+	// 		var localStream = window.URL.createObjectURL(file);
+	// 		localVideo.src = localStream;
+
+	// 		var MediaSource = new window.MediaSource();
+
+	// 		Jo.peer({
+	// 			socket: socket,
+	// 			stream: file,
+	// 			addStream: function( src, stream ){
+
+	// 				remoteVideo.src = src;
+	// 				remoteVideo.play();
+
+	// 			}
+	// 		});
+
+	// 	};
+
+	// }, false);
+
+	
 	media = Jo.media({
 		video: true,
 		audio: false,
@@ -69,5 +127,6 @@ Jo(function(){
 
 		}
 	});
+	
 
 });

@@ -2594,6 +2594,8 @@
 
 			task.each(function( element ){
 
+				var step = new Object();
+
 				for( var property in element.properties ){
 
 					if( element.properties.hasOwnProperty(property) ){
@@ -2629,9 +2631,17 @@
 
 						};
 
+						step[property] = model;
+
 						element.$element.css(property, model, false);
 
 					};
+
+				};
+
+				if( isFunction(task.options.onStep) ){
+
+					task.options.onStep.call(element.$element, step);
 
 				};
 
@@ -2639,9 +2649,9 @@
 
 			if( elapsedTime === task.options.duration ){
 
-				if( isFunction(task.options.complete) ){
+				if( isFunction(task.options.onComplete) ){
 
-					task.options.complete.call(task.this);
+					task.options.onComplete.call(task.this);
 
 				};
 
@@ -3496,46 +3506,58 @@
 
 	Jo.extend = function( returned ){
 
-		if( isEmpty(returned) ){
+		if( !isEmpty(returned) && isEmpty(arguments[1]) ){
 
-			returned = new Object();
+			var type;
+
+			if( isArray(returned) ){
+
+				type = new Array();
+
+			}
+			else {
+
+				type = new Object();
+
+			};
+
+			return Jo.merge(type, returned);
 
 		};
 
-		for( var argument = 1; argument < arguments.length; argument++ ){
+		if( !isArray(returned) && !isObject(returned) ){
 
-			var obj = arguments[argument];
+			if( !isEmpty(arguments[1]) && isArray(arguments[1]) ){
 
-			for( var key in obj ){
+				returned = new Array();
 
-				if( obj.hasOwnProperty(key) ){
+			}
+			else {
 
-					if( isArray(obj) ){
+				returned = new Object();
+				
+			};
 
-						if( isArray(returned) ){
+		};
 
-							if( returned.indexOf(obj[key]) < 0 ){
+		for( var argument = 1, length = arguments.length; argument < length; argument++ ){
 
-								returned.push(obj[key]);
+			for( var key in arguments[argument] ){
 
-							};
+				if( isEmpty(returned[key]) ){
+
+					if( arguments[argument].hasOwnProperty(key) ){
+
+						if( isObject(arguments[argument][key]) && (arguments[argument][key].constructor === Object || arguments[argument][key].constructor === Array) ){
+
+							returned[key] = Jo.merge(returned[key], arguments[argument][key]);
 
 						}
-						else if( isEmpty(returned[obj[key]]) ){
+						else {
 
-							returned[obj[key]] = null;
+							returned[key] = arguments[argument][key];
 
 						};
-
-					}
-					else if( isObject(obj[key]) ){
-
-						Jo.merge(returned[key], obj[key]);
-
-					}
-					else {
-
-						returned[key] = obj[key];
 
 					};
 
@@ -4292,7 +4314,12 @@
 
 			settings = Jo.merge({
 				config: {
-					iceServers: new Array()
+					iceServers: new Array(),
+					optional: [
+						{
+							RtpDataChannel: true
+						}
+					]
 				},
 				constraints: {
 					mandatory: {
@@ -4306,6 +4333,8 @@
 
 				}
 			}, settings);
+
+			this.channels = new Object();
 
 			this.reset(settings);
 
@@ -4372,10 +4401,24 @@
 
 			}.bind(this), false);
 
+			return this;
+
 		},
 		reset: function( settings ){
 
 			this.peer = new RTCPeerConnection(settings.config);
+
+			this.peer.addEventListener("iceconnectionstatechange", function( event ){
+
+				console.log( event.target.iceConnectionState 	 );
+
+			}, false);
+
+			this.peer.addEventListener("signalingstatechange", function( event ){
+
+				console.log( event.target.signalingState );
+
+			}, false);
 
 			this.peer.addEventListener("icecandidate", function( event ){
 
@@ -4385,9 +4428,9 @@
 
 				};
 
-			}.bind(this), false);
+			}, false);
 
-			this.peer.addStream(settings.stream);
+			this.addStream(settings.stream);
 
 			this.peer.addEventListener("addstream", function( event ){
 
@@ -4408,6 +4451,74 @@
 				};
 
 			}, false);
+
+			return this;
+
+		},
+		addStream: function( stream ){
+
+			this.peer.addStream(stream);
+
+			return this;
+
+		},
+		createChannel: function( name, settings ){
+
+			this.channels[name] = new Object();
+
+			this.channels[name].settings = settings = Jo.merge({
+				ordered: true,
+				maxRetransmitTime: Infinity,
+				maxRetransmits: Infinity
+			}, settings);
+
+			var channel = this.channels[name].object = this.peer.createDataChannel(name, settings);
+
+			channel.addEventListener("open", function(){
+
+				console.log("data channel is open");
+
+			}, false);
+
+			channel.addEventListener("close", function(){
+
+				console.log("data channel is close");
+
+			}, false);
+
+			channel.addEventListener("error", function( error ){
+
+				console.log("data channel error", error);
+
+			}, false);
+
+			channel.addEventListener("message", function( event ){
+
+				console.log("data channel message", event.data);
+
+			}, false);
+
+			return this;
+
+		},
+		closeChannel: function( name ){
+
+			this.channels[name].object.close();
+
+			delete this.channels[name];
+
+			return this;
+
+		},
+		resetChannels: function(){
+
+			for( var channel in this.channels ){
+
+				this.createChannel()
+
+			};
+
+			return this;
 
 		}
 	};
