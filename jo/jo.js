@@ -121,9 +121,11 @@
 
 			this.each(function(){
 
-				Array.prototype.filter.call(this.parentNode.children, function( child ){
+				var children = this.parentNode.children;
 
-					var $child = Jo(child);
+				for( var child = 0, length = children.length; child < length; child++ ){
+
+					var $child = Jo(children[child]);
 
 					if( !$child.is(this) ){
 
@@ -131,20 +133,20 @@
 
 							if( $child.is(selector) ){
 
-								found.push(child);
+								found.push(children[child]);
 
 							};
 
 						}
 						else {
 
-							found.push(child);
+							found.push(children[child]);
 
 						};
 
 					};
 
-				}.bind(this));
+				};
 
 			});
 
@@ -163,27 +165,68 @@
 			this.each(function(){
 
 				var $target = Jo(this);
+				var children = this.parentNode.children;
 
-				Array.prototype.filter.call(this.parentNode.children, function( child ){
+				for( var child = 0, length = children.length; child < length; child++ ){
 
-					var $child = Jo(child);
+					var $child = Jo(children[child]);
 
 					if( !$child.is($target) && $child.index() < $target.index() ){
 
 						if( !isEmpty(selector) && $child.is(selector) ){
 
-							found.push(child);
+							found.push(children[child]);
 
 						}
 						else {
 
-							found.push(child);
+							found.push(children[child]);
 
 						};
 
 					};
 
-				});
+				};
+
+			});
+
+			$this.found = found;
+			$this.length = found.length;
+
+			return $this;
+
+		},
+		siblingsAfter: function(){
+
+			var $this = Jo(this);
+
+			var found = new Array();
+
+			this.each(function(){
+
+				var $target = Jo(this);
+				var children = this.parentNode.children;
+
+				for( var child = 0, length = children.length; child < length; child++ ){
+
+					var $child = Jo(children[child]);
+
+					if( !$child.is($target) && $child.index() > $target.index() ){
+
+						if( !isEmpty(selector) && $child.is(selector) ){
+
+							found.push(children[child]);
+
+						}
+						else {
+
+							found.push(children[child]);
+
+						};
+
+					};
+
+				};
 
 			});
 
@@ -458,7 +501,7 @@
 
 				var target = this;
 
-				while( !isEmpty(target.previousElementSibling) ){
+				while( !isEmpty(target.previousSibling) ){
 
 					target = target.previousSibling;
 
@@ -520,7 +563,7 @@
 
 				var target = this;
 
-				while( !isEmpty(target.nextElementSibling) ){
+				while( !isEmpty(target.nextSibling) ){
 
 					target = target.nextSibling;
 
@@ -674,7 +717,7 @@
 
 			};
 
-			var originalActions = Jo.merge(new Array(), actions);
+			var originalActions = Jo.clone(actions);
 
 			this.each(function(){
 
@@ -697,7 +740,7 @@
 						fn: fn
 					};
 
-					if( !isFunction(Jo.specialEvents[actions[action]]) && !Jo.support.events(this, actions[action]) ){
+					if( !isFunction(specialEvents[actions[action]]) && !Jo.support.events(this, actions[action]) ){
 
 						var customEvent = new CustomEvent(actions[action], {
 							detail: {},
@@ -712,9 +755,9 @@
 						this.addEventListener(actions[action], this.events[originalActions[action]][f].fn, useCapture);
 
 					}
-					else if( isFunction(Jo.specialEvents[actions[action]]) && !Jo.support.events(this, actions[action]) ){
+					else if( isFunction(specialEvents[actions[action]]) && !Jo.support.events(this, actions[action]) ){
 
-						var specialEvent = Jo.specialEvents[actions[action]].call(this, fn);
+						var specialEvent = specialEvents[actions[action]].call(this, fn);
 
 						evt.action = specialEvent.action;
 
@@ -786,7 +829,6 @@
 
 				};
 
-
 			});
 
 		},
@@ -794,28 +836,20 @@
 
 			actions = actions.split(" ");
 
-			return this.each(function( event ){
+			return this.each(function( index ){
 
 				for( var action in actions ){
 
-					if( !isEmpty(this.events) && !isEmpty(this.events[actions[action]]) ){
+					if( !isEmpty(specialEvents[actions[action]]) && !Jo.support.events(this, actions[action]) ){
 
-						if( !isFunction(Jo.specialEvents[actions[action]]) && !Jo.support.events(this, actions[action]) ){
-
-							this.dispatchEvent(this.events[actions[action]].action);
-
-						}
-						else {
-
-							for( var i in this.events[actions[action]] ){
-
-								this.events[actions[action]][i].fn.call(this, event);
-
-							};
-
-						};
+						actions[action] = specialEvents[actions].action;
 
 					};
+
+					var event = document.createEvent("Event");
+					event.initEvent(actions[action]);
+
+					this.dispatchEvent(event);
 
 				};
 
@@ -1595,28 +1629,7 @@
 
 				this.each(function(){
 
-					if( this.insertAdjacentHTML ){
-
-						this.insertAdjacentHTML("beforebegin", html);
-
-					}
-					else {
-
-						var temporaryNode = document.createElement("div");
-
-						temporaryNode.innerHTML = html;
-
-						var nodes = temporaryNode.childNodes;
-
-						temporaryNode.remove();
-
-						for( var node = 0, length = nodes.length; node < length; node++ ){
-						
-							this.parentNode.insertBefore(nodes[node], this);
-
-						};
-
-					};
+					this.insertAdjacentHTML("beforebegin", html);
 
 				});
 
@@ -1632,11 +1645,9 @@
 			}
 			else if( isNodeList(html) ){
 
-				var length = html.length;
-
 				this.each(function(){
 
-					for( var node = 0; node < length; node++ ){
+					for( var node = 0, length = html.length; node < length; node++ ){
 
 						this.parentNode.insertBefore(html[node], this);
 
@@ -1647,11 +1658,9 @@
 			}
 			else if( isJo(html) ){
 
-				var length = html.found.length;
-
 				this.each(function(){
 
-					for( var node = 0; node < length; node++ ){
+					for( var node = 0, length = html.found.length; node < length; node++ ){
 
 						this.parentNode.insertBefore(html.found[node], this);
 
@@ -1677,28 +1686,7 @@
 
 				this.each(function(){
 
-					if( this.insertAdjacentHTML ){
-
-						this.insertAdjacentHTML("afterend", html);
-
-					}
-					else {
-
-						var temporaryNode = document.createElement("div");
-
-						temporaryNode.innerHTML = html;
-
-						var nodes = temporaryNode.childNodes;
-
-						temporaryNode.remove();
-
-						for( var node = 0, length = nodes.length; node < length; node++ ){
-
-							this.parentNode.insertBefore(nodes[node], this.nextElementSibling);
-
-						};
-
-					};
+					this.insertAdjacentHTML("afterend", html);
 
 				});
 
@@ -1714,11 +1702,9 @@
 			}
 			else if( isNodeList(html) ){
 
-				var length = html.length;
-
 				this.each(function(){
 
-					for( var node = 0; node < length; node++ ){
+					for( var node = 0, length = html.length; node < length; node++ ){
 
 						this.parentNode.insertBefore(html[node], this.nextElementSibling);
 
@@ -1729,11 +1715,9 @@
 			}
 			else if( isJo(html) ){
 
-				var length = html.found.length;
-
 				this.each(function(){
 
-					for( var node = 0; node < length; node++ ){
+					for( var node = 0, length = html.found.length; node < length; node++ ){
 
 						this.parentNode.insertBefore(html.found[node], this.nextElementSibling);
 
@@ -1759,28 +1743,7 @@
 				
 				this.each(function(){
 
-					if( this.insertAdjacentHTML ){
-
-						this.insertAdjacentHTML("afterbegin", html);
-
-					}
-					else {
-
-						var temporaryNode = document.createElement("div");
-
-						temporaryNode.innerHTML = html;
-
-						var nodes = temporaryNode.childNodes;
-
-						temporaryNode.remove();
-
-						for( var node = 0, length = nodes.length; node < length; node++ ){
-
-							this.insertBefore(nodes[node], this.firstChild);
-
-						};
-
-					};
+					this.insertAdjacentHTML("afterbegin", html);
 
 				});
 
@@ -1796,11 +1759,9 @@
 			}
 			else if( isNodeList(html) ){
 
-				var length = html.length;
-
 				this.each(function(){
 
-					for( var node = 0; node < length; node++ ){
+					for( var node = 0, length = html.length; node < length; node++ ){
 
 						this.insertBefore(html[node], this.firstChild);
 
@@ -1811,11 +1772,9 @@
 			}
 			else if( isJo(html) ){
 
-				var length = html.found.length;
-
 				this.each(function(){
 
-					for( var node = 0; node < length; node++ ){
+					for( var node = 0, length = html.found.length; node < length; node++ ){
 
 						this.insertBefore(html.found[node], this.firstChild);
 
@@ -1841,28 +1800,7 @@
 
 				this.each(function(){
 
-					if( this.insertAdjacentHTML ){
-
-						this.insertAdjacentHTML("beforeend", html);
-
-					}
-					else {
-
-						var temporaryNode = document.createElement("div");
-
-						temporaryNode.innerHTML = html;
-
-						var nodes = temporaryNode.childNodes;
-
-						temporaryNode.remove();
-
-						for( var node = 0, length = nodes.length; node < length; node++ ){
-
-							this.parentNode.appendChild(nodes[node]);
-
-						};
-
-					};
+					this.insertAdjacentHTML("beforeend", html);
 
 				});
 
@@ -1878,11 +1816,9 @@
 			}
 			else if( isNodeList(html) ){
 
-				var length = html.length;
-
 				this.each(function(){
 
-					for( var node = 0; node < length; node++ ){
+					for( var node = 0, length = html.length; node < length; node++ ){
 
 						this.appendChild(nodes[node]);
 
@@ -1893,11 +1829,9 @@
 			}
 			else if( isJo(html) ){
 
-				var length = html.found.length;
-
 				this.each(function(){
 
-					for( var node = 0; node < length; node++ ){
+					for( var node = 0, length = html.found.length; node < length; node++ ){
 
 						this.appendChild(html.found[node]);
 
@@ -1920,25 +1854,22 @@
 		wrap: function( html ){
 
 			var $this = Jo(this);
-			var $wrapper;
+			var found = new Array();
 
-			if( isString(html) ){
-
-				$wrapper = Jo(html);
-
-			};
+			var $wrapper = Jo(html);
 
 			this.each(function(){
 
-				var $this = Jo(this);
+				found.push(this);
 
-				var $wrapped = $wrapper.clone();
+				this.parentNode.insertBefore($wrapper.found[0], this);
 
-				$this.insertBefore($wrapped);
-
-				$wrapped.html($this);
+				$wrapper.found[0].appendChild(this);
 
 			});
+
+			$this.found = found;
+			$this.length = $this.found.length;
 
 			return $this;
 
@@ -1977,14 +1908,17 @@
 
 					this.parentNode.replaceChild(node, this);
 
+					found.push(node);
+
 				}
 				else {
 
 					var reference = this;
+					var node = null;
 
 					for( var element = 0, length = html.length; element < length; element++ ){
 
-						var node = html[element].cloneNode(true);
+						node = html[element].cloneNode(true);
 
 						found.push(node);
 
@@ -1995,8 +1929,6 @@
 					};
 
 				};
-
-				// Jo(this).remove();
 
 			});
 
@@ -2015,16 +1947,19 @@
 			});
 
 			this.found = new Array();
-			this.length = this.found.length;
+			this.length = 0;
 
 			return this;
 
 		},
 		empty: function(){
 
-			var newNodes = new Array();
+			var $this = Jo(this);
+			var found = new Array();
 
 			this.each(function(){
+
+				found.push(this);
 
 				while( this.lastChild ){
 
@@ -2034,7 +1969,10 @@
 
 			});
 
-			return this;
+			$this.found = found;
+			$this.length = $this.found.length;
+
+			return $this;
 
 		},
 		show: function(){
@@ -2131,7 +2069,7 @@
 			options = Jo.merge({
 				duration: 1000,
 				easing: "linear",
-				additional: true
+				additional: false
 			}, options);
 
 			var valuesTo = new Object();
@@ -2219,6 +2157,18 @@
 							});
 
 							return "rgba(#" + (redIndex - 1) + ", #" + (greenIndex - 1) + ", #" + (blueIndex - 1) + ", #" + (alphaIndex - 1) + ")";
+
+						})
+						.replace(/[^#]([0-9\.]+)/, function( match, number ){
+
+							var index = valuesTo[property].values.push({
+								from: null,
+								to: parseFloat(number),
+								difference: 0,
+								unit: ""
+							});
+
+							return match.replace(number, "#" + (index - 1));
 
 						});
 
@@ -2607,7 +2557,7 @@
 
 						for( var value = 0, length = currentProperty.values.length; value < length; value++ ){
 
-							var newValue = easing * currentProperty.values[value].difference;
+							var newValue = currentProperty.values[value].from + easing * currentProperty.values[value].difference;
 
 							if( isFalse(isTransform) ){
 
@@ -4410,13 +4360,13 @@
 
 			this.peer.addEventListener("iceconnectionstatechange", function( event ){
 
-				console.log( event.target.iceConnectionState 	 );
+				console.log("iceconnectionstatechange", event.target.iceConnectionState);
 
 			}, false);
 
 			this.peer.addEventListener("signalingstatechange", function( event ){
 
-				console.log( event.target.signalingState );
+				console.log("signalingstatechange", event.target.signalingState);
 
 			}, false);
 
@@ -4542,65 +4492,6 @@
 
 		}
 
-	};
-
-	Jo.specialEvents = {
-		ready: function( fn ){
-
-			if( document.readyState === "complete" ){
-
-				fn();
-
-			}
-			else {
-
-				return {
-					action: "DOMContentLoaded",
-					fn: fn
-				};
-
-			};
-
-		},
-		mouseenter: function( fn ){
-
-			return {
-				action: "mouseover",
-				fn: Jo.specialEvents.mousehover(fn)
-			};
-
-		},
-		mouseleave: function( fn ){
-
-			return {
-				action: "mouseout",
-				fn: Jo.specialEvents.mousehover(fn)
-			};
-
-		},
-		mousehover: function( fn ){
-
-			return function( event ){
-
-				var evt = event || window.event;
-
-				var target = evt.target || evt.srcElement;
-				var relatedTarget = evt.relatedTarget || evt.fromElement;
-
-				if( (this === target || isChildOf(target, this)) && !isChildOf(relatedTarget, this) ){
-
-					fn.call(this);
-
-				}
-				else {
-
-					return false;
-
-				};
-
-			};
-
-		}
 	};
 
 	Jo.easing = function( type, elapsed, duration ){
@@ -5578,6 +5469,65 @@
 		};
 
 	})();
+
+	var specialEvents = {
+		ready: function( fn ){
+
+			if( document.readyState === "complete" ){
+
+				fn();
+
+			}
+			else {
+
+				return {
+					action: "DOMContentLoaded",
+					fn: fn
+				};
+
+			};
+
+		},
+		mouseenter: function( fn ){
+
+			return {
+				action: "mouseover",
+				fn: specialEvents.mousehover(fn)
+			};
+
+		},
+		mouseleave: function( fn ){
+
+			return {
+				action: "mouseout",
+				fn: specialEvents.mousehover(fn)
+			};
+
+		},
+		mousehover: function( fn ){
+
+			return function( event ){
+
+				var evt = event || window.event;
+
+				var target = evt.target || evt.srcElement;
+				var relatedTarget = evt.relatedTarget || evt.fromElement;
+
+				if( (this === target || isChildOf(target, this)) && !isChildOf(relatedTarget, this) ){
+
+					fn.call(this);
+
+				}
+				else {
+
+					return false;
+
+				};
+
+			};
+
+		}
+	};
 
 	if( isObject(window) && isObject(window.document) ) window.Jo = window.$ = Jo;
 

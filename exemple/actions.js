@@ -1,3 +1,49 @@
+Jo(function( $ ){
+
+	Jo("body")
+		.empty()
+		.insertEnd("<div/>");
+
+	Jo("body div")
+		.replace("<span/>")
+		.insertAfter("<span/>");
+
+	Jo("body span")
+		.wrap("<p/>")
+		.replace("<span class='pokemon'/>")
+		.css({
+			display: "block",
+			backgroundColor: "tranparent",
+			width: "100px",
+			height: "100px"
+		})
+		.animate({
+			backgroundColor: "rgba(0,0,0,1)",
+			marginLeft: "100px",
+			transform: "rotateZ(90deg)"
+		}, {
+			duration: 1500,
+			easing: "easeInOutQuad",
+			onStep: function( step ){
+
+
+			},
+			onComplete: function(){
+
+				console.log("complete", this);
+
+				Jo(this).animate({
+					backgroundColor: "rgba(0, 100, 0, 1)"
+				}, {
+					easing: "easeOutBounce"
+				});
+
+			}
+		});
+
+});
+
+/*
 // jQuery(function(){
 
 // 	console.log("doc ready")
@@ -58,7 +104,7 @@ Jo(function(){
 	// KEEP INTACT AFTER THIS LINE, TO FINISH
 
 	socket = Jo.socket({
-		url: "192.168.23.226:9000", //window.location.host + ":9000",
+		url: "127.0.0.1:9000",
 		open: function(){
 
 			console.log("SOCKET IS OPEN");
@@ -130,3 +176,4 @@ Jo(function(){
 	
 
 });
+*/
