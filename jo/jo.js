@@ -41,7 +41,11 @@
 
 							temporary.innerHTML = selector;
 
-							found = temporary.childNodes;
+							for( var child = 0, length = temporary.childNodes.length; child < length; child++ ){
+
+								found.push(temporary.childNodes[child]);
+
+							};
 
 							temporary.remove();
 
@@ -90,6 +94,7 @@
 			this.selector = selector;
 			this.found = found;
 			this.length = found.length;
+			this.previous = new Array();
 
 			return this;
 
@@ -106,179 +111,13 @@
 
 			});
 
-			$this.found = found;
-			$this.length = $this.found.length;
+			var previous = Jo.clone(this.previous);
+			previous.unshift(this);
+
 			$this.selector = selector;
-
-			return $this;
-
-		},
-		siblings: function( selector ){
-
-			var $this = Jo(this);
-
-			var found = new Array();
-
-			this.each(function(){
-
-				var children = this.parentNode.children;
-
-				for( var child = 0, length = children.length; child < length; child++ ){
-
-					var $child = Jo(children[child]);
-
-					if( !$child.is(this) ){
-
-						if( !isEmpty(selector) ){
-
-							if( $child.is(selector) ){
-
-								found.push(children[child]);
-
-							};
-
-						}
-						else {
-
-							found.push(children[child]);
-
-						};
-
-					};
-
-				};
-
-			});
-
-			$this.found = found;
-			$this.length = found.length;
-
-			return $this;
-
-		},
-		siblingsBefore: function(){
-
-			var $this = Jo(this);
-
-			var found = new Array();
-
-			this.each(function(){
-
-				var $target = Jo(this);
-				var children = this.parentNode.children;
-
-				for( var child = 0, length = children.length; child < length; child++ ){
-
-					var $child = Jo(children[child]);
-
-					if( !$child.is($target) && $child.index() < $target.index() ){
-
-						if( !isEmpty(selector) && $child.is(selector) ){
-
-							found.push(children[child]);
-
-						}
-						else {
-
-							found.push(children[child]);
-
-						};
-
-					};
-
-				};
-
-			});
-
-			$this.found = found;
-			$this.length = found.length;
-
-			return $this;
-
-		},
-		siblingsAfter: function(){
-
-			var $this = Jo(this);
-
-			var found = new Array();
-
-			this.each(function(){
-
-				var $target = Jo(this);
-				var children = this.parentNode.children;
-
-				for( var child = 0, length = children.length; child < length; child++ ){
-
-					var $child = Jo(children[child]);
-
-					if( !$child.is($target) && $child.index() > $target.index() ){
-
-						if( !isEmpty(selector) && $child.is(selector) ){
-
-							found.push(children[child]);
-
-						}
-						else {
-
-							found.push(children[child]);
-
-						};
-
-					};
-
-				};
-
-			});
-
-			$this.found = found;
-			$this.length = found.length;
-
-			return $this;
-
-		},
-		node: function( selector, normalize ){
-
-			var $this = Jo(this);
-
-			var found = new Array();
-
-			if( isBoolean(selector) ){
-
-				var normalize = selector;
-
-				selector = undefined;
-
-			};
-
-			if( isEmpty(normalize) ){
-
-				normalize = false;
-
-			};
-
-			$this.each(function(){
-
-				var nodes = this.childNodes;
-
-				for( var node = 0, length = nodes.length; node < length; node++ ){
-
-					if( (!isEmpty(selector) && isString(selector) && !Jo(nodes[node]).is(selector)) || (isTrue(normalize) && isText(nodes[node]) && regularExpressions.onlySpaces.test(nodes[node].textContent)) ){
-
-						continue;
-
-					}
-					else {
-
-						found.push(nodes[node]);
-
-					};
-
-				};
-
-			});
-
 			$this.found = found;
 			$this.length = $this.found.length;
+			$this.previous = previous;
 
 			return $this;
 
@@ -314,8 +153,13 @@
 
 			});
 
+			var previous = Jo.clone(this.previous);
+			previous.unshift(this);
+
+			$this.selector = selector;
 			$this.found = found;
 			$this.length = $this.found.length;
+			$this.previous = previous;
 
 			return $this;
 
@@ -351,8 +195,13 @@
 
 			});
 
+			var previous = Jo.clone(this.previous);
+			previous.unshift(this);
+
+			$this.selector = selector;
 			$this.found = found;
 			$this.length = $this.found.length;
+			$this.previous = previous;
 
 			return $this;
 
@@ -434,13 +283,218 @@
 
 			});
 
+			var previous = Jo.clone(this.previous);
+			previous.unshift(this);
+
+			$this.selector = selector;
 			$this.found = found;
 			$this.length = $this.found.length;
+			$this.previous = previous;
+
+			return $this;
+
+		},
+		siblings: function( selector ){
+
+			var $this = Jo(this);
+
+			var found = new Array();
+
+			this.each(function(){
+
+				var children = this.parentNode.children;
+
+				for( var child = 0, length = children.length; child < length; child++ ){
+
+					var $child = Jo(children[child]);
+
+					if( !$child.is(this) ){
+
+						if( !isEmpty(selector) ){
+
+							if( $child.is(selector) ){
+
+								found.push(children[child]);
+
+							};
+
+						}
+						else {
+
+							found.push(children[child]);
+
+						};
+
+					};
+
+				};
+
+			});
+
+			var previous = Jo.clone(this.previous);
+			previous.unshift(this);
+
+			$this.selector = selector;
+			$this.found = found;
+			$this.length = found.length;
+			$this.previous = previous;
+
+			return $this;
+
+		},
+		siblingsBefore: function( selector ){
+
+			var $this = Jo(this);
+
+			var found = new Array();
+
+			this.each(function(){
+
+				var $target = Jo(this);
+				var children = this.parentNode.children;
+
+				for( var child = 0, length = children.length; child < length; child++ ){
+
+					var $child = Jo(children[child]);
+
+					if( !$child.is($target) && $child.index() < $target.index() ){
+
+						if( !isEmpty(selector) ){
+
+							if( $child.is(selector) ){
+
+								found.push(children[child]);
+
+							};
+
+						}
+						else {
+
+							found.push(children[child]);
+
+						};
+
+					};
+
+				};
+
+			});
+
+			var previous = Jo.clone(this.previous);
+			previous.unshift(this);
+
+			$this.selector = selector;
+			$this.found = found;
+			$this.length = found.length;
+			$this.previous = previous;
+
+			return $this;
+
+		},
+		siblingsAfter: function( selector ){
+
+			var $this = Jo(this);
+
+			var found = new Array();
+
+			this.each(function(){
+
+				var $target = Jo(this);
+				var children = this.parentNode.children;
+
+				for( var child = 0, length = children.length; child < length; child++ ){
+
+					var $child = Jo(children[child]);
+
+					if( !$child.is($target) && $child.index() > $target.index() ){
+
+						if( !isEmpty(selector) ){
+
+							if( $child.is(selector) ){
+
+								found.push(children[child]);
+
+							};
+
+						}
+						else {
+
+							found.push(children[child]);
+
+						};
+
+					};
+
+				};
+
+			});
+
+			var previous = Jo.clone(this.previous);
+			previous.unshift(this);
+
+			$this.selector = selector;
+			$this.found = found;
+			$this.length = found.length;
+			$this.previous = previous;
+
+			return $this;
+
+		},
+		node: function( selector, normalize ){
+
+			var $this = Jo(this);
+
+			var found = new Array();
+
+			if( isBoolean(selector) ){
+
+				var normalize = selector;
+
+				selector = undefined;
+
+			};
+
+			if( isEmpty(normalize) ){
+
+				normalize = false;
+
+			};
+
+			$this.each(function(){
+
+				var nodes = this.childNodes;
+
+				for( var node = 0, length = nodes.length; node < length; node++ ){
+
+					if( (!isEmpty(selector) && isString(selector) && !Jo(nodes[node]).is(selector)) || (isTrue(normalize) && isText(nodes[node]) && regularExpressions.onlySpaces.test(nodes[node].textContent)) ){
+
+						continue;
+
+					}
+					else {
+
+						found.push(nodes[node]);
+
+					};
+
+				};
+
+			});
+
+			var previous = Jo.clone(this.previous);
+			previous.unshift(this);
+
+			$this.selector = selector;
+			$this.found = found;
+			$this.length = $this.found.length;
+			$this.previous = previous;
 
 			return $this;
 
 		},
 		item: function( number ){
+
+			var $this = null;
 
 			if( number <= this.found.length ){
 
@@ -450,14 +504,22 @@
 
 				};
 
-				return Jo(this.found[number]);
+				$this = Jo(this.found[number]);
 
 			}
 			else {
 
-				return Jo();
+				$this = Jo();
 
 			};
+
+			var previous = Jo.clone(this.previous);
+			previous.unshift(this);
+
+			$this.selector = number;
+			$this.previous = previous;
+
+			return $this;
 
 		},
 		previous: function( selector ){
@@ -485,8 +547,13 @@
 
 			});
 
+			var previous = Jo.clone(this.previous);
+			previous.unshift(this);
+
+			$this.selector = selector;
 			$this.found = found;
 			$this.length = $this.found.length;
+			$this.previous = previous;
 
 			return $this;
 
@@ -516,8 +583,13 @@
 
 			});
 
+			var previous = Jo.clone(this.previous);
+			previous.unshift(this);
+
+			$this.selector = selector
 			$this.found = found;
 			$this.length = $this.found.length;
+			$this.previous = previous;
 
 			return $this;
 
@@ -547,8 +619,13 @@
 
 			});
 
+			var previous = Jo.clone(this.previous);
+			previous.unshift(this);
+
+			$this.selector = selector;
 			$this.found = found;
 			$this.length = $this.found.length;
+			$this.previous = previous;
 
 			return $this;
 
@@ -578,8 +655,13 @@
 
 			});
 
+			var previous = Jo.clone(this.previous);
+			previous.unshift(this);
+
+			$this.selector = selector;
 			$this.found = found;
 			$this.length = $this.found.length;
+			$this.previous = previous;
 
 			return $this;
 
@@ -628,8 +710,13 @@
 
 			};
 
+			var previous = Jo.clone(this.previous);
+			previous.unshift(this);
+
+			$this.selector = selector;
 			$this.found = found;
 			$this.length = $this.found.length;
+			$this.previous = previous;
 
 			return $this;
 
@@ -943,7 +1030,20 @@
 			}
 			else {
 
-				this.css("width", width);
+				this.each(function(){
+
+					if( isEmpty(this.width) ){
+
+						this.style.width = width + (isNumber(width) ? "px" : "");
+
+					}
+					else {
+
+						this.width = width;
+
+					};
+
+				});
 
 			};
 
@@ -966,7 +1066,20 @@
 			}
 			else {
 
-				this.css("height", height);
+				this.each(function(){
+
+					if( isEmpty(this.height) ){
+
+						this.style.height = height + (isNumber(height) ? "px" : "");
+
+					}
+					else {
+
+						this.height = height;
+
+					};
+
+				});
 
 			};
 
@@ -1241,8 +1354,10 @@
 
 			};
 
-			$this.found = this.found; //updateNodes($this);
+			$this.selector = this.selector;
+			$this.found = this.found;
 			$this.length = $this.found.length;
+			$this.previous = Jo.clone(this.previous);
 
 			return $this;
 
@@ -3384,6 +3499,23 @@
 	};
 
 	Jo.matrix.fn.init.prototype = Jo.matrix.fn;
+
+	Jo.object = function(){
+
+	};
+
+	Jo.object.fn = Jo.object.prototype = {
+		constructor: Jo.object,
+		init: function(){
+
+			// TODO : stronger workflow to add, remove, update an object, with events, callback, etc...
+
+			return this;
+
+		}
+	};
+
+	Jo.object.fn.prototype = Jo.object.fn;
 
 	Jo.merge = function( returned ){
 
