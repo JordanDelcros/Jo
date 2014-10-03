@@ -1728,8 +1728,12 @@
 
 			});
 
+			var previous = Jo.clone(this.previous);
+			previous.unshift(this);
+
 			$this.found = found;
 			$this.length = this.found.length;
+			$this.previous = previous;
 
 			return $this;
 
@@ -1983,8 +1987,12 @@
 
 			});
 
+			var previous = Jo.clone(this.previous);
+			previous.unshift(this);
+
 			$this.found = found;
 			$this.length = $this.found.length;
+			$this.previous = previous;
 
 			return $this;
 
@@ -2047,13 +2055,21 @@
 
 			});
 
+			var previous = Jo.clone(this.previous);
+			previous.unshift(this);
+
 			$this.found = found;
 			$this.length = this.found.length;
+			$this.previous = previous;
 
 			return $this;
 
 		},
 		remove: function(){
+
+			var $this = Jo(this);
+
+			var found = new Array();
 
 			this.each(function(){
 
@@ -2061,8 +2077,12 @@
 
 			});
 
-			this.found = new Array();
-			this.length = 0;
+			var previous = Jo.clone(this.previous);
+			previous.unshift(this);
+
+			$this.found = new Array();
+			$this.length = 0;
+			$this.previous = previous;
 
 			return this;
 
@@ -2084,8 +2104,12 @@
 
 			});
 
+			var previous = Jo.clone(this.previous);
+			previous.unshift(this);
+
 			$this.found = found;
 			$this.length = $this.found.length;
+			$this.previous = previous;
 
 			return $this;
 
@@ -2520,24 +2544,166 @@
 
 	Jo.fn.init.prototype = Jo.fn;
 
-	Jo.animation = function( fps, fn ){
+	Jo.merge = function( returned ){
 
-		return new Jo.animation.fn.init(fps, fn);
+		if( !isEmpty(returned) && isEmpty(arguments[1]) ){
+
+			var type;
+
+			if( isArray(returned) ){
+
+				type = new Array();
+
+			}
+			else {
+
+				type = new Object();
+
+			};
+
+			return Jo.merge(type, returned);
+
+		};
+
+		if( !isArray(returned) && !isObject(returned) ){
+
+			if( !isEmpty(arguments[1]) && isArray(arguments[1]) ){
+
+				returned = new Array();
+
+			}
+			else {
+
+				returned = new Object();
+				
+			};
+
+		};
+
+		for( var argument = 1, length = arguments.length; argument < length; argument++ ){
+
+			for( var key in arguments[argument] ){
+
+				if( arguments[argument].hasOwnProperty(key) ){
+
+					if( isObject(arguments[argument][key]) && (arguments[argument][key].constructor === Object || arguments[argument][key].constructor === Array) ){
+
+						returned[key] = Jo.merge(returned[key], arguments[argument][key]);
+
+					}
+					else {
+
+						returned[key] = arguments[argument][key];
+
+					};
+
+				};
+
+			};
+
+		};
+
+		return returned;
+
+	};
+
+	Jo.clone = function( returned ){
+
+		return Jo.merge(returned);
+
+	};
+
+	Jo.extend = function( returned ){
+
+		if( !isEmpty(returned) && isEmpty(arguments[1]) ){
+
+			var type;
+
+			if( isArray(returned) ){
+
+				type = new Array();
+
+			}
+			else {
+
+				type = new Object();
+
+			};
+
+			return Jo.merge(type, returned);
+
+		};
+
+		if( !isArray(returned) && !isObject(returned) ){
+
+			if( !isEmpty(arguments[1]) && isArray(arguments[1]) ){
+
+				returned = new Array();
+
+			}
+			else {
+
+				returned = new Object();
+				
+			};
+
+		};
+
+		for( var argument = 1, length = arguments.length; argument < length; argument++ ){
+
+			for( var key in arguments[argument] ){
+
+				if( isEmpty(returned[key]) ){
+
+					if( arguments[argument].hasOwnProperty(key) ){
+
+						if( isObject(arguments[argument][key]) && (arguments[argument][key].constructor === Object || arguments[argument][key].constructor === Array) ){
+
+							returned[key] = Jo.merge(returned[key], arguments[argument][key]);
+
+						}
+						else {
+
+							returned[key] = arguments[argument][key];
+
+						};
+
+					};
+
+				};
+
+			};
+
+		};
+
+		return returned;
+
+	};
+
+	Jo.animation = function( options ){
+
+		return new Jo.animation.fn.init(options);
 
 	};
 
 	Jo.animation.fn = Jo.animation.prototype = {
 		constructor: Jo.animation,
-		init: function( fps, fn ){
+		init: function( options ){
 
-			this.active = false;
-			this.fps = fps || 30;
+			options = Jo.merge({
+				start: false,
+				fps: 30,
+				fn: null
+			}, options);
+
+			this.active = options.start;
+			this.fps = options.fps;
 			this.interval = 1000 / this.fps;
 			this.now = 0;
 			this.then = 0;
 			this.deltaTime = 0;
 
-			this.fn = fn;
+			this.fn = options.fn;
 			this.tasks = new Array();
 
 			documentRoot.addEventListener("visibilitychange", function( event ){
@@ -2639,93 +2805,96 @@
 
 	Jo.animation.fn.init.prototype = Jo.animation.fn;
 
-	var Animations = Jo.animation(30, function( now ){
+	var Animations = Jo.animation({
+		fps: 30,
+		fn: function( now ){
 
-		this.each(function( task, index ){
+			this.each(function( task, index ){
 
-			if( isEmpty(task.options.start) ){
+				if( isEmpty(task.options.start) ){
 
-				task.options.start = now;
-
-			};
-
-			var elapsedTime = now - task.options.start;
-
-			if( elapsedTime >= task.options.duration ){
-
-				elapsedTime = task.options.duration;
-
-			};
-
-			task.each(function( element ){
-
-				var step = new Object();
-
-				for( var property in element.properties ){
-
-					if( element.properties.hasOwnProperty(property) ){
-
-						var currentProperty = element.properties[property];
-						var model = currentProperty.model;
-						var easing = Jo.easing(task.options.easing, elapsedTime, task.options.duration);
-						var isTransform = (property === "transform") ? true : false;
-
-						for( var value = 0, length = currentProperty.values.length; value < length; value++ ){
-
-							var newValue = currentProperty.values[value].from + easing * currentProperty.values[value].difference;
-
-							if( isFalse(isTransform) ){
-
-								newValue += currentProperty.values[value].from;
-
-								if( isTrue(currentProperty.values[value].integer) ){
-
-									newValue = parseInt(newValue);
-
-								};
-
-							};
-
-							model = model.replace("#" + value, newValue + element.properties[property].values[value].unit);
-
-						};
-
-						if( isTrue(isTransform) ){
-
-							model = currentProperty.origin.add(model).toString();
-
-						};
-
-						step[property] = model;
-
-						element.$element.css(property, model, false);
-
-					};
+					task.options.start = now;
 
 				};
 
-				if( isFunction(task.options.onStep) ){
+				var elapsedTime = now - task.options.start;
 
-					task.options.onStep.call(element.$element, step);
+				if( elapsedTime >= task.options.duration ){
+
+					elapsedTime = task.options.duration;
+
+				};
+
+				task.each(function( element ){
+
+					var step = new Object();
+
+					for( var property in element.properties ){
+
+						if( element.properties.hasOwnProperty(property) ){
+
+							var currentProperty = element.properties[property];
+							var model = currentProperty.model;
+							var easing = Jo.easing(task.options.easing, elapsedTime, task.options.duration);
+							var isTransform = (property === "transform") ? true : false;
+
+							for( var value = 0, length = currentProperty.values.length; value < length; value++ ){
+
+								var newValue = currentProperty.values[value].from + easing * currentProperty.values[value].difference;
+
+								if( isFalse(isTransform) ){
+
+									newValue += currentProperty.values[value].from;
+
+									if( isTrue(currentProperty.values[value].integer) ){
+
+										newValue = parseInt(newValue);
+
+									};
+
+								};
+
+								model = model.replace("#" + value, newValue + element.properties[property].values[value].unit);
+
+							};
+
+							if( isTrue(isTransform) ){
+
+								model = currentProperty.origin.add(model).toString();
+
+							};
+
+							step[property] = model;
+
+							element.$element.css(property, model, false);
+
+						};
+
+					};
+
+					if( isFunction(task.options.onStep) ){
+
+						task.options.onStep.call(element.$element, step);
+
+					};
+
+				});
+
+				if( elapsedTime === task.options.duration ){
+
+					if( isFunction(task.options.onComplete) ){
+
+						task.options.onComplete.call(task.this);
+
+					};
+
+					this.remove(index);
 
 				};
 
 			});
 
-			if( elapsedTime === task.options.duration ){
-
-				if( isFunction(task.options.onComplete) ){
-
-					task.options.onComplete.call(task.this);
-
-				};
-
-				this.remove(index);
-
-			};
-
-		});
-
+		}
 	});
 
 	window.CSSMatrix = (window.WebKitCSSMatrix || window.CSSMatrix);
@@ -3516,142 +3685,6 @@
 	};
 
 	Jo.object.fn.prototype = Jo.object.fn;
-
-	Jo.merge = function( returned ){
-
-		if( !isEmpty(returned) && isEmpty(arguments[1]) ){
-
-			var type;
-
-			if( isArray(returned) ){
-
-				type = new Array();
-
-			}
-			else {
-
-				type = new Object();
-
-			};
-
-			return Jo.merge(type, returned);
-
-		};
-
-		if( !isArray(returned) && !isObject(returned) ){
-
-			if( !isEmpty(arguments[1]) && isArray(arguments[1]) ){
-
-				returned = new Array();
-
-			}
-			else {
-
-				returned = new Object();
-				
-			};
-
-		};
-
-		for( var argument = 1, length = arguments.length; argument < length; argument++ ){
-
-			for( var key in arguments[argument] ){
-
-				if( arguments[argument].hasOwnProperty(key) ){
-
-					if( isObject(arguments[argument][key]) && (arguments[argument][key].constructor === Object || arguments[argument][key].constructor === Array) ){
-
-						returned[key] = Jo.merge(returned[key], arguments[argument][key]);
-
-					}
-					else {
-
-						returned[key] = arguments[argument][key];
-
-					};
-
-				};
-
-			};
-
-		};
-
-		return returned;
-
-	};
-
-	Jo.clone = function( returned ){
-
-		return Jo.merge(returned);
-
-	};
-
-	Jo.extend = function( returned ){
-
-		if( !isEmpty(returned) && isEmpty(arguments[1]) ){
-
-			var type;
-
-			if( isArray(returned) ){
-
-				type = new Array();
-
-			}
-			else {
-
-				type = new Object();
-
-			};
-
-			return Jo.merge(type, returned);
-
-		};
-
-		if( !isArray(returned) && !isObject(returned) ){
-
-			if( !isEmpty(arguments[1]) && isArray(arguments[1]) ){
-
-				returned = new Array();
-
-			}
-			else {
-
-				returned = new Object();
-				
-			};
-
-		};
-
-		for( var argument = 1, length = arguments.length; argument < length; argument++ ){
-
-			for( var key in arguments[argument] ){
-
-				if( isEmpty(returned[key]) ){
-
-					if( arguments[argument].hasOwnProperty(key) ){
-
-						if( isObject(arguments[argument][key]) && (arguments[argument][key].constructor === Object || arguments[argument][key].constructor === Array) ){
-
-							returned[key] = Jo.merge(returned[key], arguments[argument][key]);
-
-						}
-						else {
-
-							returned[key] = arguments[argument][key];
-
-						};
-
-					};
-
-				};
-
-			};
-
-		};
-
-		return returned;
-
-	};
 
 	Jo.worker = function( settings ){
 
