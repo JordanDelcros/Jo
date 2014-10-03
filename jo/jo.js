@@ -2298,7 +2298,13 @@
 							return "rgba(#" + (redIndex - 1) + ", #" + (greenIndex - 1) + ", #" + (blueIndex - 1) + ", #" + (alphaIndex - 1) + ")";
 
 						})
-						.replace(/[^#]([0-9\.]+)/, function( match, number ){
+						.replace(/(#)?([0-9\.]+)/g, function( match, hash, number ){
+
+							if( hash === "#" ){
+
+								return match;
+
+							};
 
 							var index = valuesTo[property].values.push({
 								from: null,
@@ -2307,7 +2313,7 @@
 								unit: ""
 							});
 
-							return match.replace(number, "#" + (index - 1));
+							return "#" + (index - 1);
 
 						});
 
@@ -2392,7 +2398,7 @@
 
 						if( isFalse(isTransform) ){
 
-							from
+							from = from
 								.replace(regularExpressions.length, function( match, number, unit ){
 
 									valueIndex++;
@@ -2402,7 +2408,7 @@
 									values[valueIndex].from = convertedValue;
 									values[valueIndex].difference = Math.abs(convertedValue - values[valueIndex].to) * (convertedValue > values[valueIndex].to ? -1 : 1);
 
-									return "#" + (valueIndex - 1);
+									return "#" + valueIndex;
 
 								}.bind(this))
 								.replace(regularExpressions.RGBColor, function( match, red, green, blue, alpha ){
@@ -2428,6 +2434,24 @@
 									var alphaValue = parseFloat(alpha);
 									values[++valueIndex].from = alphaValue;
 									values[valueIndex].difference = Math.abs(alphaValue - values[valueIndex].to) * (alphaValue > values[valueIndex].to ? -1 : 1);
+
+									return "#" + (valueIndex - 1);
+
+								})
+								.replace(/(#)?([0-9\.]+)/g, function( match, hash, number ){
+
+									if( hash === "#" ){
+
+										return match;
+
+									};
+
+									valueIndex++;
+
+									var convertedValue = parseFloat(number);
+
+									values[valueIndex].from = convertedValue;
+									values[valueIndex].difference = Math.abs(convertedValue - values[valueIndex].to) * (convertedValue > values[valueIndex].to ? -1 : 1);
 
 									return "#" + (valueIndex - 1);
 
@@ -5343,8 +5367,6 @@
 
 				}
 				else if( to === "pt" ){
-
-					console.log("convert", value)
 
 					return value * 72 / 96;
 

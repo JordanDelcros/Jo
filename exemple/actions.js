@@ -9,17 +9,22 @@ Jo(function( $ ){
 				height: "100px",
 				backgroundColor: "black",
 				left: "100px",
-				top: "100px"
+				top: "100px",
+				border: "1px solid white"
 			})
 		)
 		.find("span")
 		.animate({
 			left: "100pt",
 			top: "100px",
-			backgroundColor: "rgba(0,0,100,0.5)"
+			backgroundColor: "rgba(0,0,100,1)",
+			borderColor: "rgba(0,0,100,1)",
+			borderWidth: "20px",
+			opacity: 0.5,
+			transform: "rotateZ(180deg) scale(0.75)"
 		}, {
-			duration: 5000,
-			easing: "easeInOutQuad"
+			duration: 2000,
+			easing: "easeOutElastic"
 		});
 
 });
