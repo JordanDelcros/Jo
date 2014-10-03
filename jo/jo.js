@@ -2290,7 +2290,7 @@
 
 							var alphaIndex = valuesTo[property].values.push({
 								from: null,
-								to: parseInt(alpha),
+								to: parseFloat(alpha),
 								difference: 0,
 								unit: ""
 							});
@@ -2383,6 +2383,11 @@
 
 							};
 
+						}
+						else if( from === "transparent" ){
+
+							from = "rgba(0,0,0,0)";
+
 						};
 
 						if( isFalse(isTransform) ){
@@ -2420,7 +2425,7 @@
 									values[++valueIndex].from = blue;
 									values[valueIndex].difference = Math.abs(blue - values[valueIndex].to) * (blue > values[valueIndex].to ? -1 : 1);
 
-									var alphaValue = parseInt(alpha);
+									var alphaValue = parseFloat(alpha);
 									values[++valueIndex].from = alphaValue;
 									values[valueIndex].difference = Math.abs(alphaValue - values[valueIndex].to) * (alphaValue > values[valueIndex].to ? -1 : 1);
 
@@ -2534,6 +2539,8 @@
 				task.elements.push(element);
 
 			});
+
+			console.log(task);
 
 			Animations.add(task);
 
@@ -2838,19 +2845,14 @@
 							var easing = Jo.easing(task.options.easing, elapsedTime, task.options.duration);
 							var isTransform = (property === "transform") ? true : false;
 
+
 							for( var value = 0, length = currentProperty.values.length; value < length; value++ ){
 
 								var newValue = currentProperty.values[value].from + easing * currentProperty.values[value].difference;
 
-								if( isFalse(isTransform) ){
+								if( isTrue(currentProperty.values[value].integer) ){
 
-									newValue += currentProperty.values[value].from;
-
-									if( isTrue(currentProperty.values[value].integer) ){
-
-										newValue = parseInt(newValue);
-
-									};
+									newValue = parseInt(newValue);
 
 								};
 
@@ -4164,6 +4166,24 @@
 
 	Jo.ajax.fn.init.prototype = Jo.ajax.fn;
 
+	Jo.stream = function(){
+
+		return Jo.stream.fn.init();
+
+	};
+
+	Jo.stream.fn = Jo.stream.prototype = {
+		constructor: Jo.stream,
+		init: function(){
+
+			// TODO, see http://www.html5rocks.com/en/tutorials/eventsource/basics/
+			return this;
+
+		}
+	};
+
+	Jo.stream.fn.init.prototype = Jo.stream.fn;
+
 	Jo.socket = function( settings ){
 
 		return new Jo.socket.fn.init(settings);
@@ -5084,7 +5104,13 @@
 
 	function isNumber( source ){
 
-		return typeof source === "number" || new RegExp("^[\\d\\.]+$", "gi").test(source) || (!isNaN(parseFloat(source)) && isFinite(source));
+		return typeof source === "number" || /^[\d\.]+$/gi.test(source) || (!isNaN(parseFloat(source)) && isFinite(source));
+
+	};
+
+	function isInteger( source ){
+
+		return isNumber(source) && isFinite(number) && source % 1 === 0 && !/\./.test("" + source);
 
 	};
 
@@ -5290,23 +5316,6 @@
 		}
 		else {
 
-			// var $reference = Jo(element).parents().filter(function(){
-
-			// 	var position = Jo(this).css("position")[0];
-
-			// 	if( position !== "absolute" && position !== "fixed" ){
-
-			// 		return true;
-
-			// 	}
-			// 	else {
-
-			// 		return false;
-
-			// 	};
-
-			// }).item(0);
-
 			if( from === "px" ){
 
 				if( to === "em" ){
@@ -5333,6 +5342,13 @@
 					};
 
 				}
+				else if( to === "pt" ){
+
+					console.log("convert", value)
+
+					return value * 72 / 96;
+
+				};
 
 			}
 			else if( from === "em" ){
@@ -5352,6 +5368,11 @@
 				else if( to === "%" ){
 
 					return convertCSSValue(element, property, convertCSSValue(element, property, value, from, "px"), "px", "%");
+
+				}
+				else if( to === "pt" ){
+
+					return convertCSSValue(element, property, convertCSSValue(element, property, value, from, "px"), "px", "pt");
 
 				};
 
@@ -5380,6 +5401,35 @@
 				else if( to === "rem" ){
 
 					return convertCSSValue(element, property, convertCSSValue(element, property, value, from, "px"), "px", "rem");
+
+				}
+				else if( to === "pt" ){
+
+					return convertCSSValue(element, property, convertCSSValue(element, property, value, from, "px"), "px", "pt");
+
+				};
+
+			}
+			else if( from === "pt" ){
+
+				if( to === "px" ){
+
+					return value * 96 / 72;
+
+				}
+				else if( to === "em" ){
+
+					return convertCSSValue(element, property, convertCSSValue(element, property, value, from, "px"), "px", "em");
+
+				}
+				else if( to === "rem" ){
+
+					return convertCSSValue(element, property, convertCSSValue(element, property, value, from, "px"), "px", "rem");
+
+				}
+				else if( to === "%" ){
+
+					return convertCSSValue(element, property, convertCSSValue(element, property, value, from, "px"), "px", "%");
 
 				};
 

@@ -1,44 +1,25 @@
 Jo(function( $ ){
 
-	Jo("body")
+	$("body")
 		.empty()
-		.insertEnd("<div/>");
-
-	Jo("body div")
-		.replace("<span/>")
-		.insertAfter("<span/>");
-
-	Jo("body span")
-		.wrap("<p/>")
-		.replace("<span class='pokemon'/>")
-		.css({
-			display: "block",
-			backgroundColor: "tranparent",
-			width: "100px",
-			height: "100px"
-		})
+		.insertEnd(
+			$("<span/>").css({
+				display: "block",
+				width: "100px",
+				height: "100px",
+				backgroundColor: "black",
+				left: "100px",
+				top: "100px"
+			})
+		)
+		.find("span")
 		.animate({
-			backgroundColor: "rgba(0,0,0,1)",
-			marginLeft: "100px",
-			transform: "rotateZ(90deg)"
+			left: "100pt",
+			top: "100px",
+			backgroundColor: "rgba(0,0,100,0.5)"
 		}, {
-			duration: 1500,
-			easing: "easeInOutQuad",
-			onStep: function( step ){
-
-
-			},
-			onComplete: function(){
-
-				console.log("complete", this);
-
-				Jo(this).animate({
-					backgroundColor: "rgba(0, 100, 0, 1)"
-				}, {
-					easing: "easeOutBounce"
-				});
-
-			}
+			duration: 5000,
+			easing: "easeInOutQuad"
 		});
 
 });
