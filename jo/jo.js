@@ -3326,11 +3326,16 @@
 
 								identity = identity.scaleX(parseFloat(values[0]));
 
-							};
+								if( !isEmpty(values[1]) ){
 
-							if( !isEmpty(values[1]) ){
+									identity = identity.scaleX(parseFloat(values[1]));
 
-								identity = identity.scaleX(parseFloat(values[1]));
+								}
+								else {
+
+									identity = identity.scaleY(parseFloat(values[0]));
+
+								};
 
 							};
 
