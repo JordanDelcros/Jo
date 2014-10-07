@@ -796,7 +796,23 @@
 		},
 		on: function( actions, fn, useCapture ){
 
-			actions = actions.split(" ");
+			actions = actions.split(/\s+/);
+
+			if( isEmpty(useCapture) ){
+
+				useCapture = false;
+
+			};
+
+			this.each(function(){
+
+				
+
+			});
+
+			return this;
+
+/*			actions = actions.split(/\s+/g);
 
 			if( isEmpty(useCapture) ){
 
@@ -870,6 +886,7 @@
 			});
 
 			return this;
+*/
 
 		},
 		off: function( actions, fn, useCapture ){
