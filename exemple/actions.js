@@ -1,13 +1,26 @@
-Jo(function( $ ){
+function func( $ ){
+
+	console.log("so ", $("body").toString()[0]);
 
 	$("body")
-		.on("couulups mousedown mouseup", function(){
+		.on("click tester", function( event ){
 
-			console.log("EVENT", event)
+			console.log("event triggered", event);
 
 		}, false);
 
-});
+};
+
+$(document)
+.on("DOMContentLoaded", func)
+.on("DOMContentLoaded", function(){
+
+	Jo("body").on("mouseenter", function(){
+		console.log("click")
+	});
+
+})
+.off("DOMContentLoaded", func)
 
 /*
 // jQuery(function(){
