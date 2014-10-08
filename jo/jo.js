@@ -108,6 +108,33 @@
 			return this;
 
 		},
+		add: function( elements, selector ){
+
+			var $this = Jo(this);
+
+			var found = Jo.clone(this.found);
+
+			Jo(elements).each(function(){
+
+				if( isEmpty(selector) || Jo(this).is(selector) ){
+
+					found.push(this);
+
+				};
+
+			});
+
+			var previous = Jo.clone(this.previous);
+			previous.unshift(this);
+
+			$this.selector = selector;
+			$this.found = found;
+			$this.length = found.length;
+			$this.previous = previous;
+
+			return $this;
+
+		},
 		find: function( selector ){
 
 			var $this = Jo(this);
@@ -125,7 +152,7 @@
 
 			$this.selector = selector;
 			$this.found = found;
-			$this.length = $this.found.length;
+			$this.length = found.length;
 			$this.previous = previous;
 
 			return $this;
@@ -167,7 +194,7 @@
 
 			$this.selector = selector;
 			$this.found = found;
-			$this.length = $this.found.length;
+			$this.length = found.length;
 			$this.previous = previous;
 
 			return $this;
@@ -209,7 +236,7 @@
 
 			$this.selector = selector;
 			$this.found = found;
-			$this.length = $this.found.length;
+			$this.length = found.length;
 			$this.previous = previous;
 
 			return $this;
@@ -297,7 +324,7 @@
 
 			$this.selector = selector;
 			$this.found = found;
-			$this.length = $this.found.length;
+			$this.length = found.length;
 			$this.previous = previous;
 
 			return $this;
@@ -495,7 +522,7 @@
 
 			$this.selector = selector;
 			$this.found = found;
-			$this.length = $this.found.length;
+			$this.length = found.length;
 			$this.previous = previous;
 
 			return $this;
@@ -561,7 +588,7 @@
 
 			$this.selector = selector;
 			$this.found = found;
-			$this.length = $this.found.length;
+			$this.length = found.length;
 			$this.previous = previous;
 
 			return $this;
@@ -597,7 +624,7 @@
 
 			$this.selector = selector
 			$this.found = found;
-			$this.length = $this.found.length;
+			$this.length = found.length;
 			$this.previous = previous;
 
 			return $this;
@@ -633,7 +660,7 @@
 
 			$this.selector = selector;
 			$this.found = found;
-			$this.length = $this.found.length;
+			$this.length = found.length;
 			$this.previous = previous;
 
 			return $this;
@@ -669,7 +696,7 @@
 
 			$this.selector = selector;
 			$this.found = found;
-			$this.length = $this.found.length;
+			$this.length = found.length;
 			$this.previous = previous;
 
 			return $this;
@@ -724,7 +751,7 @@
 
 			$this.selector = selector;
 			$this.found = found;
-			$this.length = $this.found.length;
+			$this.length = found.length;
 			$this.previous = previous;
 
 			return $this;
@@ -1370,7 +1397,7 @@
 
 			$this.selector = this.selector;
 			$this.found = this.found;
-			$this.length = $this.found.length;
+			$this.length = found.length;
 			$this.previous = Jo.clone(this.previous);
 
 			return $this;
@@ -2005,7 +2032,7 @@
 			previous.unshift(this);
 
 			$this.found = found;
-			$this.length = $this.found.length;
+			$this.length = found.length;
 			$this.previous = previous;
 
 			return $this;
@@ -2016,56 +2043,23 @@
 			var $this = Jo(this);
 			var found = new Array();
 
-			if( isString(html) || isNumber(html) ){
-
-				var temporaryNode = document.createElement("div");
-				temporaryNode.innerHTML = html.toString();
-
-				html = temporaryNode.childNodes;
-
-				temporaryNode.remove();
-
-			}
-			else if( isNode(html) ){
-
-				html = [html];
-
-			}
-			else if( isJo(html) ){
-
-				html = html.found;
-
-			};
-
 			this.each(function(){
 
-				if( html.length === 1 ){
+				var $html = Jo(html);
 
-					var node = html[0].cloneNode(true);
+				var position = this;
 
-					this.parentNode.replaceChild(node, this);
+				$html.each(function(){
 
-					found.push(node);
+					position.parentNode.insertBefore(this, position.nextSibling);
 
-				}
-				else {
+					found.push(this);
 
-					var reference = this;
-					var node = null;
+					position = this;
 
-					for( var element = 0, length = html.length; element < length; element++ ){
+				});
 
-						node = html[element].cloneNode(true);
-
-						found.push(node);
-
-						Jo(reference).insertAfter(node);
-
-						reference = node;
-
-					};
-
-				};
+				this.remove();
 
 			});
 
@@ -2073,7 +2067,7 @@
 			previous.unshift(this);
 
 			$this.found = found;
-			$this.length = this.found.length;
+			$this.length = found.length;
 			$this.previous = previous;
 
 			return $this;
@@ -2110,7 +2104,7 @@
 
 				found.push(this);
 
-				while( this.lastChild ){
+				while( this && this.lastChild ){
 
 					this.removeChild(this.lastChild);
 
@@ -2122,7 +2116,7 @@
 			previous.unshift(this);
 
 			$this.found = found;
-			$this.length = $this.found.length;
+			$this.length = found.length;
 			$this.previous = previous;
 
 			return $this;
@@ -2593,35 +2587,14 @@
 
 		if( !isEmpty(returned) && isEmpty(arguments[1]) ){
 
-			var type;
-
-			if( isArray(returned) ){
-
-				type = new Array();
-
-			}
-			else {
-
-				type = new Object();
-
-			};
+			var type = isArray(returned) ? new Array() : new Object();
 
 			return Jo.merge(type, returned);
 
-		};
+		}
+		else if( isEmpty(returned) && !isEmpty(arguments[1]) ){
 
-		if( !isArray(returned) && !isObject(returned) ){
-
-			if( !isEmpty(arguments[1]) && isArray(arguments[1]) ){
-
-				returned = new Array();
-
-			}
-			else {
-
-				returned = new Object();
-				
-			};
+			returned = isArray(arguments[1]) ? new Array() : new Object();
 
 		};
 
@@ -2662,35 +2635,14 @@
 
 		if( !isEmpty(returned) && isEmpty(arguments[1]) ){
 
-			var type;
+			var type = isArray(returned) ? new Array() : new Object();
 
-			if( isArray(returned) ){
+			return Jo.extend(type, returned);
 
-				type = new Array();
+		}
+		else if( isEmpty(returned) && !isEmpty(arguments[1]) ){
 
-			}
-			else {
-
-				type = new Object();
-
-			};
-
-			return Jo.merge(type, returned);
-
-		};
-
-		if( !isArray(returned) && !isObject(returned) ){
-
-			if( !isEmpty(arguments[1]) && isArray(arguments[1]) ){
-
-				returned = new Array();
-
-			}
-			else {
-
-				returned = new Object();
-				
-			};
+			returned = isArray(arguments[1]) ? new Array() : new Object();
 
 		};
 
@@ -5147,7 +5099,7 @@
 
 	function isNumber( source ){
 
-		return typeof source === "number" || /^[\d\.]+$/gi.test(source) || (!isNaN(parseFloat(source)) && isFinite(source));
+		return typeof source === "number" || /^[\d\.]+$/gi.test(source.toString()) || (!isNaN(parseFloat(source.toString())) && isFinite(source));
 
 	};
 
