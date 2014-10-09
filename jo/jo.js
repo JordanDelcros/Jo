@@ -73,14 +73,19 @@
 					found.push(selector);
 
 				}
-				else if( isWindow(selector) ){
+				else if( isArray(selector) ){
 
-					found.push(window);
+
 
 				}
 				else if( isJo(selector) ){
 
-					found = selector.found;
+					found = Jo.clone(selector.found);
+
+				}
+				else if( isWindow(selector) ){
+
+					found.push(window);
 
 				}
 				else if( isFunction(selector) ){
@@ -940,7 +945,13 @@
 
 				for( var action = 0, length = actions.length; action < length; action++ ){
 
-					var specialEvent = specialEvents[actions[action]]();
+					var specialEvent = null;
+
+					if( specialEvents[actions[action]] ){
+
+						specialEvent = specialEvents[actions[action]]();
+						
+					};
 
 					if( !isEmpty(specialEvent) ){
 
@@ -959,34 +970,10 @@
 
 			return this;
 
-/*			actions = actions.split(" ");
-
-			this.each(function( index ){
-
-				for( var action = 0, length = actions.length; action < length; action++ ){
-
-					if( !isEmpty(specialEvents[actions[action]]) && !Jo.support.events(this, actions[action]) ){
-
-						actions[action] = specialEvents[actions].action;
-
-					};
-
-					var event = document.createEvent("Event");
-					event.initEvent(actions[action]);
-
-					this.dispatchEvent(event);
-
-				};
-
-			});
-
-			return this;
-*/
-
 		},
 		attr: function( name, value ){
 
-			if( isString(name) && !isEmpty(value) ){
+			if( isString(name) ){
 
 				if( !isEmpty(value) ){
 
@@ -1062,7 +1049,7 @@
 
 				this.each(function(){
 
-					returned.push(this.outerWidth || this.clientWidth);
+					returned.push(this.innerWidth || this.clientWidth);
 
 				});
 
@@ -1091,14 +1078,13 @@
 		},
 		height: function( height ){
 
-
 			if( isEmpty(height) ){
 
 				var returned = new Array();
 
 				this.each(function(){
 
-					returned.push(this.outerHeight || this.clientHeight);
+					returned.push(this.innerHeight || this.clientHeight);
 
 				});
 
@@ -2572,8 +2558,6 @@
 
 			});
 
-			console.log(task);
-
 			Animations.add(task);
 
 			return this;
@@ -3677,6 +3661,12 @@
 			// TODO : stronger workflow to add, remove, update an object, with events, callback, etc...
 
 			return this;
+
+		},
+		on: function(){
+
+		},
+		off: function(){
 
 		}
 	};
