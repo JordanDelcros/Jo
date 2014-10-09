@@ -9,9 +9,9 @@
 	var documentRoot = document;
 	var temporaryNode = documentRoot.createElement("div");
 
-	var Jo = function( selector, context, documentRoot ){
+	var Jo = function( selector, context ){
 
-		return new Jo.fn.init(selector, context, documentRoot);
+		return new Jo.fn.init(selector, context);
 
 	};
 
@@ -19,6 +19,17 @@
 		constructor: Jo,
 		version: "0.1b",
 		init: function( selector, context ){
+
+			if( isEmpty(context) ){
+
+				context = documentRoot;
+
+			}
+			else if( isJo(context) ){
+
+				context = context.found[0];
+
+			};
 
 			var found = new Array();
 
@@ -32,7 +43,16 @@
 
 						if( !isEmpty(singleTag) && singleTag.length > 0 ){
 
-							found.push(document.createElement(singleTag[1]));
+							if( !isSVG(singleTag[1]) && !isSVG(context) ){
+
+								found.push(document.createElement(singleTag[1]));
+								
+							}
+							else {
+
+								found.push(document.createElementNS("http://www.w3.org/2000/svg", singleTag[1]));
+
+							};
 
 						}
 						else {
@@ -833,6 +853,11 @@
 			};
 
 			return returned;
+
+		},
+		isnt: function(){
+
+			
 
 		},
 		on: function( actions, fn, useCapture ){
@@ -5132,6 +5157,12 @@
 	function isTag( source ){
 
 		return !isEmpty(source) && isNode(source) && source.nodeType === 1;
+
+	};
+
+	function isSVG( source ){
+
+		return source instanceof SVGElement || source === "svg";
 
 	};
 
