@@ -2239,7 +2239,7 @@
 					valuesTo[property] = new Object();
 					valuesTo[property].values = new Array();
 
-					valuesTo[property].model = styles[property].toString()
+					valuesTo[property].model = (styles[property].to || styles[property]).toString()
 						.replace(regularExpressions.length, function( match, number, unit ){
 
 							var index = valuesTo[property].values.push({
@@ -2384,7 +2384,7 @@
 
 						var uncamelizedProperty = uncamelize(property);
 
-						var from = currentStyles[index].getPropertyValue(uncamelizedProperty);
+						var from = (styles[property].from || currentStyles[index].getPropertyValue(uncamelizedProperty));
 						var model = valuesTo[property].model;
 						var values = valuesTo[property].values;
 						var isTransform = /^\s*(?:\-(?:webkit|moz|o|ms)?\-)?transform/i.test(property);
@@ -2423,6 +2423,7 @@
 						if( isFalse(isTransform) ){
 
 							from = from
+								.toString()
 								.replace(regularExpressions.length, function( match, number, unit ){
 
 									valueIndex++;
@@ -2488,7 +2489,7 @@
 
 							if( isFalse(options.additional) ){
 
-								valuesTo[property].model.replace(/([a-z]+)\(([^\)]+)\)/gi, function( match, name, ids ){
+								model.replace(/([a-z]+)\(([^\)]+)\)/gi, function( match, name, ids ){
 
 									ids = ids.replace(/#/g, "").split(",");
 
@@ -2592,7 +2593,7 @@
 
 						};
 
-						element.properties[property].model = valuesTo[property].model;
+						element.properties[property].model = model;
 						element.properties[property].values = valuesTo[property].values;
 
 					};
