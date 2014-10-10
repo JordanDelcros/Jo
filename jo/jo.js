@@ -2389,7 +2389,6 @@
 						var values = valuesTo[property].values;
 						var isTransform = /^\s*(?:\-(?:webkit|moz|o|ms)?\-)?transform/i.test(property);
 
-						var valueIndex = -1;
 						if( from === "auto" && !isEmpty(this[camelize("offset-" + property)]) ){
 
 							from = this[camelize("offset-" + property)] + "px";
@@ -2413,8 +2412,14 @@
 
 							from = "rgba(0,0,0,0)";
 
+						}
+						else if( isEmpty(from) ){
+
+							from = "0";
+
 						};
 
+						var valueIndex = -1;
 						if( isFalse(isTransform) ){
 
 							from = from
@@ -2565,6 +2570,21 @@
 
 									values[valueIndex].from = 0;
 									values[valueIndex].difference = values[valueIndex].to;
+
+								};
+
+							};
+
+						};
+
+						if( ++valueIndex < values.length ){
+
+							for( var value = 0, valuesLength = valuesTo[property].values.length; value < valuesLength; value++ ){
+
+								if( isEmpty(valuesTo[property].values[value].from) ){
+
+									valuesTo[property].values[value].from = 0;
+									valuesTo[property].values[value].difference = valuesTo[property].values[value].to;
 
 								};
 
@@ -2843,7 +2863,6 @@
 							var model = currentProperty.model;
 							var easing = Jo.easing(task.options.easing, elapsedTime, task.options.duration);
 							var isTransform = (property === "transform") ? true : false;
-
 
 							for( var value = 0, length = currentProperty.values.length; value < length; value++ ){
 
@@ -5677,7 +5696,7 @@
 	var regularExpressions = {
 		singleTag: /^<(\w+)\s*\/?>(?:<\/\1>|)$/,
 		onlySpaces: /^\s+$/g,
-		length: /(\-?\s*\d*\.?\d+)(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%)/gi, //!!! < ?
+		length: /((?:\-\s*)?\d*\.?\d+)(em|ex|grad|ch|deg|ms|rad|rem|s|turn|vh|vw|vmin|vmax|px|cm|in|pt|pc|%)/gi, //!!! < ?
 		RGBColor: /rgba?\(([0-9]{1,3})[,\s]{1,}([0-9]{1,3})[,\s]{1,}([0-9]{1,3})[,\s]{0,}([0-1]{1}\.?[0-9]*)?\)/gi,
 		hexColor: /^#([a-f0-9]{1,2})([a-f0-9]{1,2})([a-f0-9]{1,2})$/gi
 	};
