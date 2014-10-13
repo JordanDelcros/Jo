@@ -1,26 +1,21 @@
-function func( $ ){
-
-	console.log("so ", $("body").toString()[0]);
+Jo(function( $ ){
 
 	$("body")
-		.on("click tester", function( event ){
+		.empty()
+		.insertEnd("<span/>");
 
-			console.log("event triggered", event);
+	$("span")
+		.css({
+			display: "block",
+			width: "100px",
+			height: "100px",
+			background: "red"
+		})
+		.animate({
+			left: "500px"
+		});
 
-		}, false);
-
-};
-
-$(document)
-.on("DOMContentLoaded", func)
-.on("DOMContentLoaded", function(){
-
-	Jo("body").on("mouseenter", function(){
-		console.log("click")
-	});
-
-})
-.off("DOMContentLoaded", func)
+});
 
 /*
 // jQuery(function(){

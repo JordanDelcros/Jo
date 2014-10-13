@@ -128,7 +128,7 @@
 			this.selector = selector;
 			this.found = found;
 			this.length = found.length;
-			this.previous = new Array();
+			this.previousJo = new Array();
 
 			return this;
 
@@ -149,13 +149,13 @@
 
 			});
 
-			var previous = Jo.clone(this.previous);
-			previous.unshift(this);
+			var previousJo = Jo.clone(this.previousJo);
+			previousJo.unshift(this);
 
 			$this.selector = selector;
 			$this.found = found;
 			$this.length = found.length;
-			$this.previous = previous;
+			$this.previousJo = previousJo;
 
 			return $this;
 
@@ -172,13 +172,13 @@
 
 			});
 
-			var previous = Jo.clone(this.previous);
-			previous.unshift(this);
+			var previousJo = Jo.clone(this.previousJo);
+			previousJo.unshift(this);
 
 			$this.selector = selector;
 			$this.found = found;
 			$this.length = found.length;
-			$this.previous = previous;
+			$this.previousJo = previousJo;
 
 			return $this;
 
@@ -214,13 +214,13 @@
 
 			});
 
-			var previous = Jo.clone(this.previous);
-			previous.unshift(this);
+			var previousJo = Jo.clone(this.previousJo);
+			previousJo.unshift(this);
 
 			$this.selector = selector;
 			$this.found = found;
 			$this.length = found.length;
-			$this.previous = previous;
+			$this.previousJo = previousJo;
 
 			return $this;
 
@@ -256,13 +256,13 @@
 
 			});
 
-			var previous = Jo.clone(this.previous);
-			previous.unshift(this);
+			var previousJo = Jo.clone(this.previousJo);
+			previousJo.unshift(this);
 
 			$this.selector = selector;
 			$this.found = found;
 			$this.length = found.length;
-			$this.previous = previous;
+			$this.previousJo = previousJo;
 
 			return $this;
 
@@ -344,13 +344,13 @@
 
 			});
 
-			var previous = Jo.clone(this.previous);
-			previous.unshift(this);
+			var previousJo = Jo.clone(this.previousJo);
+			previousJo.unshift(this);
 
 			$this.selector = selector;
 			$this.found = found;
 			$this.length = found.length;
-			$this.previous = previous;
+			$this.previousJo = previousJo;
 
 			return $this;
 
@@ -392,13 +392,13 @@
 
 			});
 
-			var previous = Jo.clone(this.previous);
-			previous.unshift(this);
+			var previousJo = Jo.clone(this.previousJo);
+			previousJo.unshift(this);
 
 			$this.selector = selector;
 			$this.found = found;
 			$this.length = found.length;
-			$this.previous = previous;
+			$this.previousJo = previousJo;
 
 			return $this;
 
@@ -441,13 +441,13 @@
 
 			});
 
-			var previous = Jo.clone(this.previous);
-			previous.unshift(this);
+			var previousJo = Jo.clone(this.previousJo);
+			previousJo.unshift(this);
 
 			$this.selector = selector;
 			$this.found = found;
 			$this.length = found.length;
-			$this.previous = previous;
+			$this.previousJo = previousJo;
 
 			return $this;
 
@@ -490,13 +490,13 @@
 
 			});
 
-			var previous = Jo.clone(this.previous);
-			previous.unshift(this);
+			var previousJo = Jo.clone(this.previousJo);
+			previousJo.unshift(this);
 
 			$this.selector = selector;
 			$this.found = found;
 			$this.length = found.length;
-			$this.previous = previous;
+			$this.previousJo = previousJo;
 
 			return $this;
 
@@ -542,13 +542,13 @@
 
 			});
 
-			var previous = Jo.clone(this.previous);
-			previous.unshift(this);
+			var previousJo = Jo.clone(this.previousJo);
+			previousJo.unshift(this);
 
 			$this.selector = selector;
 			$this.found = found;
 			$this.length = found.length;
-			$this.previous = previous;
+			$this.previousJo = previousJo;
 
 			return $this;
 
@@ -574,11 +574,11 @@
 
 			};
 
-			var previous = Jo.clone(this.previous);
-			previous.unshift(this);
+			var previousJo = Jo.clone(this.previousJo);
+			previousJo.unshift(this);
 
 			$this.selector = number;
-			$this.previous = previous;
+			$this.previousJo = previousJo;
 
 			return $this;
 
@@ -608,13 +608,13 @@
 
 			});
 
-			var previous = Jo.clone(this.previous);
-			previous.unshift(this);
+			var previousJo = Jo.clone(this.previousJo);
+			previousJo.unshift(this);
 
 			$this.selector = selector;
 			$this.found = found;
 			$this.length = found.length;
-			$this.previous = previous;
+			$this.previousJo = previousJo;
 
 			return $this;
 
@@ -644,13 +644,13 @@
 
 			});
 
-			var previous = Jo.clone(this.previous);
-			previous.unshift(this);
+			var previousJo = Jo.clone(this.previousJo);
+			previousJo.unshift(this);
 
 			$this.selector = selector
 			$this.found = found;
 			$this.length = found.length;
-			$this.previous = previous;
+			$this.previousJo = previousJo;
 
 			return $this;
 
@@ -680,13 +680,13 @@
 
 			});
 
-			var previous = Jo.clone(this.previous);
-			previous.unshift(this);
+			var previousJo = Jo.clone(this.previousJo);
+			previousJo.unshift(this);
 
 			$this.selector = selector;
 			$this.found = found;
 			$this.length = found.length;
-			$this.previous = previous;
+			$this.previousJo = previousJo;
 
 			return $this;
 
@@ -716,13 +716,13 @@
 
 			});
 
-			var previous = Jo.clone(this.previous);
-			previous.unshift(this);
+			var previousJo = Jo.clone(this.previousJo);
+			previousJo.unshift(this);
 
 			$this.selector = selector;
 			$this.found = found;
 			$this.length = found.length;
-			$this.previous = previous;
+			$this.previousJo = previousJo;
 
 			return $this;
 
@@ -771,13 +771,13 @@
 
 			};
 
-			var previous = Jo.clone(this.previous);
-			previous.unshift(this);
+			var previousJo = Jo.clone(this.previousJo);
+			previousJo.unshift(this);
 
 			$this.selector = selector;
 			$this.found = found;
 			$this.length = found.length;
-			$this.previous = previous;
+			$this.previousJo = previousJo;
 
 			return $this;
 
@@ -1409,7 +1409,7 @@
 			$this.selector = this.selector;
 			$this.found = this.found;
 			$this.length = found.length;
-			$this.previous = Jo.clone(this.previous);
+			$this.previous = Jo.clone(this.previousJo);
 
 			return $this;
 
@@ -1780,12 +1780,12 @@
 
 			});
 
-			var previous = Jo.clone(this.previous);
-			previous.unshift(this);
+			var previousJo = Jo.clone(this.previousJo);
+			previousJo.unshift(this);
 
 			$this.found = found;
 			$this.length = this.found.length;
-			$this.previous = previous;
+			$this.previousJo = previousJo;
 
 			return $this;
 
@@ -2039,12 +2039,12 @@
 
 			});
 
-			var previous = Jo.clone(this.previous);
-			previous.unshift(this);
+			var previousJo = Jo.clone(this.previousJo);
+			previousJo.unshift(this);
 
 			$this.found = found;
 			$this.length = found.length;
-			$this.previous = previous;
+			$this.previousJo = previousJo;
 
 			return $this;
 
@@ -2074,12 +2074,12 @@
 
 			});
 
-			var previous = Jo.clone(this.previous);
-			previous.unshift(this);
+			var previousJo = Jo.clone(this.previousJo);
+			previousJo.unshift(this);
 
 			$this.found = found;
 			$this.length = found.length;
-			$this.previous = previous;
+			$this.previousJo = previousJo;
 
 			return $this;
 
@@ -2096,12 +2096,12 @@
 
 			});
 
-			var previous = Jo.clone(this.previous);
-			previous.unshift(this);
+			var previousJo = Jo.clone(this.previousJo);
+			previousJo.unshift(this);
 
 			$this.found = new Array();
 			$this.length = 0;
-			$this.previous = previous;
+			$this.previousJo = previousJo;
 
 			return this;
 
@@ -2123,12 +2123,12 @@
 
 			});
 
-			var previous = Jo.clone(this.previous);
-			previous.unshift(this);
+			var previousJo = Jo.clone(this.previousJo);
+			previousJo.unshift(this);
 
 			$this.found = found;
 			$this.length = found.length;
-			$this.previous = previous;
+			$this.previousJo = previousJo;
 
 			return $this;
 
@@ -2371,8 +2371,20 @@
 
 			this.each(function( index ){
 
-				var element = {
-					$element: Jo(this),
+				if( isEmpty(this.$elemnt) ){
+
+					this.$element = Jo(this);
+
+				};
+
+				if( isEmpty(this.$animations) ){
+
+					this.$animations = new Array();
+
+				};
+
+				var animation = {
+					name: options.name,
 					properties: new Object()
 				};
 
@@ -2380,7 +2392,7 @@
 
 					if( styles.hasOwnProperty(property) ){
 
-						element.properties[property] = new Object();
+						animation.properties[property] = new Object();
 
 						var uncamelizedProperty = uncamelize(property);
 
@@ -2485,7 +2497,7 @@
 						}
 						else {
 
-							var fromMatrix = element.properties[property].origin = Jo.matrix(from);
+							var fromMatrix = animation.properties[property].origin = Jo.matrix(from);
 
 							if( isFalse(options.additional) ){
 
@@ -2593,18 +2605,32 @@
 
 						};
 
-						element.properties[property].model = model;
-						element.properties[property].values = valuesTo[property].values;
+						animation.properties[property].model = model;
+						animation.properties[property].values = valuesTo[property].values;
 
 					};
 
 				};
 
-				task.elements.push(element);
+				this.$animations.push(animation);
+				task.elements.push(this);
 
 			});
 
+			console.log(task);
+
 			Animations.add(task);
+
+			return this;
+
+		},
+		delay: function( time ){
+
+			this.each(function(){
+
+
+
+			});
 
 			return this;
 
@@ -2768,9 +2794,9 @@
 
 			if( this.deltaTime > this.interval ){
 
-				this.fn(now);
-
 				this.then = now - (this.deltaTime % this.interval);
+
+				this.fn(now, this.deltaTime);
 
 			};
 
@@ -5704,7 +5730,7 @@
 
 	var prefix = (function(){
 
-		var styles = window.getComputedStyle(document.documentElement, "");
+		var styles = window.getComputedStyle(document.documentElement, null);
 
 		var match = (Array.prototype.slice.call(styles).join("").match(/-(moz|webkit|ms)-/i) || (styles.OLink === "" && ["", "o"]))[1];
 
