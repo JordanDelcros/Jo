@@ -2225,6 +2225,7 @@
 		animate: function( styles, options ){
 
 			options = Jo.merge({
+				name: "animation_" + Math.round(Math.random() * new Date().getTime()),
 				duration: 1000,
 				easing: "linear",
 				additional: false
@@ -2355,6 +2356,7 @@
 			var currentStyles = this.css();
 
 			var task = {
+				name: options.name,
 				this: this,
 				elements: new Array(),
 				options: options,
@@ -2371,20 +2373,20 @@
 
 			this.each(function( index ){
 
-				if( isEmpty(this.$elemnt) ){
+				if( isEmpty(this.$this) ){
 
-					this.$element = Jo(this);
+					this.$this = Jo(this);
 
 				};
 
 				if( isEmpty(this.$animations) ){
 
-					this.$animations = new Array();
+					this.$animations = new Object();
 
 				};
 
-				var animation = {
-					name: options.name,
+				this.$animations[options.name] = {
+					$this: Jo(this),
 					properties: new Object()
 				};
 
@@ -2392,7 +2394,7 @@
 
 					if( styles.hasOwnProperty(property) ){
 
-						animation.properties[property] = new Object();
+						this.$animations[options.name].properties[property] = new Object();
 
 						var uncamelizedProperty = uncamelize(property);
 
@@ -2497,7 +2499,7 @@
 						}
 						else {
 
-							var fromMatrix = animation.properties[property].origin = Jo.matrix(from);
+							var fromMatrix = this.$animations[options.name].properties[property].origin = Jo.matrix(from);
 
 							if( isFalse(options.additional) ){
 
@@ -2605,15 +2607,14 @@
 
 						};
 
-						animation.properties[property].model = model;
-						animation.properties[property].values = valuesTo[property].values;
+						this.$animations[options.name].properties[property].model = model;
+						this.$animations[options.name].properties[property].values = valuesTo[property].values;
 
 					};
 
 				};
 
-				this.$animations.push(animation);
-				task.elements.push(this);
+				task.elements.push(this.$animations[options.name]);
 
 			});
 
@@ -2913,7 +2914,7 @@
 
 							step[property] = model;
 
-							element.$element.css(property, model, false);
+							element.$this.css(property, model, false);
 
 						};
 
@@ -2921,7 +2922,7 @@
 
 					if( isFunction(task.options.onStep) ){
 
-						task.options.onStep.call(element.$element, step);
+						task.options.onStep.call(element.$this, step);
 
 					};
 

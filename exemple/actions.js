@@ -11,8 +11,12 @@ Jo(function( $ ){
 			height: "100px",
 			background: "red"
 		})
+		.delay(2000)
 		.animate({
 			left: "500px"
+		}, {
+			duration: 3000,
+			easing: "easeInOutQuad"
 		});
 
 });
