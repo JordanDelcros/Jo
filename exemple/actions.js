@@ -4,6 +4,8 @@ Jo(function( $ ){
 		.empty()
 		.insertEnd("<span/>");
 
+	setTimeout(function(){
+
 	$("span")
 		.css({
 			display: "block",
@@ -16,8 +18,25 @@ Jo(function( $ ){
 			left: "500px"
 		}, {
 			duration: 3000,
-			easing: "easeInOutQuad"
-		});
+			easing: "easeInOutQuad",
+			onStep: function( step ){
+
+				if( parseInt(step.left) > 200 ){
+
+					this.css("background-color", "green");
+
+				};
+
+			},
+			onComplete: function(){
+
+				console.log("complete", this);
+
+			}
+		})
+		.pause();
+
+	}, 1000);
 
 });
 

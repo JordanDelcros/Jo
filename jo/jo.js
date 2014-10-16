@@ -2359,16 +2359,7 @@
 				name: options.name,
 				this: this,
 				elements: new Array(),
-				options: options,
-				each: function( fn ){
-
-					for( var element = 0, length = this.elements.length; element < length; element++ ){
-
-						fn.call(null, this.elements[element]);
-
-					};
-
-				}
+				options: options
 			};
 
 			this.each(function( index ){
@@ -2387,8 +2378,12 @@
 
 				this.$animations[options.name] = {
 					$this: Jo(this),
-					properties: new Object()
+					properties: new Object(),
+					paused: false,
+					delay: 0
 				};
+
+				task.elements.push(this);
 
 				for( var property in styles ){
 
@@ -2614,22 +2609,65 @@
 
 				};
 
-				task.elements.push(this.$animations[options.name]);
-
 			});
-
-			console.log(task);
 
 			Animations.add(task);
 
 			return this;
 
 		},
-		delay: function( time ){
+		pause: function( name ){
 
 			this.each(function(){
 
+				if( !isEmpty(this.$animations) ){
 
+					if( isEmpty(name) ){
+
+						for( var animation in this.$animations ){
+
+							this.$animations[animation].paused = true;
+
+						};
+
+					}
+					else {
+
+						this.$animations[name].paused = true;
+
+					};
+
+				};
+
+			});
+
+			return this;
+
+		},
+		delay: function( name, time ){
+
+			if( isNumber(name) ){
+
+				time = name;
+				name = "all";
+
+			};
+
+			this.each(function(){
+
+				if( isEmpty(this.$delays) ){
+
+					this.$delays = new Object();
+
+				};
+
+				if( isEmpty(this.$delays[name]) ){
+
+					this.$delays[name] = new Date().getTime();
+
+				};
+
+				this.$delays[name] += time;
 
 			});
 
@@ -2756,6 +2794,7 @@
 			this.now = 0;
 			this.then = 0;
 			this.deltaTime = 0;
+			this.start = new Date();
 
 			this.fn = options.fn;
 			this.tasks = new Array();
@@ -2791,6 +2830,7 @@
 			};
 
 			this.now = now;
+
 			this.deltaTime = this.now - this.then;
 
 			if( this.deltaTime > this.interval ){
@@ -2802,6 +2842,13 @@
 			};
 
 			return this;
+
+		},
+		getNow: function(){
+
+			window.requestAnimationFrame(this.loop.bind(this));
+
+			return this.now;
 
 		},
 		each: function( fn ){
@@ -2863,58 +2910,102 @@
 		fps: 30,
 		fn: function( now ){
 
+			var currentTime = new Date();
+
 			this.each(function( task, index ){
 
-				if( isEmpty(task.options.start) ){
+				// if( isEmpty(task.options.start) ){
 
-					task.options.start = now;
+				// 	task.options.start = now;
 
-				};
+				// };
 
-				var elapsedTime = now - task.options.start;
+				// var elapsedTime = now - task.options.start;
 
-				if( elapsedTime >= task.options.duration ){
+				// if( elapsedTime >= task.options.duration ){
 
-					elapsedTime = task.options.duration;
+				// 	elapsedTime = task.options.duration;
 
-				};
+				// };
 
-				task.each(function( element ){
+				for( var elementIndex = 0, taskLenght = task.elements.length; elementIndex < taskLenght; elementIndex++ ){
+
+					var element = task.elements[elementIndex];
+
+					if( !isEmpty(element.$delays) ){
+
+						if( currentTime > (element.$delays[task.name] || element.$delays.all) ){
+
+							console.log("can play now");
+
+						};
+
+					};
 
 					var step = new Object();
 
-					for( var property in element.properties ){
+					for( var animation in element.$animations ){
 
-						if( element.properties.hasOwnProperty(property) ){
+						var currentAnimation = element.$animations[animation];
 
-							var currentProperty = element.properties[property];
-							var model = currentProperty.model;
-							var easing = Jo.easing(task.options.easing, elapsedTime, task.options.duration);
-							var isTransform = (property === "transform") ? true : false;
+						if( isEmpty(currentAnimation.start) ){
 
-							for( var value = 0, length = currentProperty.values.length; value < length; value++ ){
+							currentAnimation.start = now;
 
-								var newValue = currentProperty.values[value].from + easing * currentProperty.values[value].difference;
+						};
 
-								if( isTrue(currentProperty.values[value].integer) ){
+						if( isTrue(currentAnimation.paused) ){
 
-									newValue = parseInt(newValue);
+							continue;
+
+						};
+
+						var elapsedTime =  now - currentAnimation.start;
+
+						if( elapsedTime >= currentAnimation.duration ){
+
+							elapsedTime = currentAnimation.duration;
+
+						};
+
+						if( task.name === animation ){
+
+							for( var property in element.$animations[animation].properties ){
+
+								if( element.$animations[animation].properties.hasOwnProperty(property) ){
+
+									var currentProperty = element.$animations[animation].properties[property];
+									var model = currentProperty.model;
+									var easing = Jo.easing(task.options.easing, elapsedTime, task.options.duration);
+									var isTransform = (property === "transform") ? true : false;
+
+									for( var value = 0, length = currentProperty.values.length; value < length; value++ ){
+
+										var newValue = currentProperty.values[value].from + easing * currentProperty.values[value].difference;
+
+										if( isTrue(currentProperty.values[value].integer) ){
+
+											newValue = parseInt(newValue);
+
+										};
+
+										model = model.replace("#" + value, newValue + currentProperty.values[value].unit);
+
+									};
+
+									if( isTrue(isTransform) ){
+
+										model = currentProperty.origin.add(model).toString();
+
+									};
+
+									step[property] = model;
+
+									element.$this.css(property, model, false);
 
 								};
 
-								model = model.replace("#" + value, newValue + element.properties[property].values[value].unit);
-
 							};
-
-							if( isTrue(isTransform) ){
-
-								model = currentProperty.origin.add(model).toString();
-
-							};
-
-							step[property] = model;
-
-							element.$this.css(property, model, false);
 
 						};
 
@@ -2926,7 +3017,7 @@
 
 					};
 
-				});
+				};
 
 				if( elapsedTime === task.options.duration ){
 
