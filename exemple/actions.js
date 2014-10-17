@@ -2,21 +2,24 @@ Jo(function( $ ){
 
 	$("body")
 		.empty()
+		.insertEnd("<span/>")
+		.insertEnd("<span/>")
+		.insertEnd("<span/>")
+		.insertEnd("<span/>")
 		.insertEnd("<span/>");
 
-	setTimeout(function(){
-
-	$("span")
+	test = $("span")
 		.css({
+			position: "absolute",
 			display: "block",
 			width: "100px",
 			height: "100px",
 			background: "red"
 		})
-		.delay(2000)
 		.animate({
 			left: "500px"
 		}, {
+			name: "animation1",
 			duration: 3000,
 			easing: "easeInOutQuad",
 			onStep: function( step ){
@@ -34,9 +37,30 @@ Jo(function( $ ){
 
 			}
 		})
-		.pause();
+		.animate({
+			top: "500px"
+		}, {
+			name: "animation2",
+			duration: 3000,
+			easing: "easeInOutQuad",
+			onStep: function( step ){
 
-	}, 1000);
+				if( parseInt(step.top) > 200 ){
+
+					this.css("background-color", "orange");
+
+				};
+
+			},
+			onComplete: function(){
+
+				console.log("complete 2", this);
+
+			}
+		})
+		.delay("animation1 animation2", 1000)
+		.pause()
+		.play();
 
 });
 

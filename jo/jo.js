@@ -2379,6 +2379,7 @@
 				this.$animations[options.name] = {
 					$this: Jo(this),
 					properties: new Object(),
+					duration: options.duration,
 					paused: false,
 					delay: 0
 				};
@@ -2616,6 +2617,34 @@
 			return this;
 
 		},
+		play: function( name ){
+
+			this.each(function(){
+
+				if( !isEmpty(this.$animations) ){
+
+					if( isEmpty(name) ){
+
+						for( var animation in this.$animations ){
+
+							this.$animations[animation].paused = false;
+
+						};
+
+					}
+					else {
+
+						this.$animations[name].paused = false;
+
+					};
+
+				};
+
+			});
+
+			return this;
+
+		},
 		pause: function( name ){
 
 			this.each(function(){
@@ -2644,7 +2673,7 @@
 			return this;
 
 		},
-		delay: function( name, time ){
+		delay: function( names, time ){
 
 			if( isNumber(name) ){
 
@@ -2652,6 +2681,10 @@
 				name = "all";
 
 			};
+
+			var names = names.split(/\s+/);
+
+			var now = new Date();
 
 			this.each(function(){
 
@@ -2661,13 +2694,20 @@
 
 				};
 
-				if( isEmpty(this.$delays[name]) ){
+				for( var name = 0, namesLength = names.length; name < namesLength; name++ ){
 
-					this.$delays[name] = new Date().getTime();
+					if( isEmpty(this.$delays[names[name]]) ){
+
+						this.$delays[names[name]] = new Array();
+
+					};
+
+					this.$delays[names[name]].push({
+						since: now,
+						to: new Date(now.getTime() + time)
+					});
 
 				};
-
-				this.$delays[name] += time;
 
 			});
 
@@ -2911,64 +2951,91 @@
 		fn: function( now ){
 
 			var currentTime = new Date();
+			var completed = false;
 
 			this.each(function( task, index ){
 
-				// if( isEmpty(task.options.start) ){
-
-				// 	task.options.start = now;
-
-				// };
-
-				// var elapsedTime = now - task.options.start;
-
-				// if( elapsedTime >= task.options.duration ){
-
-				// 	elapsedTime = task.options.duration;
-
-				// };
+				var completed = true;
 
 				for( var elementIndex = 0, taskLenght = task.elements.length; elementIndex < taskLenght; elementIndex++ ){
 
 					var element = task.elements[elementIndex];
 
-					if( !isEmpty(element.$delays) ){
-
-						if( currentTime > (element.$delays[task.name] || element.$delays.all) ){
-
-							console.log("can play now");
-
-						};
-
-					};
-
 					var step = new Object();
 
-					for( var animation in element.$animations ){
-
-						var currentAnimation = element.$animations[animation];
-
-						if( isEmpty(currentAnimation.start) ){
-
-							currentAnimation.start = now;
-
-						};
-
-						if( isTrue(currentAnimation.paused) ){
-
-							continue;
-
-						};
-
-						var elapsedTime =  now - currentAnimation.start;
-
-						if( elapsedTime >= currentAnimation.duration ){
-
-							elapsedTime = currentAnimation.duration;
-
-						};
+					animationLoop: for( var animation in element.$animations ){
 
 						if( task.name === animation ){
+
+							var currentAnimation = element.$animations[animation];
+
+							if( isEmpty(currentAnimation.start) ){
+
+								currentAnimation.start = now;
+								currentAnimation.startDate = currentTime;
+
+							};
+
+							if( isTrue(currentAnimation.paused) ){
+
+								completed = false;
+								continue animationLoop;
+
+							};
+
+							if( !isEmpty(element.$delays) ){
+
+								if( !isEmpty(element.$delays.all) ){
+
+									for( var delay = 0; delay < element.$delays.all.length; delay++ ){
+
+										if( currentTime >= element.$delays.all[delay].to ){
+
+											element.$delays.all.splice(delay, 1);
+
+										}
+										else {
+
+											currentAnimation.start = now;
+											completed = false;
+											continue animationLoop;
+
+										};
+
+									};
+
+								};
+
+								if( !isEmpty(element.$delays[animation]) ){
+
+									for( var delay = 0; delay < element.$delays[animation].length; delay++ ){
+
+										if( currentTime >= element.$delays[animation][delay].to ){
+
+											element.$delays[animation].splice(delay, 1);
+
+										}
+										else {
+
+											currentAnimation.start = now;
+											completed = false;
+											continue animationLoop;
+
+										};
+
+									};
+
+								};
+
+							};
+
+							var elapsedTime =  now - currentAnimation.start;
+
+							if( elapsedTime >= currentAnimation.duration ){
+
+								elapsedTime = currentAnimation.duration;
+
+							};
 
 							for( var property in element.$animations[animation].properties ){
 
@@ -3007,6 +3074,12 @@
 
 							};
 
+							if( elapsedTime !== currentAnimation.duration ){
+
+								completed = false;
+
+							};
+
 						};
 
 					};
@@ -3019,7 +3092,7 @@
 
 				};
 
-				if( elapsedTime === task.options.duration ){
+				if( isTrue(completed) ){
 
 					if( isFunction(task.options.onComplete) ){
 
