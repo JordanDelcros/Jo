@@ -16,6 +16,7 @@ Jo(function( $ ){
 			height: "100px",
 			background: "red"
 		})
+		.delay(1000)
 		.animate({
 			left: "500px"
 		}, {
@@ -58,7 +59,7 @@ Jo(function( $ ){
 
 			}
 		})
-		.delay("animation1 animation2", 1000)
+		.delay("animation1", 2000)
 		.pause()
 		.play();
 

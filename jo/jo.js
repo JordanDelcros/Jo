@@ -2675,10 +2675,10 @@
 		},
 		delay: function( names, time ){
 
-			if( isNumber(name) ){
+			if( isNumber(names) ){
 
-				time = name;
-				name = "all";
+				time = names;
+				names = "all";
 
 			};
 
@@ -2699,6 +2699,11 @@
 					if( isEmpty(this.$delays[names[name]]) ){
 
 						this.$delays[names[name]] = new Array();
+
+					}
+					else {
+
+						
 
 					};
 
