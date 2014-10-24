@@ -17,10 +17,10 @@ Jo(function( $ ){
 			background: "red"
 		})
 		.animate({
-			left: "1200px"
+			left: "90%"
 		}, {
 			name: "tata",
-			duration: 10000,
+			duration: 4000,
 			easing: "easeInOutQuad",
 			onStep: function( step ){
 
@@ -38,10 +38,10 @@ Jo(function( $ ){
 			}
 		})
 		.animate({
-			top: "300px"
+			top: "50%"
 		}, {
 			name: "tutu",
-			duration: 10000,
+			duration: 4000,
 			easing: "easeInOutQuad",
 			onStep: function( step ){
 
@@ -61,7 +61,7 @@ Jo(function( $ ){
 
 		setTimeout(function(){
 
-			test.delay("tutu", 3000)
+			test.delay("tutu", 1000)
 
 			// test.pause("tutu");
 
@@ -72,7 +72,7 @@ Jo(function( $ ){
 			// }, 3000);
 
 
-		}, 1500);
+		}, 1000);
 
 });
 

@@ -2729,8 +2729,6 @@
 
 				};
 
-				// console.log(this.$delays);
-
 			});
 
 			return this;
@@ -2967,6 +2965,15 @@
 	};
 
 	Jo.animation.fn.init.prototype = Jo.animation.fn;
+
+	window.performance = (window.performance || {
+		offset: Date.now(),
+		now: function now(){
+
+			return Date.now() - this.offset;
+
+		}
+	});
 
 	var Animations = Jo.animation({
 		fps: 30,
