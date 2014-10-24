@@ -16,12 +16,11 @@ Jo(function( $ ){
 			height: "100px",
 			background: "red"
 		})
-		.delay(1000)
 		.animate({
-			left: "500px"
+			left: "1200px"
 		}, {
-			name: "animation1",
-			duration: 3000,
+			name: "tata",
+			duration: 10000,
 			easing: "easeInOutQuad",
 			onStep: function( step ){
 
@@ -34,15 +33,15 @@ Jo(function( $ ){
 			},
 			onComplete: function(){
 
-				console.log("complete", this);
+				console.log("complete tata", this);
 
 			}
 		})
 		.animate({
-			top: "500px"
+			top: "300px"
 		}, {
-			name: "animation2",
-			duration: 3000,
+			name: "tutu",
+			duration: 10000,
 			easing: "easeInOutQuad",
 			onStep: function( step ){
 
@@ -55,64 +54,29 @@ Jo(function( $ ){
 			},
 			onComplete: function(){
 
-				console.log("complete 2", this);
+				console.log("complete tutu", this);
 
 			}
-		})
-		.delay("animation1", 2000)
-		.pause()
-		.play();
+		});
+
+		setTimeout(function(){
+
+			test.delay("tutu", 3000)
+
+			// test.pause("tutu");
+
+			// setTimeout(function(){
+
+			// 	test.play();
+
+			// }, 3000);
+
+
+		}, 1500);
 
 });
 
 /*
-// jQuery(function(){
-
-// 	console.log("doc ready")
-
-// 	var bef = +new Date();
-// 	var $container = jQuery("body");
-
-// 	for( var howMuch = 0; howMuch < 1000; howMuch++ ){
-// 		jQuery("<li/>")
-// 			.appendTo($container)
-// 			.animate({
-// 				left: (Math.round(Math.random() * $(window).width()) + 1) + "px",
-// 				top: (Math.round(Math.random() * $(window).height()) + 1) + "px",
-// 				transform: "rotateZ(180deg)"
-// 			}, {
-// 				duration: 10000
-// 			})
-			
-// 	};
-
-// 	console.log("time: ", +new Date() - bef);
-
-// });
-
-// Jo(function(){
-
-// 	console.log("doc ready")
-
-// 	var bef = +new Date();
-// 	var $container = Jo("body");
-
-// 	for( var howMuch = 0; howMuch < 1000; howMuch++ ){
-// 		Jo("<li/>")
-// 			.insertEndTo($container)
-// 			.animate({
-// 				left: (Math.round(Math.random() * $(window).width()) + 1) + "px",
-// 				top: (Math.round(Math.random() * $(window).height()) + 1) + "px",
-// 				// transform: "rotateZ(180deg)"
-// 			}, {
-// 				duration: 5000
-// 			})
-			
-// 	};
-
-// 	console.log("time: ", +new Date() - bef);
-
-// });
 
 var media;
 var peer;

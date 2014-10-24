@@ -281,7 +281,7 @@
 
 					if( isTrue(otherwise) ){
 
-						while( element.parentNode ){
+						parentLoop: while( element.parentNode ){
 
 							element = element.parentNode;
 
@@ -294,7 +294,7 @@
 								}
 								else {
 
-									break;
+									break parentLoop;
 
 								};
 
@@ -305,7 +305,7 @@
 					}
 					else {
 
-						while( element.parentNode ){
+						parentLoop: while( element.parentNode ){
 
 							element = element.parentNode;
 
@@ -315,7 +315,7 @@
 
 									found.push(element);
 
-									break;
+									break parentLoop;
 
 								};
 
@@ -525,11 +525,11 @@
 
 				var nodes = this.childNodes;
 
-				for( var node = 0, length = nodes.length; node < length; node++ ){
+				nodesLoop: for( var node = 0, length = nodes.length; node < length; node++ ){
 
 					if( (!isEmpty(selector) && isString(selector) && !Jo(nodes[node]).is(selector)) || (isTrue(normalize) && isText(nodes[node]) && regularExpressions.onlySpaces.test(nodes[node].textContent)) ){
 
-						continue;
+						continue nodesLoop;
 
 					}
 					else {
@@ -593,14 +593,14 @@
 
 				var target = this;
 
-				while( !isEmpty(target.previousElementSibling) ){
+				previousLoop: while( !isEmpty(target.previousElementSibling) ){
 
 					target = target.previousElementSibling;
 
 					if( (!isEmpty(selector) && isString(selector) && Jo(target).is(selector)) || isEmpty(selector) ){
 
 						found.push(target);
-						break;
+						break previousLoop;
 
 					};
 
@@ -629,14 +629,14 @@
 
 				var target = this;
 
-				while( !isEmpty(target.previousSibling) ){
+				previousLoop: while( !isEmpty(target.previousSibling) ){
 
 					target = target.previousSibling;
 
 					if( (!isEmpty(selector) && isString(selector) && Jo(target).is(selector)) || isEmpty(selector) ){
 
 						found.push(target);
-						break;
+						break previousLoop;
 
 					};
 
@@ -665,14 +665,14 @@
 
 				var target = this;
 
-				while( !isEmpty(target.nextElementSibling) ){
+				nextLoop: while( !isEmpty(target.nextElementSibling) ){
 
 					target = target.nextElementSibling;
 
 					if( (!isEmpty(selector) && isString(selector) && Jo(target).is(selector)) || isEmpty(selector) ){
 
 						found.push(target);
-						break;
+						break nextLoop;
 
 					};
 
@@ -701,14 +701,14 @@
 
 				var target = this;
 
-				while( !isEmpty(target.nextSibling) ){
+				nextLoop: while( !isEmpty(target.nextSibling) ){
 
 					target = target.nextSibling;
 
 					if( (!isEmpty(selector) && isString(selector) && Jo(target).is(selector)) || isEmpty(selector) ){
 
 						found.push(target);
-						break;
+						break nextLoop;
 
 					};
 
@@ -2225,7 +2225,7 @@
 		animate: function( styles, options ){
 
 			options = Jo.merge({
-				name: "animation_" + Math.round(Math.random() * new Date().getTime()),
+				name: "animation_" + Math.round(Math.random() * window.performance.now()),
 				duration: 1000,
 				easing: "linear",
 				additional: false
@@ -2617,7 +2617,13 @@
 			return this;
 
 		},
-		play: function( name ){
+		play: function( names ){
+
+			if( !isEmpty(names) ){
+
+				names = (names || "").split(/\s+/);
+
+			};
 
 			this.each(function(){
 
@@ -2634,7 +2640,11 @@
 					}
 					else {
 
-						this.$animations[name].paused = false;
+						for( var name = 0, namesLength = names.length; name < namesLength; name++ ){
+
+							this.$animations[names[name]].paused = false;
+
+						};
 
 					};
 
@@ -2645,13 +2655,19 @@
 			return this;
 
 		},
-		pause: function( name ){
+		pause: function( names ){
+
+			if( !isEmpty(names) ){
+
+				names = (names || "").split(/\s+/);
+
+			};
 
 			this.each(function(){
 
 				if( !isEmpty(this.$animations) ){
 
-					if( isEmpty(name) ){
+					if( isEmpty(names) ){
 
 						for( var animation in this.$animations ){
 
@@ -2662,7 +2678,11 @@
 					}
 					else {
 
-						this.$animations[name].paused = true;
+						for( var name = 0, namesLength = names.length; name < namesLength; name++ ){
+
+							this.$animations[names[name]].paused = true;
+
+						};
 
 					};
 
@@ -2684,7 +2704,7 @@
 
 			var names = names.split(/\s+/);
 
-			var now = new Date();
+			time = window.performance.now() + time;
 
 			this.each(function(){
 
@@ -2698,21 +2718,18 @@
 
 					if( isEmpty(this.$delays[names[name]]) ){
 
-						this.$delays[names[name]] = new Array();
+						this.$delays[names[name]] = time;
 
 					}
 					else {
 
-						
+						this.$delays[names[name]] += time;
 
 					};
 
-					this.$delays[names[name]].push({
-						since: now,
-						to: new Date(now.getTime() + time)
-					});
-
 				};
+
+				// console.log(this.$delays);
 
 			});
 
@@ -2839,7 +2856,7 @@
 			this.now = 0;
 			this.then = 0;
 			this.deltaTime = 0;
-			this.start = new Date();
+			this.start = window.performance.now();
 
 			this.fn = options.fn;
 			this.tasks = new Array();
@@ -2880,9 +2897,9 @@
 
 			if( this.deltaTime > this.interval ){
 
-				this.then = now - (this.deltaTime % this.interval);
+				this.then = this.now - (this.deltaTime % this.interval);
 
-				this.fn(now, this.deltaTime);
+				this.fn(this.now, this.deltaTime);
 
 			};
 
@@ -2953,14 +2970,14 @@
 
 	var Animations = Jo.animation({
 		fps: 30,
-		fn: function( now ){
+		fn: function( now, deltaTime ){
 
-			var currentTime = new Date();
+			// var currentTime = window.performance.now();
 			var completed = false;
 
 			this.each(function( task, index ){
 
-				var completed = true;
+				var completed = false;
 
 				for( var elementIndex = 0, taskLenght = task.elements.length; elementIndex < taskLenght; elementIndex++ ){
 
@@ -2974,16 +2991,14 @@
 
 							var currentAnimation = element.$animations[animation];
 
-							if( isEmpty(currentAnimation.start) ){
+							if( isEmpty(currentAnimation.elapsed) ){
 
-								currentAnimation.start = now;
-								currentAnimation.startDate = currentTime;
+								currentAnimation.elapsed = 0;
 
 							};
 
 							if( isTrue(currentAnimation.paused) ){
 
-								completed = false;
 								continue animationLoop;
 
 							};
@@ -2992,20 +3007,14 @@
 
 								if( !isEmpty(element.$delays.all) ){
 
-									for( var delay = 0; delay < element.$delays.all.length; delay++ ){
+									if( now >= element.$delays.all ){
 
-										if( currentTime >= element.$delays.all[delay].to ){
+										delete element.$delays.all;
 
-											element.$delays.all.splice(delay, 1);
+									}
+									else {
 
-										}
-										else {
-
-											currentAnimation.start = now;
-											completed = false;
-											continue animationLoop;
-
-										};
+										continue animationLoop;
 
 									};
 
@@ -3013,20 +3022,14 @@
 
 								if( !isEmpty(element.$delays[animation]) ){
 
-									for( var delay = 0; delay < element.$delays[animation].length; delay++ ){
+									if( now >= element.$delays[animation] ){
 
-										if( currentTime >= element.$delays[animation][delay].to ){
+										delete element.$delays[animation];
 
-											element.$delays[animation].splice(delay, 1);
+									}
+									else {
 
-										}
-										else {
-
-											currentAnimation.start = now;
-											completed = false;
-											continue animationLoop;
-
-										};
+										continue animationLoop;
 
 									};
 
@@ -3034,11 +3037,11 @@
 
 							};
 
-							var elapsedTime =  now - currentAnimation.start;
+							currentAnimation.elapsed += deltaTime;
 
-							if( elapsedTime >= currentAnimation.duration ){
+							if( currentAnimation.elapsed >= currentAnimation.duration ){
 
-								elapsedTime = currentAnimation.duration;
+								currentAnimation.elapsed = currentAnimation.duration;
 
 							};
 
@@ -3048,7 +3051,7 @@
 
 									var currentProperty = element.$animations[animation].properties[property];
 									var model = currentProperty.model;
-									var easing = Jo.easing(task.options.easing, elapsedTime, task.options.duration);
+									var easing = Jo.easing(task.options.easing, currentAnimation.elapsed, task.options.duration);
 									var isTransform = (property === "transform") ? true : false;
 
 									for( var value = 0, length = currentProperty.values.length; value < length; value++ ){
@@ -3079,9 +3082,9 @@
 
 							};
 
-							if( elapsedTime !== currentAnimation.duration ){
+							if( currentAnimation.elapsed === currentAnimation.duration ){
 
-								completed = false;
+								completed = true;
 
 							};
 
@@ -5722,7 +5725,7 @@
 			if( isEmpty(element.getAttribute("id"), true) ){
 
 				removeIdAfter = true;
-				element.setAttribute("id", "Jo_" + Math.random().toString(36).substr(2, 9) + new Date().getTime().toString(36));
+				element.setAttribute("id", "Jo_" + Math.random().toString(36).substr(2, 9) + window.performance.now().toString(36));
 
 			};
 
