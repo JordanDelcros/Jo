@@ -17,7 +17,7 @@ Jo(function( $ ){
 			background: "red"
 		})
 		.animate({
-			left: "90%"
+			left: "90%"	
 		}, {
 			name: "tata",
 			duration: 4000,
@@ -38,7 +38,8 @@ Jo(function( $ ){
 			}
 		})
 		.animate({
-			top: "50%"
+			top: "50%",
+			transform: "rotateZ(180deg)"
 		}, {
 			name: "tutu",
 			duration: 4000,
@@ -58,21 +59,6 @@ Jo(function( $ ){
 
 			}
 		});
-
-		setTimeout(function(){
-
-			test.delay("tutu", 1000)
-
-			// test.pause("tutu");
-
-			// setTimeout(function(){
-
-			// 	test.play();
-
-			// }, 3000);
-
-
-		}, 1000);
 
 });
 
