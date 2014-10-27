@@ -14,65 +14,24 @@ Jo(function( $ ){
 			display: "block",
 			width: "100px",
 			height: "100px",
+			left: "50%",
+			top: "50%",
 			background: "red"
 		})
 		.animate({
-			left: "90%"
+			transform: "rotateX(90deg) rotateZ(100deg)"
 		}, {
-			name: "tata",
+			name: "one",
 			duration: 4000,
-			easing: "easeInOutQuad",
-			onStep: function( step ){
-
-				if( parseInt(step.left) > 200 ){
-
-					this.css("background-color", "green");
-
-				};
-
-			},
-			onComplete: function(){
-
-				console.log("complete tata", this);
-
-			}
+			easing: "linear"
 		})
 		.animate({
-			top: "50%"
+			transform: "rotateY(180deg)"
 		}, {
-			name: "tutu",
+			name: "two",
 			duration: 4000,
-			easing: "easeInOutQuad",
-			onStep: function( step ){
-
-				if( parseInt(step.top) > 200 ){
-
-					this.css("background-color", "orange");
-
-				};
-
-			},
-			onComplete: function(){
-
-				console.log("complete tutu", this);
-
-			}
+			easing: "linear"
 		});
-
-		setTimeout(function(){
-
-			test.delay("tutu", 1000)
-
-			// test.pause("tutu");
-
-			// setTimeout(function(){
-
-			// 	test.play();
-
-			// }, 3000);
-
-
-		}, 1000);
 
 });
 

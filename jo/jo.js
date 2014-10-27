@@ -2979,7 +2979,6 @@
 		fps: 30,
 		fn: function( now, deltaTime ){
 
-			// var currentTime = window.performance.now();
 			var completed = false;
 
 			this.each(function( task, index ){
