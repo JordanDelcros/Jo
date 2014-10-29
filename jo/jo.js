@@ -2659,7 +2659,7 @@
 
 			if( !isEmpty(names) ){
 
-				names = (names || "").split(/\s+/);
+				names = names.split(/\s+/);
 
 			};
 
@@ -2693,6 +2693,46 @@
 			return this;
 
 		},
+		stop: function( names ){
+
+			if( !isEmpty(names) ){
+
+				names = names.split(/\s+/);
+
+			};
+
+			this.each(function(){
+
+				if( !isEmpty(this.$animations) ){
+
+					if( isEmpty(names) ){
+
+						for( var animation in this.$animations ){
+
+							delete this.$animations[animation];
+
+						};
+
+					}
+					else {
+
+						for( var name = 0, namesLength = names.length; name < namesLength; name++ ){
+
+							delete this.$animations[names[name]];
+
+						};
+
+					};
+
+				};
+
+			});
+
+			Animations.abort(names, this);
+
+			return this;
+
+		},
 		delay: function( names, time ){
 
 			if( isNumber(names) ){
@@ -2702,7 +2742,7 @@
 
 			};
 
-			var names = names.split(/\s+/);
+			names = names.split(/\s+/);
 
 			time = window.performance.now() + time;
 
@@ -2936,6 +2976,74 @@
 			return this;
 
 		},
+		abort: function( names, elements ){
+
+			this.each(function( task, index ){
+
+				if( isEmpty(names) ){
+
+					for( var elementIndex = 0, taskLenght = task.elements.length; elementIndex < taskLenght; elementIndex++ ){
+
+						if( elements.length > 0 ){
+
+							elements.each(function(){
+
+								if( isTrue(Jo(this).is(task.elements[elementIndex])) ){
+
+									task.elements.splice(elementIndex, 1);
+
+								};
+
+							});
+
+						}
+						else {
+
+							task.elements.splice(elementIndex, 1);
+
+						};
+
+					};
+
+				}
+				else {
+
+					for( var name = 0, length = names.length; name < length; name++ ){
+
+						if( names[name] === task.name ){
+
+							for( var elementIndex = 0, taskLenght = task.elements.length; elementIndex < taskLenght; elementIndex++ ){
+
+								if( elements.length > 0 ){
+
+									elements.each(function(){
+
+										if( isTrue(Jo(this).is(task.elements[elementIndex])) ){
+
+											task.elements.splice(elementIndex, 1);
+
+										};
+
+									});
+
+								}
+								else {
+
+									task.elements.splice(elementIndex, 1);
+
+								};
+
+							};
+
+						};
+
+					};
+
+				};
+
+			});
+
+		},
 		remove: function( task ){
 
 			if( isNumber(task) ){
@@ -2975,11 +3083,9 @@
 		}
 	});
 
-	var Animations = Jo.animation({
+	window.Animations = Jo.animation({
 		fps: 30,
 		fn: function( now, deltaTime ){
-
-			var completed = false;
 
 			this.each(function( task, index ){
 
@@ -2989,108 +3095,112 @@
 
 					var element = task.elements[elementIndex];
 
-					var step = new Object();
+					var steps = new Object();
 
 					animationLoop: for( var animation in element.$animations ){
 
-						if( task.name === animation ){
+						if( element.$animations.hasOwnProperty(animation) ){
 
-							var currentAnimation = element.$animations[animation];
+							if( task.name === animation ){
 
-							if( isEmpty(currentAnimation.elapsed) ){
+								var currentAnimation = element.$animations[animation];
 
-								currentAnimation.elapsed = 0;
+								if( isEmpty(currentAnimation.elapsed) ){
 
-							};
-
-							if( isTrue(currentAnimation.paused) ){
-
-								continue animationLoop;
-
-							};
-
-							if( !isEmpty(element.$delays) ){
-
-								if( !isEmpty(element.$delays.all) ){
-
-									if( now >= element.$delays.all ){
-
-										delete element.$delays.all;
-
-									}
-									else {
-
-										continue animationLoop;
-
-									};
+									currentAnimation.elapsed = 0;
 
 								};
 
-								if( !isEmpty(element.$delays[animation]) ){
+								if( isTrue(currentAnimation.paused) ){
 
-									if( now >= element.$delays[animation] ){
-
-										delete element.$delays[animation];
-
-									}
-									else {
-
-										continue animationLoop;
-
-									};
+									continue animationLoop;
 
 								};
 
-							};
+								if( !isEmpty(element.$delays) ){
 
-							currentAnimation.elapsed += deltaTime;
+									if( !isEmpty(element.$delays.all) ){
 
-							if( currentAnimation.elapsed >= currentAnimation.duration ){
+										if( now >= element.$delays.all ){
 
-								currentAnimation.elapsed = currentAnimation.duration;
+											delete element.$delays.all;
 
-							};
+										}
+										else {
 
-							for( var property in element.$animations[animation].properties ){
-
-								if( element.$animations[animation].properties.hasOwnProperty(property) ){
-
-									var currentProperty = element.$animations[animation].properties[property];
-									var model = currentProperty.model;
-									var easing = Jo.easing(task.options.easing, currentAnimation.elapsed, task.options.duration);
-									var isTransform = (property === "transform") ? true : false;
-
-									for( var value = 0, length = currentProperty.values.length; value < length; value++ ){
-
-										var newValue = currentProperty.values[value].from + easing * currentProperty.values[value].difference;
-
-										if( isTrue(currentProperty.values[value].integer) ){
-
-											newValue = parseInt(newValue);
+											continue animationLoop;
 
 										};
 
-										model = model.replace("#" + value, newValue + currentProperty.values[value].unit);
-
 									};
 
-									if( isTrue(isTransform) ){
+									if( !isEmpty(element.$delays[animation]) ){
 
-										model = currentProperty.origin.add(model).toString();
+										if( now >= element.$delays[animation] ){
+
+											delete element.$delays[animation];
+
+										}
+										else {
+
+											continue animationLoop;
+
+										};
 
 									};
-
-									step[property] = model;
-
-									element.$this.css(property, model, false);
 
 								};
 
-							};
+								currentAnimation.elapsed += deltaTime;
 
-							if( currentAnimation.elapsed === currentAnimation.duration ){
+								if( currentAnimation.elapsed >= currentAnimation.duration ){
 
-								completed = true;
+									currentAnimation.elapsed = currentAnimation.duration;
+
+								};
+
+								for( var property in element.$animations[animation].properties ){
+
+									if( element.$animations[animation].properties.hasOwnProperty(property) ){
+
+										var currentProperty = element.$animations[animation].properties[property];
+										var model = currentProperty.model;
+										var easing = Jo.easing(task.options.easing, currentAnimation.elapsed, task.options.duration);
+										var isTransform = (property === "transform") ? true : false;
+
+										for( var value = 0, length = currentProperty.values.length; value < length; value++ ){
+
+											var newValue = currentProperty.values[value].from + easing * currentProperty.values[value].difference;
+
+											if( isTrue(currentProperty.values[value].integer) ){
+
+												newValue = parseInt(newValue);
+
+											};
+
+											model = model.replace("#" + value, newValue + currentProperty.values[value].unit);
+
+										};
+
+										if( isTrue(isTransform) ){
+
+											model = currentProperty.origin.add(model).toString();
+
+										};
+
+										steps[property] = model;
+
+										element.$this.css(property, model, false);
+
+									};
+
+								};
+
+								if( currentAnimation.elapsed === currentAnimation.duration ){
+
+									completed = true;
+
+								};
 
 							};
 
@@ -3100,7 +3210,7 @@
 
 					if( isFunction(task.options.onStep) ){
 
-						task.options.onStep.call(element.$this, step);
+						task.options.onStep.call(element.$this, steps);
 
 					};
 
