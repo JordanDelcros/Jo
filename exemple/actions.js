@@ -2,10 +2,6 @@ Jo(function( $ ){
 
 	$("body")
 		.empty()
-		.insertEnd("<span/>")
-		.insertEnd("<span/>")
-		.insertEnd("<span/>")
-		.insertEnd("<span/>")
 		.insertEnd("<span/>");
 
 	test = $("span")
@@ -18,21 +14,28 @@ Jo(function( $ ){
 			top: "50%",
 			background: "red"
 		})
-		.animate({
-			transform: "rotateX(90deg) rotateZ(100deg)"
 
-		}, {
-			name: "one",
-			duration: 4000,
-			easing: "linear"
-		})
-		.animate({
-			transform: "rotateY(180deg)"
-		}, {
-			name: "two",
-			duration: 4000,
-			easing: "linear"
-		});
+	setTimeout(function(){
+
+		test
+			.animate({
+				left: {
+					from: 0,
+					to: 10
+				}
+			},{
+				duration: 10000,
+				easing: "easeInOutQuad",
+				onStep: function( step ){
+
+					// console.log(step.left)
+					this.css("left", step.left + "%");
+
+				}
+			});
+
+	}, 3000);
+
 
 });
 

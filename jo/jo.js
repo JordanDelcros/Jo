@@ -2233,14 +2233,33 @@
 
 			var valuesTo = new Object();
 
-			for( var property in styles ){
+			styleLoop: for( var property in styles ){
 
 				if( styles.hasOwnProperty(property) ){
 
 					valuesTo[property] = new Object();
 					valuesTo[property].values = new Array();
 
-					valuesTo[property].model = (styles[property].to || styles[property]).toString()
+					var value = styles[property];
+
+					if( isObject(value) ){
+
+						value = value.to || "0";
+
+						var index = valuesTo[property].values.push({
+							from: styles[property].from,
+							to: styles[property].to,
+							difference: styles[property].to - styles[property].from,
+							unit: ""
+						});
+
+						valuesTo[property].model = "#" + (index - 1);
+
+						continue styleLoop;
+
+					};
+
+					valuesTo[property].model = value.toString()
 						.replace(regularExpressions.length, function( match, number, unit ){
 
 							var index = valuesTo[property].values.push({
@@ -2386,216 +2405,221 @@
 
 				task.elements.push(this);
 
-				for( var property in styles ){
+				styleLoop: for( var property in styles ){
 
 					if( styles.hasOwnProperty(property) ){
 
 						this.$animations[options.name].properties[property] = new Object();
 
 						var uncamelizedProperty = uncamelize(property);
-
-						var from = (styles[property].from || currentStyles[index].getPropertyValue(uncamelizedProperty));
-						var model = valuesTo[property].model;
-						var values = valuesTo[property].values;
 						var isTransform = /^\s*(?:\-(?:webkit|moz|o|ms)?\-)?transform/i.test(property);
 
-						if( from === "auto" && !isEmpty(this[camelize("offset-" + property)]) ){
+						var values = valuesTo[property].values;
+						var model = valuesTo[property].model;
 
-							from = this[camelize("offset-" + property)] + "px";
+						if( isEmpty(styles[property].from) ){
 
-						}
-						else if( from === "none" ){
+							var from = currentStyles[index].getPropertyValue(uncamelizedProperty);
 
-							if( isTrue(isTransform) ){
+							if( from === "auto" && !isEmpty(this[camelize("offset-" + property)]) ){
 
-								from = Jo.matrix().toString();
+								from = this[camelize("offset-" + property)] + "px";
 
 							}
-							else {
+							else if( from === "none" ){
+
+								if( isTrue(isTransform) ){
+
+									from = Jo.matrix().toString();
+
+								}
+								else {
+
+									from = "0";
+
+								};
+
+							}
+							else if( from === "transparent" ){
+
+								from = "rgba(0,0,0,0)";
+
+							}
+							else if( isEmpty(from) ){
 
 								from = "0";
 
 							};
 
-						}
-						else if( from === "transparent" ){
+							var valueIndex = -1;
+							if( isFalse(isTransform) ){
 
-							from = "rgba(0,0,0,0)";
+								from = from
+									.toString()
+									.replace(regularExpressions.length, function( match, number, unit ){
 
-						}
-						else if( isEmpty(from) ){
+										valueIndex++;
 
-							from = "0";
+										var convertedValue = convertCSSValue(this, property, number, unit, valuesTo[property].values[valueIndex].unit);
 
-						};
+										values[valueIndex].from = convertedValue;
+										values[valueIndex].difference = Math.abs(convertedValue - values[valueIndex].to) * (convertedValue > values[valueIndex].to ? -1 : 1);
 
-						var valueIndex = -1;
-						if( isFalse(isTransform) ){
+										return "#" + valueIndex;
 
-							from = from
-								.toString()
-								.replace(regularExpressions.length, function( match, number, unit ){
+									}.bind(this))
+									.replace(regularExpressions.RGBColor, function( match, red, green, blue, alpha ){
 
-									valueIndex++;
+										if( isEmpty(alpha, true) ){
 
-									var convertedValue = convertCSSValue(this, property, number, unit, valuesTo[property].values[valueIndex].unit);
-
-									values[valueIndex].from = convertedValue;
-									values[valueIndex].difference = Math.abs(convertedValue - values[valueIndex].to) * (convertedValue > values[valueIndex].to ? -1 : 1);
-
-									return "#" + valueIndex;
-
-								}.bind(this))
-								.replace(regularExpressions.RGBColor, function( match, red, green, blue, alpha ){
-
-									if( isEmpty(alpha, true) ){
-
-										alpha = 1;
-
-									};
-
-									var redValue = parseInt(red);
-									values[++valueIndex].from = redValue;
-									values[valueIndex].difference = Math.abs(redValue - values[valueIndex].to) * (redValue > values[valueIndex].to ? -1 : 1);
-
-									var greenValue = parseInt(green);
-									values[++valueIndex].from = greenValue;
-									values[valueIndex].difference = Math.abs(greenValue - values[valueIndex].to) * (greenValue > values[valueIndex].to ? -1 : 1);
-
-									var blue = parseInt(blue);
-									values[++valueIndex].from = blue;
-									values[valueIndex].difference = Math.abs(blue - values[valueIndex].to) * (blue > values[valueIndex].to ? -1 : 1);
-
-									var alphaValue = parseFloat(alpha);
-									values[++valueIndex].from = alphaValue;
-									values[valueIndex].difference = Math.abs(alphaValue - values[valueIndex].to) * (alphaValue > values[valueIndex].to ? -1 : 1);
-
-									return "#" + (valueIndex - 1);
-
-								})
-								.replace(/(#)?([0-9\.]+)/g, function( match, hash, number ){
-
-									if( hash === "#" ){
-
-										return match;
-
-									};
-
-									valueIndex++;
-
-									var convertedValue = parseFloat(number);
-
-									values[valueIndex].from = convertedValue;
-									values[valueIndex].difference = Math.abs(convertedValue - values[valueIndex].to) * (convertedValue > values[valueIndex].to ? -1 : 1);
-
-									return "#" + (valueIndex - 1);
-
-								});
-
-						}
-						else {
-
-							var fromMatrix = this.$animations[options.name].properties[property].origin = Jo.matrix(from);
-
-							if( isFalse(options.additional) ){
-
-								model.replace(/([a-z]+)\(([^\)]+)\)/gi, function( match, name, ids ){
-
-									ids = ids.replace(/#/g, "").split(",");
-
-									var matrixValues = null;
-
-									if( /^scale/.test(name) ){
-
-										matrixValues = fromMatrix.getScale();
-
-									}
-									else if( /^translate/.test(name) ){
-
-										matrixValues = fromMatrix.getTranslate();
-
-									}
-									else if( /^skew/.test(name) ){
-
-										matrixValues = fromMatrix.getSkew();
-
-									}
-									else if( /^rotate/.test(name) ){
-
-										matrixValues = fromMatrix.getRotate();
-
-									};
-
-									var matrixValue = null;
-
-									for( var id = 0, length = ids.length; id < length; id++ ){
-
-										valueIndex = parseInt(ids[id]);
-
-										if( /^(?:scale|translate|skew|rotate)X/i.test(name) ){
-
-											matrixValue = matrixValues.x;
-
-										}
-										else if( /^(?:scale|translate|skew|rotate)Y/i.test(name) ){
-
-											matrixValue = matrixValues.y;
-
-										}
-										else if( /^(?:scale|translate|rotate)Z/i.test(name) ){
-
-											matrixValue = matrixValues.z;
-
-										}
-										else if( id === 0 ){
-
-											matrixValue = matrixValues.x;
-
-										}
-										else if( id === 1 ){
-
-											matrixValue = matrixValues.y;
-
-										}
-										else if( id === 2 ){
-
-											matrixValue = matrixValues.z;
+											alpha = 1;
 
 										};
 
-										values[valueIndex].from = matrixValue;
-										values[valueIndex].difference = Math.abs(matrixValue - values[valueIndex].to) * (matrixValue > values[valueIndex].to ? -1 : 1);
+										var redValue = parseInt(red);
+										values[++valueIndex].from = redValue;
+										values[valueIndex].difference = Math.abs(redValue - values[valueIndex].to) * (redValue > values[valueIndex].to ? -1 : 1);
 
-									};
+										var greenValue = parseInt(green);
+										values[++valueIndex].from = greenValue;
+										values[valueIndex].difference = Math.abs(greenValue - values[valueIndex].to) * (greenValue > values[valueIndex].to ? -1 : 1);
 
-									return "";
+										var blue = parseInt(blue);
+										values[++valueIndex].from = blue;
+										values[valueIndex].difference = Math.abs(blue - values[valueIndex].to) * (blue > values[valueIndex].to ? -1 : 1);
 
-								});
+										var alphaValue = parseFloat(alpha);
+										values[++valueIndex].from = alphaValue;
+										values[valueIndex].difference = Math.abs(alphaValue - values[valueIndex].to) * (alphaValue > values[valueIndex].to ? -1 : 1);
+
+										return "#" + (valueIndex - 1);
+
+									})
+									.replace(/(#)?([0-9\.]+)/g, function( match, hash, number ){
+
+										if( hash === "#" ){
+
+											return match;
+
+										};
+
+										valueIndex++;
+
+										var convertedValue = parseFloat(number);
+
+										values[valueIndex].from = convertedValue;
+										values[valueIndex].difference = Math.abs(convertedValue - values[valueIndex].to) * (convertedValue > values[valueIndex].to ? -1 : 1);
+
+										return "#" + (valueIndex - 1);
+
+									});
 
 							}
 							else {
 
-								for( var transformation = 0, length = values.length; transformation < length; transformation++ ){
+								var fromMatrix = this.$animations[options.name].properties[property].origin = Jo.matrix(from);
 
-									valueIndex++;
+								if( isFalse(options.additional) ){
 
-									values[valueIndex].from = 0;
-									values[valueIndex].difference = values[valueIndex].to;
+									model.replace(/([a-z]+)\(([^\)]+)\)/gi, function( match, name, ids ){
+
+										ids = ids.replace(/#/g, "").split(",");
+
+										var matrixValues = null;
+
+										if( /^scale/.test(name) ){
+
+											matrixValues = fromMatrix.getScale();
+
+										}
+										else if( /^translate/.test(name) ){
+
+											matrixValues = fromMatrix.getTranslate();
+
+										}
+										else if( /^skew/.test(name) ){
+
+											matrixValues = fromMatrix.getSkew();
+
+										}
+										else if( /^rotate/.test(name) ){
+
+											matrixValues = fromMatrix.getRotate();
+
+										};
+
+										var matrixValue = null;
+
+										for( var id = 0, length = ids.length; id < length; id++ ){
+
+											valueIndex = parseInt(ids[id]);
+
+											if( /^(?:scale|translate|skew|rotate)X/i.test(name) ){
+
+												matrixValue = matrixValues.x;
+
+											}
+											else if( /^(?:scale|translate|skew|rotate)Y/i.test(name) ){
+
+												matrixValue = matrixValues.y;
+
+											}
+											else if( /^(?:scale|translate|rotate)Z/i.test(name) ){
+
+												matrixValue = matrixValues.z;
+
+											}
+											else if( id === 0 ){
+
+												matrixValue = matrixValues.x;
+
+											}
+											else if( id === 1 ){
+
+												matrixValue = matrixValues.y;
+
+											}
+											else if( id === 2 ){
+
+												matrixValue = matrixValues.z;
+
+											};
+
+											values[valueIndex].from = matrixValue;
+											values[valueIndex].difference = Math.abs(matrixValue - values[valueIndex].to) * (matrixValue > values[valueIndex].to ? -1 : 1);
+
+										};
+
+										return "";
+
+									});
+
+								}
+								else {
+
+									for( var transformation = 0, length = values.length; transformation < length; transformation++ ){
+
+										valueIndex++;
+
+										values[valueIndex].from = 0;
+										values[valueIndex].difference = values[valueIndex].to;
+
+									};
 
 								};
 
 							};
 
-						};
+							if( ++valueIndex < values.length ){
 
-						if( ++valueIndex < values.length ){
+								for( var value = 0, valuesLength = valuesTo[property].values.length; value < valuesLength; value++ ){
 
-							for( var value = 0, valuesLength = valuesTo[property].values.length; value < valuesLength; value++ ){
+									if( isEmpty(valuesTo[property].values[value].from) ){
 
-								if( isEmpty(valuesTo[property].values[value].from) ){
+										valuesTo[property].values[value].from = 0;
+										valuesTo[property].values[value].difference = valuesTo[property].values[value].to;
 
-									valuesTo[property].values[value].from = 0;
-									valuesTo[property].values[value].difference = valuesTo[property].values[value].to;
+									};
 
 								};
 
@@ -2925,11 +2949,11 @@
 
 			if( this.active === false ){
 
-				return window.cancelAnimationFrame(this.animationFrame);
+				// return window.cancelAnimationFrame(this.animationFrame);
 
 			};
 
-			this.now = now;
+			this.now = window.performance.now();
 
 			this.deltaTime = this.now - this.then;
 
@@ -3083,7 +3107,7 @@
 		}
 	});
 
-	window.Animations = Jo.animation({
+	var Animations = Jo.animation({
 		fps: 30,
 		fn: function( now, deltaTime ){
 
@@ -3167,6 +3191,8 @@
 										var model = currentProperty.model;
 										var easing = Jo.easing(task.options.easing, currentAnimation.elapsed, task.options.duration);
 										var isTransform = (property === "transform") ? true : false;
+
+										// console.log(currentAnimation.elapsed, task.options.duration, easing);
 
 										for( var value = 0, length = currentProperty.values.length; value < length; value++ ){
 
