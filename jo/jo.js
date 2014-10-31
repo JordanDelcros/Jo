@@ -3190,9 +3190,7 @@
 										var currentProperty = element.$animations[animation].properties[property];
 										var model = currentProperty.model;
 										var easing = Jo.easing(task.options.easing, currentAnimation.elapsed, task.options.duration);
-										var isTransform = (property === "transform") ? true : false;
-
-										// console.log(currentAnimation.elapsed, task.options.duration, easing);
+										var isTransform = /^\s*(?:\-(?:webkit|moz|o|ms)?\-)?transform/i.test(property);
 
 										for( var value = 0, length = currentProperty.values.length; value < length; value++ ){
 
@@ -3210,7 +3208,9 @@
 
 										if( isTrue(isTransform) ){
 
-											model = currentProperty.origin.add(model).toString();
+											// console.log( element.$this.css("transform")[0] );
+
+											model = currentProperty.origin.add(model).add(element.$this.css("transform")[0]);
 
 										};
 

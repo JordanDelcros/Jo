@@ -14,27 +14,28 @@ Jo(function( $ ){
 			top: "50%",
 			background: "red"
 		})
+		.animate({
+			transform: "rotateZ(100deg)"
+		},{
+			duration: 5000,
+			easing: "easeInOutQuad",
+			onStep: function( step ){
 
-	setTimeout(function(){
+				// console.log("rotate");
 
-		test
-			.animate({
-				left: {
-					from: 0,
-					to: 10
-				}
-			},{
-				duration: 10000,
-				easing: "easeInOutQuad",
-				onStep: function( step ){
+			}
+		})
+		.animate({
+			transform: "scale(2)"
+		},{
+			duration: 5000,
+			easing: "easeInOutQuad",
+			onStep: function( step ){
 
-					// console.log(step.left)
-					this.css("left", step.left + "%");
+				// console.log("scale");
 
-				}
-			});
-
-	}, 3000);
+			}
+		});
 
 
 });
