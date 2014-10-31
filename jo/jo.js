@@ -2519,6 +2519,8 @@
 
 								var fromMatrix = this.$animations[options.name].properties[property].origin = Jo.matrix(from);
 
+								// console.log(fromMatrix)
+
 								if( isFalse(options.additional) ){
 
 									model.replace(/([a-z]+)\(([^\)]+)\)/gi, function( match, name, ids ){
@@ -3208,9 +3210,8 @@
 
 										if( isTrue(isTransform) ){
 
-											// console.log( element.$this.css("transform")[0] );
+											model = currentProperty.origin.add(model).add("rotate(20deg)");
 
-											model = currentProperty.origin.add(model).add(element.$this.css("transform")[0]);
 
 										};
 
@@ -3300,7 +3301,7 @@
 
 				if( !isEmpty(matrix, true) ){
 
-					matrix = matrix.replace(/[0-9]+\.?[0-9]+e[+-][0-9]+/g, function( match ){
+					matrix = matrix.toString().replace(/[0-9]+\.?[0-9]+e[+-][0-9]+/g, function( match ){
 
 						return parseFloat(match).toFixed(20);
 
@@ -3635,18 +3636,14 @@
 
 			if( !isEmpty(matrix) ){
 
-				if( !isString(matrix) ){
-
-					matrix = Jo(matrix).toString();
-
-				};
+				matrix = matrix.toString();
 				
 				if( !isEmpty(window.CSSMatrix) ){
 
-					clone = clone.matrix.multiply(new window.CSSMatrix(matrix));
+					clone = clone.multiply(new window.CSSMatrix(matrix || ""));
 
 				}
-				else if( isString(matrix) ){
+				else {
 
 					var transforms = matrix.match(/((scale|scaleX|scaleY|scaleZ|scale3d|rotate|rotateX|rotateY|rotateZ|rotate3d|translate|translateX|translateY|translateZ|translate3d|matrix|matrix3d)\([^\)]*\))/g);
 

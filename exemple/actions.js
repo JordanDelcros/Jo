@@ -14,29 +14,28 @@ Jo(function( $ ){
 			top: "50%",
 			background: "red"
 		})
-		.animate({
-			transform: "rotateZ(100deg)"
-		},{
-			duration: 5000,
-			easing: "easeInOutQuad",
-			onStep: function( step ){
+		// .animate({
+		// 	transform: "rotateZ(100deg)"
+		// },{
+		// 	duration: 5000,
+		// 	easing: "easeInOutQuad",
+		// 	onStep: function( step ){
 
-				// console.log("rotate");
+		// 		// console.log("rotate");
 
-			}
-		})
-		.animate({
-			transform: "scale(2)"
-		},{
-			duration: 5000,
-			easing: "easeInOutQuad",
-			onStep: function( step ){
+		// 	}
+		// })
+		// .animate({
+		// 	transform: "scale(2)"
+		// },{
+		// 	duration: 5000,
+		// 	easing: "easeInOutQuad",
+		// 	onStep: function( step ){
 
-				// console.log("scale");
+		// 		// console.log("scale");
 
-			}
-		});
-
+		// 	}
+		// });
 
 });
 
