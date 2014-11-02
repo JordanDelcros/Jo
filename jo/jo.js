@@ -2519,8 +2519,6 @@
 
 								var fromMatrix = this.$animations[options.name].properties[property].origin = Jo.matrix(from);
 
-								// console.log(fromMatrix)
-
 								if( isFalse(options.additional) ){
 
 									model.replace(/([a-z]+)\(([^\)]+)\)/gi, function( match, name, ids ){
@@ -3634,6 +3632,8 @@
 
 			var clone = this.clone();
 
+			console.log("before", clone.toString())
+
 			if( !isEmpty(matrix) ){
 
 				matrix = matrix.toString();
@@ -3875,6 +3875,8 @@
 
 			};
 
+			console.log("after", clone.toString());
+
 			return clone;
 
 		},
@@ -3923,9 +3925,9 @@
 			}
 			else {
 
-				matrix = matrix.clone();
+				// matrix = matrix.clone();
 
-				matrix = matrix
+				clone = clone
 					.set("m11", matrix.get("m11") * clone.get("m11") + matrix.get("m12") * clone.get("m21") + matrix.get("m13") * clone.get("m31") + matrix.get("m14") * clone.get("m41"))
 					.set("m12", matrix.get("m11") * clone.get("m12") + matrix.get("m12") * clone.get("m22") + matrix.get("m13") * clone.get("m32") + matrix.get("m14") * clone.get("m42"))
 					.set("m13", matrix.get("m11") * clone.get("m13") + matrix.get("m12") * clone.get("m23") + matrix.get("m13") * clone.get("m33") + matrix.get("m14") * clone.get("m43"))
@@ -3945,7 +3947,7 @@
 
 			};
 
-			return matrix;
+			return clone;
 
 		},
 		getDeterminant: function(){
