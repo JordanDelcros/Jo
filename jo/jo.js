@@ -1408,7 +1408,7 @@
 
 			$this.selector = this.selector;
 			$this.found = this.found;
-			$this.length = found.length;
+			$this.length = this.found.length;
 			$this.previous = Jo.clone(this.previousJo);
 
 			return $this;
@@ -2228,7 +2228,7 @@
 				name: "animation_" + Math.round(Math.random() * window.performance.now()),
 				duration: 1000,
 				easing: "linear",
-				additional: false
+				additional: true
 			}, options);
 
 			var valuesTo = new Object();
@@ -2519,7 +2519,7 @@
 
 								var fromMatrix = this.$animations[options.name].properties[property].origin = Jo.matrix(from);
 
-								if( isFalse(options.additional) ){
+								if( isTrue(options.additional) ){
 
 									model.replace(/([a-z]+)\(([^\)]+)\)/gi, function( match, name, ids ){
 
@@ -3208,8 +3208,7 @@
 
 										if( isTrue(isTransform) ){
 
-											model = currentProperty.origin.add(model).add("rotate(20deg)");
-
+											model = currentProperty.origin.add(model);
 
 										};
 
@@ -3632,7 +3631,7 @@
 
 			var clone = this.clone();
 
-			console.log("before", clone.toString())
+			// console.log("before", clone.toString())
 
 			if( !isEmpty(matrix) ){
 
@@ -3875,7 +3874,7 @@
 
 			};
 
-			console.log("after", clone.toString());
+			// console.log("after", clone.toString());
 
 			return clone;
 
@@ -5472,9 +5471,21 @@
 
 	};
 
-	function isNumber( source ){
+	function isNumber( source, acceptString ){
 
-		return typeof source === "number" || /^[\d\.]+$/gi.test(source.toString()) || (!isNaN(parseFloat(source.toString())) && isFinite(source));
+		// return typeof source === "number" || (acceptString === true && (/^[\d\.]+$/gi.test((source || "").toString()) ||(!isNaN(parseFloat((source || "").toString())) && isFinite(source))     );//      || (!isNaN(parseFloat(source.toString())) && isFinite(source));
+
+		return (
+			typeof source === "Number"
+			&& isFinite(source)
+		)
+		|| (
+			acceptString === true
+			&& (
+				/^[\d\.]+$/gi.test((source || "").toString())
+				|| !isNaN(parseFloat((source || "").toString()))
+			)
+		)
 
 	};
 

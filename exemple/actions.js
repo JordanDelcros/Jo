@@ -15,27 +15,40 @@ Jo(function( $ ){
 			background: "red"
 		})
 		// .animate({
-		// 	transform: "rotateZ(100deg)"
-		// },{
-		// 	duration: 5000,
-		// 	easing: "easeInOutQuad",
-		// 	onStep: function( step ){
-
-		// 		// console.log("rotate");
-
-		// 	}
-		// })
-		// .animate({
 		// 	transform: "scale(2)"
 		// },{
 		// 	duration: 5000,
+		// 	additional: true,
 		// 	easing: "easeInOutQuad",
 		// 	onStep: function( step ){
 
 		// 		// console.log("scale");
 
 		// 	}
-		// });
+		// })
+		.animate({
+			transform: "rotateZ(100deg)"
+		},{
+			duration: 3000,
+			easing: "easeInOutQuad",
+			onStep: function( step ){
+
+				// console.log("rotate");
+
+			}
+		});
+
+		setTimeout(function(){
+
+			$("span").animate({
+				transform: "rotateZ(20deg)"
+			}, {
+				duration: 10000,
+				additional: true,
+				easing: "easeInOutQuad"
+			});
+
+		}.bind(this), 5100);
 
 });
 
