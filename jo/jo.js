@@ -1598,11 +1598,15 @@
 		},
 		focus: function( positionStart, positionEnd ){
 
+			console.log("foc", isNumber(positionStart), positionStart);
+
 			this.each(function(){
 
 				this.focus();
 
 				if( isNumber(positionStart) ){
+
+					console.log("positionStart")
 
 					if( this.setSelectionRange ){
 
@@ -5473,25 +5477,15 @@
 
 	function isNumber( source, acceptString ){
 
-		// return typeof source === "number" || (acceptString === true && (/^[\d\.]+$/gi.test((source || "").toString()) ||(!isNaN(parseFloat((source || "").toString())) && isFinite(source))     );//      || (!isNaN(parseFloat(source.toString())) && isFinite(source));
+		source = source === undefined ? "" : source;
 
-		return (
-			typeof source === "Number"
-			&& isFinite(source)
-		)
-		|| (
-			acceptString === true
-			&& (
-				/^[\d\.]+$/gi.test((source || "").toString())
-				|| !isNaN(parseFloat((source || "").toString()))
-			)
-		)
+		return (typeof source === "number" && isFinite(source)) || (acceptString === true && (/^[\d\.]+$/gi.test(source.toString()) || !isNaN(parseFloat(source.toString()))));
 
 	};
 
 	function isInteger( source ){
 
-		return isNumber(source) && isFinite(number) && source % 1 === 0 && !/\./.test("" + source);
+		return isNumber(source) && isFinite(number) && source % 1 === 0 && !/\./.test(source.toString());
 
 	};
 
