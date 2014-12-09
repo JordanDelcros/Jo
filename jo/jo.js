@@ -4366,7 +4366,11 @@
 
 				if( this.request.readyState === 0 ){
 
-					settings.initialize(this.request);
+					if( isFunction(settings.initialize) ){
+
+						settings.initialize(this.request);
+
+					};
 
 				};
 
@@ -4473,6 +4477,8 @@
 				}, false);
 
 				this.request.open(settings.method, settings.url + (settings.method === "GET" && !isEmpty(data) ? "?" + data.join("&") : ""), settings.async);
+
+				this.request.setRequestHeader("X-Requested-With", "XMLHTTPRequest");
 
 				this.sended = true;
 				this.request.send(settings.method === "POST" ? data : null);
