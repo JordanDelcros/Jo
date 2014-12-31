@@ -2177,15 +2177,27 @@
 				easing: "linear"
 			}, options);
 
+			this.each(function(){
+
+				var $this = this.$this || Jo(this);
+
+				if( $this.css("display", false)[0] == "none" || $this.css("visibility", false)[0] == "hidden" ){
+
+					$this.css("opacity", 0);
+
+				};
+
+			});
+
 			this
-				.css("opacity", 0)
 				.show()
 				.animate({
 					opacity: 1
 				}, {
+					name: "Jo_fadeIn",
 					duration: options.duration,
 					easing: options.easing,
-					complete: function(){
+					onComplete: function(){
 
 						if( isFunction(options.complete) ){
 
@@ -2210,9 +2222,10 @@
 				.animate({
 					opacity: 0
 				}, {
+					name: "Jo_fadeOut",
 					duration: options.duration,
 					easing: options.easing,
-					complete: function(){
+					onComplete: function(){
 
 						Jo(this).hide();
 
@@ -2224,6 +2237,49 @@
 
 					}
 				});
+
+			return this;
+
+		},
+		fadeToggle: function( options ){
+
+			options = Jo.merge({
+				duration: 1000,
+				easing: "linear"
+			}, options);
+
+			this.each(function(){
+
+				var $this = this.$this || Jo(this);
+
+				if( !isEmpty(this.$animations) && (!isEmpty(this.$animations["Jo_fadeIn"]) || !isEmpty(this.$animations["Jo_fadeOut"])) ){
+
+					if( !isEmpty(this.$animations["Jo_fadeIn"]) ){
+
+						$this.stop("Jo_fadeIn");
+						$this.fadeOut(options);
+
+					}
+					else {
+
+						$this.stop("Jo_fadeOut");
+						$this.fadeIn(options);
+
+					};
+
+				}
+				else if( $this.css("display")[0] == "none" || $this.css("visibility")[0] == "hidden" || parseFloat($this.css("opacity", true)[0]) < 1 ){
+
+					$this.fadeIn(options);
+
+				}
+				else {
+
+					$this.fadeOut(options);
+
+				};
+
+			});
 
 		},
 		animate: function( styles, options ){
