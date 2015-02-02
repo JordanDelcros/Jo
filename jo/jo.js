@@ -2657,6 +2657,8 @@
 								}
 								else {
 
+									console.log(values);
+
 									for( var transformation = 0, length = values.length; transformation < length; transformation++ ){
 
 										valueIndex++;
