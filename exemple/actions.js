@@ -14,23 +14,13 @@ Jo(function( $ ){
 			top: "50%",
 			background: "red"
 		})
-		// .animate({
-		// 	transform: "scale(2)"
-		// },{
-		// 	duration: 5000,
-		// 	additional: true,
-		// 	easing: "easeInOutQuad",
-		// 	onStep: function( step ){
-
-		// 		// console.log("scale");
-
-		// 	}
-		// })
 		.animate({
-			transform: "rotateZ(100deg)"
+			transform: "rotateZ(100deg)",
+			left: "0%"
 		},{
 			duration: 3000,
 			easing: "easeInOutQuad",
+			additional: true,
 			onStep: function( step ){
 
 				// console.log("rotate");
@@ -41,14 +31,19 @@ Jo(function( $ ){
 		setTimeout(function(){
 
 			$("span").animate({
-				transform: "rotateZ(20deg)"
+				transform: "rotateZ(50deg)"
 			}, {
-				duration: 10000,
+				duration: 1000,
 				additional: true,
-				easing: "easeInOutQuad"
+				easing: "easeInOutQuad",
+				onStep: function( step ){
+
+					console.log( Jo.matrix($(this).css("transform")).toHumanString() );
+
+				}
 			});
 
-		}.bind(this), 5100);
+		}.bind(this), 4000);
 
 });
 

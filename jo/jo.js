@@ -2579,7 +2579,7 @@
 
 								var fromMatrix = this.$animations[options.name].properties[property].origin = Jo.matrix(from);
 
-								if( isTrue(options.additional) ){
+								if( isFalse(options.additional) ){
 
 									model.replace(/([a-z]+)\(([^\)]+)\)/gi, function( match, name, ids ){
 
