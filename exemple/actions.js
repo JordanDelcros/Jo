@@ -15,10 +15,12 @@ Jo(function( $ ){
 			background: "red"
 		})
 		.animate({
-			transform: "rotateZ(100deg)"
+			transform: "rotateZ(100deg)",
+			left: "0%"
 		},{
 			duration: 3000,
 			easing: "easeInOutQuad",
+			additional: true,
 			onStep: function( step ){
 
 				// console.log("rotate");
@@ -29,14 +31,14 @@ Jo(function( $ ){
 		setTimeout(function(){
 
 			$("span").animate({
-				transform: "rotateZ(20deg)"
+				transform: "rotateZ(50deg)"
 			}, {
-				duration: 10000,
-				additional: false,
+				duration: 1000,
+				additional: true,
 				easing: "easeInOutQuad",
-				onStep: function(){
+				onStep: function( step ){
 
-					// console.log( $.matrix($(this).css("transform")).getRotate().z );
+					console.log( Jo.matrix($(this).css("transform")).toHumanString() );
 
 				}
 			});
