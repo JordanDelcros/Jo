@@ -2288,7 +2288,7 @@
 				name: "animation_" + Math.round(Math.random() * window.performance.now()),
 				duration: 1000,
 				easing: "linear",
-				additional: true
+				additional: false
 			}, options);
 
 			var valuesTo = new Object();
@@ -2579,96 +2579,88 @@
 
 								var fromMatrix = this.$animations[options.name].properties[property].origin = Jo.matrix(from);
 
-								if( isFalse(options.additional) ){
+								model.replace(/([a-z]+)\(([^\)]+)\)/gi, function( match, name, ids ){
 
-									model.replace(/([a-z]+)\(([^\)]+)\)/gi, function( match, name, ids ){
+									ids = ids.replace(/#/g, "").split(",");
 
-										ids = ids.replace(/#/g, "").split(",");
+									var matrixValues = null;
 
-										var matrixValues = null;
+									if( /^scale/.test(name) ){
 
-										if( /^scale/.test(name) ){
+										matrixValues = fromMatrix.getScale();
 
-											matrixValues = fromMatrix.getScale();
+									}
+									else if( /^translate/.test(name) ){
+
+										matrixValues = fromMatrix.getTranslate();
+
+									}
+									else if( /^skew/.test(name) ){
+
+										matrixValues = fromMatrix.getSkew();
+
+									}
+									else if( /^rotate/.test(name) ){
+
+										matrixValues = fromMatrix.getRotate();
+
+									};
+
+									var matrixValue = null;
+
+									for( var id = 0, length = ids.length; id < length; id++ ){
+
+										valueIndex = parseInt(ids[id]);
+
+										if( /^(?:scale|translate|skew|rotate)X/i.test(name) ){
+
+											matrixValue = matrixValues.x;
 
 										}
-										else if( /^translate/.test(name) ){
+										else if( /^(?:scale|translate|skew|rotate)Y/i.test(name) ){
 
-											matrixValues = fromMatrix.getTranslate();
-
-										}
-										else if( /^skew/.test(name) ){
-
-											matrixValues = fromMatrix.getSkew();
+											matrixValue = matrixValues.y;
 
 										}
-										else if( /^rotate/.test(name) ){
+										else if( /^(?:scale|translate|rotate)Z/i.test(name) ){
 
-											matrixValues = fromMatrix.getRotate();
+											matrixValue = matrixValues.z;
+
+										}
+										else if( id === 0 ){
+
+											matrixValue = matrixValues.x;
+
+										}
+										else if( id === 1 ){
+
+											matrixValue = matrixValues.y;
+
+										}
+										else if( id === 2 ){
+
+											matrixValue = matrixValues.z;
 
 										};
 
-										var matrixValue = null;
+										values[valueIndex].from = matrixValue;
 
-										for( var id = 0, length = ids.length; id < length; id++ ){
+										if( isTrue(options.additional) ){
 
-											valueIndex = parseInt(ids[id]);
+											values[valueIndex].difference = values[valueIndex].to
 
-											if( /^(?:scale|translate|skew|rotate)X/i.test(name) ){
+										}
+										else {
 
-												matrixValue = matrixValues.x;
-
-											}
-											else if( /^(?:scale|translate|skew|rotate)Y/i.test(name) ){
-
-												matrixValue = matrixValues.y;
-
-											}
-											else if( /^(?:scale|translate|rotate)Z/i.test(name) ){
-
-												matrixValue = matrixValues.z;
-
-											}
-											else if( id === 0 ){
-
-												matrixValue = matrixValues.x;
-
-											}
-											else if( id === 1 ){
-
-												matrixValue = matrixValues.y;
-
-											}
-											else if( id === 2 ){
-
-												matrixValue = matrixValues.z;
-
-											};
-
-											values[valueIndex].from = matrixValue;
 											values[valueIndex].difference = Math.abs(matrixValue - values[valueIndex].to) * (matrixValue > values[valueIndex].to ? -1 : 1);
 
 										};
 
-										return "";
-
-									});
-
-								}
-								else {
-
-									console.log(values);
-
-									for( var transformation = 0, length = values.length; transformation < length; transformation++ ){
-
-										valueIndex++;
-
-										values[valueIndex].from = 0;
-										values[valueIndex].difference = values[valueIndex].to;
-
 									};
 
-								};
+									return "";
+
+								});
 
 							};
 

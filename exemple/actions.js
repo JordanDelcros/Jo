@@ -26,24 +26,36 @@ Jo(function( $ ){
 				// console.log("rotate");
 
 			}
+		})
+		.animate({
+			transform: "scale(0.5)",
+		},{
+			duration: 3000,
+			easing: "easeInOutQuad",
+			additional: false,
+			onStep: function( step ){
+
+				// console.log("rotate");
+
+			}
 		});
 
-		setTimeout(function(){
+		// setTimeout(function(){
 
-			$("span").animate({
-				transform: "rotateZ(50deg)"
-			}, {
-				duration: 1000,
-				additional: true,
-				easing: "easeInOutQuad",
-				onStep: function( step ){
+		// 	$("span").animate({
+		// 		transform: "rotateZ(50deg)"
+		// 	}, {
+		// 		duration: 1000,
+		// 		additional: false,
+		// 		easing: "easeInOutQuad",
+		// 		onStep: function( step ){
 
-					console.log( Jo.matrix($(this).css("transform")).toHumanString() );
+		// 			// console.log( Jo.matrix($(this).css("transform")).toHumanString() );
 
-				}
-			});
+		// 		}
+		// 	});
 
-		}.bind(this), 4000);
+		// }.bind(this), 4000);
 
 });
 
