@@ -2,9 +2,9 @@ Jo(function( $ ){
 
 	$("body")
 		.empty()
-		.insertEnd("<span/>");
+		.insertEnd("<span></span><span></span>");
 
-	test = $("span")
+	$test = $("span")
 		.css({
 			position: "absolute",
 			display: "block",
@@ -18,6 +18,7 @@ Jo(function( $ ){
 			transform: "rotateZ(100deg)",
 			left: "0%"
 		},{
+			name: "rotating",
 			duration: 3000,
 			easing: "easeInOutQuad",
 			additional: true,
@@ -29,7 +30,9 @@ Jo(function( $ ){
 		})
 		.animate({
 			transform: "scale(0.5)",
+			left: "25%"
 		},{
+			name: "scaling",
 			duration: 3000,
 			easing: "easeInOutQuad",
 			additional: false,
@@ -40,22 +43,7 @@ Jo(function( $ ){
 			}
 		});
 
-		// setTimeout(function(){
-
-		// 	$("span").animate({
-		// 		transform: "rotateZ(50deg)"
-		// 	}, {
-		// 		duration: 1000,
-		// 		additional: false,
-		// 		easing: "easeInOutQuad",
-		// 		onStep: function( step ){
-
-		// 			// console.log( Jo.matrix($(this).css("transform")).toHumanString() );
-
-		// 		}
-		// 	});
-
-		// }.bind(this), 4000);
+	console.log($test)
 
 });
 

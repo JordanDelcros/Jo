@@ -2822,8 +2822,6 @@
 
 			names = names.split(/\s+/);
 
-			time = window.performance.now() + time;
-
 			this.each(function(){
 
 				if( isEmpty(this.$delays) ){
@@ -2836,7 +2834,7 @@
 
 					if( isEmpty(this.$delays[names[name]]) ){
 
-						this.$delays[names[name]] = time;
+						this.$delays[names[name]] = window.performance.now() + time;
 
 					}
 					else {
@@ -3169,6 +3167,8 @@
 
 				var completed = false;
 
+				console.log(task.elements);
+
 				for( var elementIndex = 0, taskLenght = task.elements.length; elementIndex < taskLenght; elementIndex++ ){
 
 					var element = task.elements[elementIndex];
@@ -3261,6 +3261,8 @@
 										};
 
 										if( isTrue(isTransform) ){
+
+											console.log( currentProperty );
 
 											model = currentProperty.origin.add(model);
 
