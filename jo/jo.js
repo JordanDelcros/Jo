@@ -3167,8 +3167,6 @@
 
 				var completed = false;
 
-				console.log(task.elements);
-
 				for( var elementIndex = 0, taskLenght = task.elements.length; elementIndex < taskLenght; elementIndex++ ){
 
 					var element = task.elements[elementIndex];
