@@ -1100,6 +1100,8 @@
 
 			};
 
+			return this;
+
 		},
 		height: function( height ){
 
@@ -1134,6 +1136,8 @@
 				});
 
 			};
+
+			return this;
 
 		},
 		css: function( property, value, unverify ){
@@ -3165,11 +3169,13 @@
 
 			this.each(function( task, index ){
 
+				console.log(task);
+
 				var completed = false;
 
-				console.log(task.elements);
-
 				for( var elementIndex = 0, taskLenght = task.elements.length; elementIndex < taskLenght; elementIndex++ ){
+
+					console.log(elementIndex);
 
 					var element = task.elements[elementIndex];
 
@@ -3177,7 +3183,10 @@
 
 					animationLoop: for( var animation in element.$animations ){
 
+
 						if( element.$animations.hasOwnProperty(animation) ){
+
+							console.log(task.name, animation);
 
 							if( task.name === animation ){
 
@@ -3261,8 +3270,6 @@
 										};
 
 										if( isTrue(isTransform) ){
-
-											console.log( currentProperty );
 
 											model = currentProperty.origin.add(model);
 

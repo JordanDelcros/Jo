@@ -2,7 +2,7 @@ Jo(function( $ ){
 
 	$("body")
 		.empty()
-		.insertEnd("<span></span><span></span>");
+		.insertEnd("<span></span>");
 
 	$test = $("span")
 		.css({
