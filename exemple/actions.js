@@ -40,6 +40,11 @@ Jo(function( $ ){
 
 				// console.log("rotate");
 
+			},
+			onComplete: function(){
+
+				// $(this).css("transform", $.matrix().add($.matrix("rotateZ(100deg)")).add($.matrix("scake(0.5)")).toString());
+
 			}
 		});
 
