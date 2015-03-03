@@ -2201,11 +2201,20 @@
 					name: "Jo_fadeIn",
 					duration: options.duration,
 					easing: options.easing,
+					onStep: function( step ){
+
+						if( isFunction(options.onStep) ){
+
+							options.onStep.call(this, step);
+
+						};
+
+					},
 					onComplete: function(){
 
-						if( isFunction(options.complete) ){
+						if( isFunction(options.onComplete) ){
 
-							options.complete();
+							options.onComplete.call(this, step);
 
 						};
 
@@ -2229,13 +2238,22 @@
 					name: "Jo_fadeOut",
 					duration: options.duration,
 					easing: options.easing,
+					onStep: function( step ){
+
+						if( isFunction(options.onStep) ){
+
+							options.onStep.call(this, step);
+
+						};
+
+					},
 					onComplete: function(){
 
 						Jo(this).hide();
 
-						if( isFunction(options.complete) ){
+						if( isFunction(options.onComplete) ){
 
-							options.complete();
+							options.onComplete.call(this, step);
 
 						};
 
@@ -3003,7 +3021,7 @@
 
 			this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
 
-			if( this.active === false ){
+			if( isFalse(this.active) ){
 
 				// return window.cancelAnimationFrame(this.animationFrame);
 
@@ -3046,7 +3064,7 @@
 
 			this.tasks.push(task);
 
-			if( this.active === false ){
+			if( isFalse(this.active) ){
 
 				this.active = true;
 				this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
@@ -3169,13 +3187,11 @@
 
 			this.each(function( task, index ){
 
-				console.log(task);
-
 				var completed = false;
 
 				for( var elementIndex = 0, taskLenght = task.elements.length; elementIndex < taskLenght; elementIndex++ ){
 
-					console.log(elementIndex);
+					// console.log(elementIndex);
 
 					var element = task.elements[elementIndex];
 
@@ -3183,10 +3199,9 @@
 
 					animationLoop: for( var animation in element.$animations ){
 
-
 						if( element.$animations.hasOwnProperty(animation) ){
 
-							console.log(task.name, animation);
+							// console.log(task.name, animation);
 
 							if( task.name === animation ){
 
@@ -6140,6 +6155,10 @@
 		}
 	};
 
-	if( isObject(window) && isObject(window.document) ) window.Jo = window.$ = Jo;
+	if( isObject(window) && isObject(window.document) ){
+
+		window.Jo = window.$ = Jo;
+
+	};
 
 })(window);
