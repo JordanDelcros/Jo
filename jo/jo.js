@@ -2981,7 +2981,7 @@
 		init: function( options ){
 
 			options = Jo.merge({
-				start: false,
+				start: true,
 				fps: 30,
 				fn: null
 			}, options);
@@ -2992,25 +2992,11 @@
 			this.now = 0;
 			this.then = 0;
 			this.deltaTime = 0;
+			this.late = 0;
 			this.start = window.performance.now();
 
 			this.fn = options.fn;
 			this.tasks = new Array();
-
-			documentRoot.addEventListener("visibilitychange", function( event ){
-
-				if( documentRoot.visibilityState === "visible" ){
-
-					this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
-
-				}
-				else {
-
-					window.cancelAnimationFrame(this.animationFrame);
-
-				};
-
-			}.bind(this), false);
 
 			this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
 
@@ -3019,13 +3005,15 @@
 		},
 		loop: function( now ){
 
-			this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
-
 			if( isFalse(this.active) ){
 
-				// return window.cancelAnimationFrame(this.animationFrame);
+				window.cancelAnimationFrame(this.animationFrame);
+
+				return this;
 
 			};
+
+			this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
 
 			this.now = window.performance.now();
 
@@ -3040,13 +3028,6 @@
 			};
 
 			return this;
-
-		},
-		getNow: function(){
-
-			window.requestAnimationFrame(this.loop.bind(this));
-
-			return this.now;
 
 		},
 		each: function( fn ){
@@ -3064,12 +3045,19 @@
 
 			this.tasks.push(task);
 
-			if( isFalse(this.active) ){
+			return this;
 
-				this.active = true;
-				this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
+		},
+		start: function(){
 
-			};
+			this.active = true;
+
+			return this;
+
+		},
+		stop: function(){
+
+			this.active = false;
 
 			return this;
 
@@ -3159,13 +3147,14 @@
 
 			};
 
-			if( this.tasks.length === 0 ){
-
-				this.active = false;
-
-			};
-
 			return this;
+
+		},
+		getNow: function(){
+
+			// window.requestAnimationFrame(this.loop.bind(this));
+
+			return this.now;
 
 		}
 	};
@@ -3191,8 +3180,6 @@
 
 				for( var elementIndex = 0, taskLenght = task.elements.length; elementIndex < taskLenght; elementIndex++ ){
 
-					// console.log(elementIndex);
-
 					var element = task.elements[elementIndex];
 
 					var steps = new Object();
@@ -3200,8 +3187,6 @@
 					animationLoop: for( var animation in element.$animations ){
 
 						if( element.$animations.hasOwnProperty(animation) ){
-
-							// console.log(task.name, animation);
 
 							if( task.name === animation ){
 
@@ -3272,7 +3257,7 @@
 
 										for( var value = 0, length = currentProperty.values.length; value < length; value++ ){
 
-											var newValue = currentProperty.values[value].from + easing * currentProperty.values[value].difference;
+											var newValue = currentProperty.values[value].from + (easing * currentProperty.values[value].difference);
 
 											if( isTrue(currentProperty.values[value].integer) ){
 
@@ -3709,8 +3694,6 @@
 
 			var clone = this.clone();
 
-			// console.log("before", clone.toString())
-
 			if( !isEmpty(matrix) ){
 
 				matrix = matrix.toString();
@@ -3951,8 +3934,6 @@
 				};
 
 			};
-
-			// console.log("after", clone.toString());
 
 			return clone;
 
