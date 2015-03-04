@@ -1305,8 +1305,8 @@
 				this.each(function(){
 
 					returned.push({
-						left: this.scrollLeft,
-						top: this.scrollTop
+						left: (this.pageXOffset || this.scrollX || this.scrollLeft || 0),
+						top: (this.pageYOffset || this.scrollY || this.scrollTop || 0)
 					});
 
 				});
@@ -1316,18 +1316,38 @@
 			};
 
 		},
-		offset: function(){
+		offset: function( absolute ){
 
 			var returned = new Array();
 
-			this.each(function(){
+			if( isTrue(absolute) ){
 
-				returned.push({
-					left: this.offsetLeft,
-					top: this.offsetTop
+				this.each(function(){
+
+					var viewport = this.getBoundingClientRect();
+
+					console.log(this, viewport);
+
+					returned.push({
+						left: viewport.left,
+						top: viewport.top
+					});
+
 				});
 
-			});
+			}
+			else {
+
+				this.each(function(){
+
+					returned.push({
+						left: this.offsetLeft,
+						top: this.offsetTop
+					});
+
+				});
+
+			};
 
 			return returned;
 
