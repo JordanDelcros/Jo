@@ -1268,7 +1268,12 @@
 
 				this.each(function(){
 
-					returned.push(window.getComputedStyle(this, null));
+					var computedStyles = window.getComputedStyle(this, null) || new Array();
+
+					computedStyles["scrollTop"] = Jo(this).scroll()[0].top + "px";
+					computedStyles["scrollLeft"] = Jo(this).scroll()[0].left + "px";
+
+					returned.push(computedStyles);
 
 				});
 
@@ -2499,7 +2504,7 @@
 
 				};
 
-				this.$animations[options.name] = {
+				this.$animations[options.name] = { 
 					$this: Jo(this),
 					properties: new Object(),
 					duration: options.duration,
@@ -2515,7 +2520,7 @@
 
 						this.$animations[options.name].properties[property] = new Object();
 
-						var uncamelizedProperty = uncamelize(property);
+						// var uncamelizedProperty = property);
 						var isTransform = /^\s*(?:\-(?:webkit|moz|o|ms)?\-)?transform/i.test(property);
 
 						var values = valuesTo[property].values;
@@ -2523,7 +2528,7 @@
 
 						if( isEmpty(styles[property].from) ){
 
-							var from = currentStyles[index].getPropertyValue(uncamelizedProperty);
+							var from = currentStyles[index][property];
 
 							if( from === "auto" && !isEmpty(this[camelize("offset-" + property)]) ){
 
@@ -2566,8 +2571,8 @@
 
 										var convertedValue = convertCSSValue(this, property, number, unit, valuesTo[property].values[valueIndex].unit);
 
-										values[valueIndex].from = convertedValue;
-										values[valueIndex].difference = Math.abs(convertedValue - values[valueIndex].to) * (convertedValue > values[valueIndex].to ? -1 : 1);
+										values[valueIndex].from = (convertedValue || parseFloat(number));
+										values[valueIndex].difference = Math.abs(values[valueIndex].from - values[valueIndex].to) * (values[valueIndex].from > values[valueIndex].to ? -1 : 1);
 
 										return "#" + valueIndex;
 
@@ -2733,6 +2738,7 @@
 				};
 
 			});
+
 
 			Animations.add(task);
 
@@ -3210,7 +3216,7 @@
 
 						if( element.$animations.hasOwnProperty(animation) ){
 
-							if( task.name === animation ){
+							if( task.name == animation ){
 
 								var currentAnimation = element.$animations[animation];
 
@@ -3299,7 +3305,18 @@
 
 										steps[property] = model;
 
-										element.$this.css(property, model, false);
+										if( property != "scrollTop" ){
+
+											element.$this.css(property, model, false);
+										
+										}
+										else {
+
+											element.scroll(0, parseInt(model));
+
+											// console.log(element, model);
+
+										};
 
 									};
 
