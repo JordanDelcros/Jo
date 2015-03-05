@@ -1285,10 +1285,14 @@
 
 				this.each(function(){
 
-					this.scrollLeft = x;
+					if( isFunction(this.scrollTo) ){
 
-					if( !isEmpty() ){
+						this.scrollTo(x || this.scrollX, y || this.scrollY);
 
+					}
+					else if( this.scrollTop ){
+
+						this.scrollLeft = x;
 						this.scrollTop = y;
 
 					};
@@ -1326,11 +1330,9 @@
 
 					var viewport = this.getBoundingClientRect();
 
-					console.log(this, viewport);
-
 					returned.push({
-						left: viewport.left,
-						top: viewport.top
+						left: viewport.left + window.scrollX,
+						top: viewport.top + window.scrollY
 					});
 
 				});
@@ -3027,8 +3029,6 @@
 
 			if( isFalse(this.active) ){
 
-				window.cancelAnimationFrame(this.animationFrame);
-
 				return this;
 
 			};
@@ -3071,6 +3071,7 @@
 		start: function(){
 
 			this.active = true;
+			window.requestAnimationFrame(this.loop.bind(this));
 
 			return this;
 
@@ -3078,6 +3079,7 @@
 		stop: function(){
 
 			this.active = false;
+			window.cancelAnimationFrame(this.animationFrame);
 
 			return this;
 
