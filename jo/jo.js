@@ -2197,19 +2197,13 @@
 
 					this.style.display = "";
 
-					console.log( $this.css("display", false) );
-
 					if( $this.css("display", false)[0] == "none" ){
-
-						console.log("hide")
 
 						this.style.display = "block";
 
 					};
 
 					if( $this.css("visibility", false)[0] == "hidden" ){
-
-						console.log("not visible")
 
 						this.style.visibility = "visible";
 
