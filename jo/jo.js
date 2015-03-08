@@ -1144,7 +1144,7 @@
 
 			if( isString(property) ){
 
-				if( !isEmpty(value) ){
+				if( !isEmpty(value) && !isBoolean(value) ){
 
 					value = value.toString();
 
@@ -1268,7 +1268,7 @@
 
 				this.each(function(){
 
-					var computedStyles = window.getComputedStyle(this, null) || new Array();
+					var computedStyles = isTag(this) ? Jo.clone(window.getComputedStyle(this, null)) : new Object();
 
 					computedStyles["scrollTop"] = Jo(this).scroll()[0].top + "px";
 					computedStyles["scrollLeft"] = Jo(this).scroll()[0].left + "px";
@@ -1361,9 +1361,16 @@
 		},
 		addClass: function( className ){
 
+			className = (className || "").split(" ");
+
 			this.each(function(){
 
-				this.classList.add(className);
+				for( var classIndex = 0, classLength = className.length; classIndex < classLength; classIndex++ ){
+
+					this.classList.add(className[classIndex]);
+
+				};
+
 
 			});
 
@@ -1372,9 +1379,15 @@
 		},
 		removeClass: function( className ){
 
+			className = (className || "").split(" ");
+
 			this.each(function(){
 
-				this.classList.remove(className);
+				for( var classIndex = 0, classLength = className.length; classIndex < classLength; classIndex++ ){
+
+					this.classList.remove(className[classIndex]);
+
+				};
 
 			});
 
@@ -2172,15 +2185,35 @@
 
 			this.each(function(){
 
-				if( !isEmpty(Jo(this).data("jo-display")[0]) ){
+				var $this = Jo(this);
 
-					this.style.display = Jo(this).data("jo-display");
+				if( !isEmpty($this.data("jo-display")[0]) ){
+
+					this.style.display = $this.data("jo-display");
 					delete this.data["jo-display"];
 
 				}
 				else {
 
 					this.style.display = "";
+
+					console.log( $this.css("display", false) );
+
+					if( $this.css("display", false)[0] == "none" ){
+
+						console.log("hide")
+
+						this.style.display = "block";
+
+					};
+
+					if( $this.css("visibility", false)[0] == "hidden" ){
+
+						console.log("not visible")
+
+						this.style.visibility = "visible";
+
+					};
 
 				};
 
@@ -5665,7 +5698,7 @@
 
 		var returned = new Array();
 
-		selector = selector.replace(/(?:[a-z0-9]*(?:(?:\.[a-z0-9\-\_]+)?(?:#[a-z0-9\-\_]+)?(?:\[[a-z0-9\-\_]+(?:(?:[\^\$])?\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\])?(?:\:[a-z\-]+(?:\((?:[^\)]*)?\))?)?)*\s*[>~]?)*/gi, function( fragment ){
+		selector = selector.replace(/(?:[a-z0-9*]*(?:(?:\.[a-z0-9\-\_]+)?(?:#[a-z0-9\-\_]+)?(?:\[[a-z0-9\-\_]+(?:(?:[\^\$])?\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\])?(?:\:[a-z\-]+(?:\((?:[^\)]*)?\))?)?)*\s*[>~]?)*/gi, function( fragment ){
 
 			if( isEmpty(fragment, true) ){
 
@@ -5674,7 +5707,7 @@
 			}
 			else {
 
-				fragment = fragment.replace(/[>~]?(?:[a-z0-9]*(?:(?:\[[a-z0-9\-\_]+(?:\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\])?(?:\.[a-z0-9\-\_]+)?(?:#[a-z0-9\-\_]+)?(?:\:[a-z\-]+(?:\((?:[^\)]*)?\))?)?)*)*/gi, function( element ){
+				fragment = fragment.replace(/[>~]?(?:[a-z0-9*]*(?:(?:\[[a-z0-9\-\_]+(?:\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\])?(?:\.[a-z0-9\-\_]+)?(?:#[a-z0-9\-\_]+)?(?:\:[a-z\-]+(?:\((?:[^\)]*)?\))?)?)*)*/gi, function( element ){
 
 					if( isEmpty(element, true) ){
 
@@ -5683,7 +5716,7 @@
 					}
 					else {
 
-						element = element.replace(/\[[a-z0-9\-\_]+(?:\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\]|\.[a-z0-9\-\_]+|#[a-z0-9\-\_]+|\:(first|last|nth|only)(-child|-of-type)?(\((?:[^\)]*)?\))?|[>~]|[a-z0-9]+|\s+|,/gi, function( detail, target, type, number ){
+						element = element.replace(/\[[a-z0-9\-\_]+(?:\=(?:(?:\"[^\"]*\")?(?:\'[^\']*\')?(?:[^\]]*)?)?)?\]|\.[a-z0-9\-\_]+|#[a-z0-9\-\_]+|\:(first|last|nth|only)(-child|-of-type)?(\((?:[^\)]*)?\))?|[>~]|[a-z0-9*]+|\s+|,/gi, function( detail, target, type, number ){
 
 							if( isEmpty(detail, true) ){
 
@@ -6000,7 +6033,7 @@
 
 			});
 
-			var nodes;
+			var nodes = null;
 
 			if( !isEmpty(selection, true) ){
 
