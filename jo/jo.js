@@ -4366,7 +4366,8 @@
 			settings = Jo.merge({
 				method: "GET",
 				async: true,
-				type: "text/xml"
+				type: "text/xml",
+				responseType: ""
 			}, settings);
 
 			var data = null;
@@ -4485,11 +4486,17 @@
 
 				this.request.overrideMimeType(settings.type);
 
+				if( !isEmpty(settings.responseType, true) ){
+
+					this.request.responseType = settings.responseType;
+
+				};
+
 				if( this.request.readyState === 0 ){
 
-					if( isFunction(settings.initialize) ){
+					if( isFunction(settings.onInitialize) ){
 
-						settings.initialize(this.request);
+						settings.onInitialize(this.request);
 
 					};
 
@@ -4499,44 +4506,44 @@
 
 					if( this.readyState === 1 ){
 
-						if( isFunction(settings.open) ){
+						if( isFunction(settings.onOpen) ){
 
-							settings.open(this);
+							settings.onOpen(this);
 
 						};
 
 					}
 					else if( this.readyState === 2 ){
 
-						if( isFunction(settings.send) ){
+						if( isFunction(settings.onSend) ){
 
-							settings.send(this);
+							settings.onSend(this);
 
 						};
 
 					}
 					else if( this.readyState === 3 ){
 
-						if( isFunction(settings.receive) ){
+						if( isFunction(settings.onReceive) ){
 
-							settings.receive(this);
+							settings.onReceive(this);
 
 						};
 
 					}
 					else if( this.readyState === 4 ){
 
-						if( isFunction(settings.complete) ){
+						if( isFunction(settings.onComplete) ){
 
-							settings.complete(this);
+							settings.onComplete(this);
 
 						};
 
 						if( this.status >= 200 && this.status < 400 ){
 
-							if( isFunction(settings.success) ){
+							if( isFunction(settings.onSuccess) ){
 
-								settings.success(this);
+								settings.onSuccess(this);
 
 								delete this;
 
@@ -4545,9 +4552,9 @@
 						}
 						else if( this.readyState >= 400 ){
 
-							if( isFunction(settings.error) ){
+							if( isFunction(settings.onError) ){
 
-								settings.error(this);
+								settings.onError(this);
 
 							};
 
@@ -4559,9 +4566,9 @@
 
 				this.request.addEventListener("progress", function( event ){
 
-					if( isFunction(settings.progress) ){
+					if( isFunction(settings.onProgress) ){
 
-						settings.progress(event.loaded, event.total);
+						settings.onProgress(event.loaded, event.total);
 
 					};
 
@@ -4569,9 +4576,9 @@
 
 				this.request.upload.addEventListener("progress", function( event ){
 
-					if( isFunction(settings) ){
+					if( isFunction(settings.onProgress) ){
 
-						settings.progress(event.loaded, event.total);
+						settings.onProgress(event.loaded, event.total);
 						
 					};
 
@@ -4579,9 +4586,9 @@
 
 				this.request.addEventListener("error", function(){
 
-					if( isFunction(settings.error) ){
+					if( isFunction(settings.onError) ){
 
-						settings.error(this);
+						settings.onError(this);
 
 					};
 
@@ -4589,9 +4596,9 @@
 
 				this.request.addEventListener("abort", function(){
 
-					if( isFunction(settings.abort) ){
+					if( isFunction(settings.onAbort) ){
 
-						settings.abort(this);
+						settings.onAbort(this);
 
 					};
 
@@ -4612,9 +4619,9 @@
 
 				this.request.addEventListener("load", function(){
 
-					if( isFunction(settings.success) ){
+					if( isFunction(settings.onSuccess) ){
 
-						settings.success(this);
+						settings.onSuccess(this);
 
 					};
 
@@ -4622,9 +4629,9 @@
 
 				this.request.addEventListener("error", function(){
 
-					if( isFunction(settings.error) ){
+					if( isFunction(settings.onError) ){
 
-						settings.error(this);
+						settings.onError(this);
 
 					};
 
@@ -4638,9 +4645,9 @@
 
 					document.body.removeChild(this.request);
 
-					if( isFunction(settings.success) ){
+					if( isFunction(settings.onSuccess) ){
 
-						settings.success(data);
+						settings.onSuccess(data);
 
 					};
 
@@ -4877,16 +4884,102 @@
 
 	Jo.blob.fn.init.prototype = Jo.blob.fn;
 
-	navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+	window.AudioContext = (window.AudioContext || window.webkitAudioContext)
 
-	Jo.media = function( settings ){
+	Jo.audio = function( settings ){
 
-		return new Jo.media.fn.init(settings);
+		return new Jo.audio.fn.init(settings);
 
 	};
 
-	Jo.media.fn = Jo.media.prototype = {
-		constructor: Jo.media,
+	Jo.audio.fn = Jo.audio.prototype = {
+		constructor: Jo.audio,
+		init: function( settings ){
+
+			settings = Jo.merge({
+				buffers: new Object()
+			}, settings);
+
+			this.context = new AudioContext();
+			this.buffers = new Object();
+
+			for( var name in settings.buffers ){
+
+				this.add(name, settings.buffers[name].url, settings.buffers[name].volume);
+
+			};
+
+			return this;
+
+		},
+		add: function( name, url, volume, loop ){
+
+			Jo.ajax({
+				url: url,
+				type: "text/plain",
+				responseType: "arraybuffer",
+				onComplete: function( xhr ){
+
+					this.context.decodeAudioData(xhr.response, function( buffer ){
+
+						var source = this.context.createBufferSource();
+
+						console.log(source);
+
+						source.buffer = buffer;
+						source.connect(this.context.destination);
+						source.loop = (loop || false);
+						source.start(0);
+
+						this.buffers[name] = {
+							source: source,
+							buffer: buffer,
+							volume: volume
+						};
+
+					}.bind(this));
+
+				}.bind(this),
+				onError: function(){
+
+					this.add(name, url, volume);
+
+				}.bind(this)
+			});
+
+			return this;
+
+		},
+		remove: function( name ){
+
+			return this;
+
+		},
+		play: function( name ){
+
+			this.buffers[name].source = this.context.createBufferSource();
+			this.buffers[name].source.buffer = this.buffers[name].buffer;
+			this.buffers[name].source.connect(this.context.destination);
+
+			this.buffers[name].source.start(0);
+
+			return this;
+
+		}
+	};
+
+	Jo.audio.fn.init.prototype = Jo.audio.fn;
+
+	navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+
+	Jo.userMedia = function( settings ){
+
+		return new Jo.userMedia.fn.init(settings);
+
+	};
+
+	Jo.userMedia.fn = Jo.userMedia.prototype = {
+		constructor: Jo.userMedia,
 		init: function( settings ){
 
 			settings = Jo.merge({
@@ -4931,7 +5024,7 @@
 		}
 	};
 
-	Jo.media.fn.init.prototype = Jo.media.fn;
+	Jo.userMedia.fn.init.prototype = Jo.userMedia.fn;
 
 	var RTCSessionDescription = (window.mozRTCSessionDescription || window.RTCSessionDescription);
 	var RTCPeerConnection = (window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.RTCPeerConnection);
