@@ -860,7 +860,16 @@
 			
 
 		},
-		on: function( actions, fn, useCapture ){
+		on: function( selector, actions, fn, useCapture ){
+
+			if( isFunction(actions) ){
+
+				useCapture = fn;
+				fn = actions;
+				actions = selector;
+				selector = undefined;
+
+			};
 
 			actions = actions.split(/\s+/);
 
@@ -880,35 +889,56 @@
 
 				for( var action = 0, length = actions.length; action < length; action++ ){
 
-					var event = {
+					var options = {
 						originalAction: actions[action],
 						action: actions[action],
 						fn: fn
 					};
 
-					if( !isArray(this.events[event.action]) ){
+					if( !isArray(this.events[options.action]) ){
 
-						this.events[event.originalAction] = new Array();
+						this.events[options.originalAction] = new Array();
 
 					};
 
 					var eventIndex = null;
 
-					if( Jo.support.events(this, event.action) || !isFunction(specialEvents[actions[action]]) ){
+					if( Jo.support.events(this, options.action) || !isFunction(specialEvents[actions[action]]) ){
 
-						eventIndex = this.events[event.originalAction].push(event) - 1;
+						eventIndex = this.events[options.originalAction].push(options) - 1;
 
 					}
 					else {
 
-						var specialEvent = specialEvents[event.action].call(this, fn);
-						event.action = specialEvent.action;
+						var specialEvent = specialEvents[options.action].call(this, fn);
+						options.action = specialEvent.action;
 
-						eventIndex = this.events[event.originalAction].push(event) - 1;
+						eventIndex = this.events[options.originalAction].push(options) - 1;
 
 					};
 
-					this.addEventListener(event.action, this.events[event.originalAction][eventIndex].fn, useCapture);
+					if( isEmpty(selector) ){
+
+						this.addEventListener(options.action, this.events[options.originalAction][eventIndex].fn, useCapture);
+
+					}
+					else {
+
+						this.addEventListener(options.action, function( fn, event ){
+
+							Jo(selector).each(function(){
+
+								if( this === event.target || Jo(event.target).parents(selector).found.length > 0 ){
+
+									fn.call(this, event);
+
+								};
+
+							});
+
+						}.bind(this, this.events[options.originalAction][eventIndex].fn), useCapture)
+
+					};
 
 				};
 
@@ -1295,7 +1325,7 @@
 						this.scrollTo(x || this.scrollX, y || this.scrollY);
 
 					}
-					else if( this.scrollTop ){
+					else if( !isEmpty(this.scrollTop) ){
 
 						this.scrollLeft = x;
 						this.scrollTop = y;
@@ -3101,7 +3131,7 @@
 			return this;
 
 		},
-		start: function(){
+		play: function(){
 
 			this.active = true;
 			window.requestAnimationFrame(this.loop.bind(this));
@@ -3109,7 +3139,7 @@
 			return this;
 
 		},
-		stop: function(){
+		pause: function(){
 
 			this.active = false;
 			window.cancelAnimationFrame(this.animationFrame);
@@ -3332,14 +3362,14 @@
 
 										steps[property] = model;
 
-										if( property != "scrollTop" ){
+										if( element.style && element.style[property] != undefined ){
 
 											element.$this.css(property, model, false);
-										
+
 										}
 										else {
 
-											element.scroll(0, parseInt(model));
+											Jo(element).scroll(0, parseInt(model));
 
 											// console.log(element, model);
 
@@ -4902,6 +4932,9 @@
 
 			this.context = new AudioContext();
 			this.buffers = new Object();
+			
+			this.analyser = this.context.createAnalyser();
+			this.analyser.connect(this.context.destination);
 
 			for( var name in settings.buffers ){
 
