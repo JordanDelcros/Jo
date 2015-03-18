@@ -4928,6 +4928,7 @@
 
 			options = Jo.merge({
 				autoPlay: false,
+				smoothingTimeConstant: 0.3,
 				buffers: new Object(),
 				onAnalyse: new Function()
 			}, options);
@@ -4938,6 +4939,7 @@
 			this.buffers = new Object();
 
 			this.analyser = this.context.createAnalyser();
+			this.analyser.smoothingTimeConstant = options.smoothingTimeConstant;
 			this.analyser.connect(this.context.destination);
 
 			for( var name in options.buffers ){
