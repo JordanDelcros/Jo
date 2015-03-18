@@ -3068,7 +3068,7 @@
 			options = Jo.merge({
 				start: true,
 				fps: 30,
-				fn: null
+				onUpdate: new Function()
 			}, options);
 
 			this.active = options.start;
@@ -3080,7 +3080,7 @@
 			this.late = 0;
 			this.start = window.performance.now();
 
-			this.fn = options.fn;
+			this.onUpdate = options.onUpdate;
 			this.tasks = new Array();
 
 			this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
@@ -3106,7 +3106,7 @@
 
 				this.then = this.now - (this.deltaTime % this.interval);
 
-				this.fn(this.now, this.deltaTime);
+				this.onUpdate(this.now, this.deltaTime);
 
 			};
 
@@ -3257,7 +3257,7 @@
 
 	var Animations = Jo.animation({
 		fps: 30,
-		fn: function( now, deltaTime ){
+		onUpdate: function( now, deltaTime ){
 
 			this.each(function( task, index ){
 
@@ -4212,48 +4212,48 @@
 
 	Jo.object.fn.prototype = Jo.object.fn;
 
-	Jo.worker = function( settings ){
+	Jo.worker = function( options ){
 
-		return new Jo.worker.fn.init(settings);
+		return new Jo.worker.fn.init(options);
 
 	};
 
 	Jo.worker.fn = Jo.worker.prototype = {
 		constructor: Jo.worker,
-		init: function( settings ){
+		init: function( options ){
 
-			settings = Jo.merge({
+			options = Jo.merge({
 				console: true,
 				parameters: new Array()
-			}, settings);
+			}, options);
 
-			if( isFunction(settings.code) ){
+			if( isFunction(options.code) ){
 
-				if( !isEmpty(settings.parameters) ){
+				if( !isEmpty(options.parameters) ){
 
-					for( var key = 0, length = settings.parameters.length; key < length; key++ ){
+					for( var key = 0, length = options.parameters.length; key < length; key++ ){
 
-						settings.parameters[key] = doubleQuote(settings.parameters[key].toString());
+						options.parameters[key] = doubleQuote(options.parameters[key].toString());
 
 					};
 
 				};
 
-				var code = "(" + settings.code + ")(" + settings.parameters.toString() + ")";
+				var code = "(" + options.code + ")(" + options.parameters.toString() + ")";
 
-				settings.url = Jo.blob(code, "text/javascript").toURL();
+				options.url = Jo.blob(code, "text/javascript").toURL();
 
 			};
 
-			this.worker = new Worker(settings.url);
+			this.worker = new Worker(options.url);
 
 			this.events = new Object();
 
 			this.worker.addEventListener("message", function( message ){
 
-				if( isFunction(settings.receive) ){
+				if( isFunction(options.receive) ){
 
-					settings.receive.call(this, message);
+					options.receive.call(this, message);
 
 				};
 
@@ -4261,7 +4261,7 @@
 
 					if( !isEmpty(message.data.type) ){
 
-						if( message.data.type === "console" && isTrue(settings.console) ){
+						if( message.data.type === "console" && isTrue(options.console) ){
 
 							console[message.data.content.type].apply(console, message.data.content.content);
 
@@ -4289,9 +4289,9 @@
 
 			this.worker.addEventListener("error", function( message, file, line ){
 
-				if( isFunction(settings.error) ){
+				if( isFunction(options.error) ){
 
-					settings.error.call(this, message, file, line);
+					options.error.call(this, message, file, line);
 
 				};
 
@@ -4383,39 +4383,39 @@
 
 	Jo.worker.fn.init.prototype = Jo.worker.fn;
 
-	Jo.ajax = function( settings ){
+	Jo.ajax = function( options ){
 
-		return new Jo.ajax.fn.init(settings);
+		return new Jo.ajax.fn.init(options);
 
 	};
 
 	Jo.ajax.fn = Jo.ajax.prototype = {
 		constructor: Jo.ajax,
-		init: function( settings ){
+		init: function( options ){
 
-			settings = Jo.merge({
+			options = Jo.merge({
 				method: "GET",
 				async: true,
 				type: "text/xml",
 				responseType: ""
-			}, settings);
+			}, options);
 
 			var data = null;
 
-			if( settings.data ){
+			if( options.data ){
 
-				if( settings.method === "GET" || settings.type === "jsonp" ){
+				if( options.method === "GET" || options.type === "jsonp" ){
 
 					data = new Array()
 
-					if( settings.data.constructor === FormData ){
+					if( options.data.constructor === FormData ){
 
 						data.push(encodeURIComponent("error") + "=" + encodeURIComponent("FormData object cant be send with GET method"));
 
 					}
-					else if( isJo(settings.data) ){
+					else if( isJo(options.data) ){
 
-						settings.data.find("[name]").each(function(){
+						options.data.find("[name]").each(function(){
 
 							if( Jo(this).is("[type='file']") ){
 
@@ -4435,13 +4435,13 @@
 						});
 
 					}
-					else if( isObject(settings.data) ){
+					else if( isObject(options.data) ){
 
-						for( var key in settings.data ){
+						for( var key in options.data ){
 
-							if( settings.data.hasOwnProperty(key) ){
+							if( options.data.hasOwnProperty(key) ){
 
-								data.push(encodeURIComponent(key) + "=" + encodeURIComponent(settings.data[key]));
+								data.push(encodeURIComponent(key) + "=" + encodeURIComponent(options.data[key]));
 
 							};
 
@@ -4452,23 +4452,23 @@
 				}
 				else {
 
-					if( settings.data.constructor === FormData ){
+					if( options.data.constructor === FormData ){
 
-						data = settings.data;
+						data = options.data;
 
 					}
-					else if( isJo(settings.data) ){
+					else if( isJo(options.data) ){
 
-						if( settings.data.is("form") ){
+						if( options.data.is("form") ){
 
-							data = new FormData(settings.data.found[0]);
+							data = new FormData(options.data.found[0]);
 
 						}
 						else {
 
 							data = new FormData();
 
-							settings.data.find("[name]").each(function(){
+							options.data.find("[name]").each(function(){
 
 								if( Jo(this).is("[type='file']") ){
 
@@ -4490,15 +4490,15 @@
 						};
 
 					}
-					else if( isObject(settings.data) ){
+					else if( isObject(options.data) ){
 
 						data = new FormData();
 
-						for( var key in settings.data ){
+						for( var key in options.data ){
 
-							if( settings.data.hasOwnProperty(key) ){
+							if( options.data.hasOwnProperty(key) ){
 
-								data.append(key, settings.data[key]);
+								data.append(key, options.data[key]);
 
 							};
 
@@ -4510,23 +4510,23 @@
 
 			};
 
-			if( settings.type !== "jsonp" ){
+			if( options.type !== "jsonp" ){
 
 				this.request = new XMLHttpRequest();
 
-				this.request.overrideMimeType(settings.type);
+				this.request.overrideMimeType(options.type);
 
-				if( !isEmpty(settings.responseType, true) ){
+				if( !isEmpty(options.responseType, true) ){
 
-					this.request.responseType = settings.responseType;
+					this.request.responseType = options.responseType;
 
 				};
 
 				if( this.request.readyState === 0 ){
 
-					if( isFunction(settings.onInitialize) ){
+					if( isFunction(options.onInitialize) ){
 
-						settings.onInitialize(this.request);
+						options.onInitialize(this.request);
 
 					};
 
@@ -4536,44 +4536,44 @@
 
 					if( this.readyState === 1 ){
 
-						if( isFunction(settings.onOpen) ){
+						if( isFunction(options.onOpen) ){
 
-							settings.onOpen(this);
+							options.onOpen(this);
 
 						};
 
 					}
 					else if( this.readyState === 2 ){
 
-						if( isFunction(settings.onSend) ){
+						if( isFunction(options.onSend) ){
 
-							settings.onSend(this);
+							options.onSend(this);
 
 						};
 
 					}
 					else if( this.readyState === 3 ){
 
-						if( isFunction(settings.onReceive) ){
+						if( isFunction(options.onReceive) ){
 
-							settings.onReceive(this);
+							options.onReceive(this);
 
 						};
 
 					}
 					else if( this.readyState === 4 ){
 
-						if( isFunction(settings.onComplete) ){
+						if( isFunction(options.onComplete) ){
 
-							settings.onComplete(this);
+							options.onComplete(this);
 
 						};
 
 						if( this.status >= 200 && this.status < 400 ){
 
-							if( isFunction(settings.onSuccess) ){
+							if( isFunction(options.onSuccess) ){
 
-								settings.onSuccess(this);
+								options.onSuccess(this);
 
 								delete this;
 
@@ -4582,9 +4582,9 @@
 						}
 						else if( this.readyState >= 400 ){
 
-							if( isFunction(settings.onError) ){
+							if( isFunction(options.onError) ){
 
-								settings.onError(this);
+								options.onError(this);
 
 							};
 
@@ -4596,9 +4596,9 @@
 
 				this.request.addEventListener("progress", function( event ){
 
-					if( isFunction(settings.onProgress) ){
+					if( isFunction(options.onProgress) ){
 
-						settings.onProgress(event.loaded, event.total);
+						options.onProgress(event.loaded, event.total);
 
 					};
 
@@ -4606,9 +4606,9 @@
 
 				this.request.upload.addEventListener("progress", function( event ){
 
-					if( isFunction(settings.onProgress) ){
+					if( isFunction(options.onProgress) ){
 
-						settings.onProgress(event.loaded, event.total);
+						options.onProgress(event.loaded, event.total);
 						
 					};
 
@@ -4616,9 +4616,9 @@
 
 				this.request.addEventListener("error", function(){
 
-					if( isFunction(settings.onError) ){
+					if( isFunction(options.onError) ){
 
-						settings.onError(this);
+						options.onError(this);
 
 					};
 
@@ -4626,20 +4626,20 @@
 
 				this.request.addEventListener("abort", function(){
 
-					if( isFunction(settings.onAbort) ){
+					if( isFunction(options.onAbort) ){
 
-						settings.onAbort(this);
+						options.onAbort(this);
 
 					};
 
 				}, false);
 
-				this.request.open(settings.method, settings.url + (settings.method === "GET" && !isEmpty(data) ? "?" + data.join("&") : ""), settings.async);
+				this.request.open(options.method, options.url + (options.method === "GET" && !isEmpty(data) ? "?" + data.join("&") : ""), options.async);
 
 				this.request.setRequestHeader("X-Requested-With", "XMLHTTPRequest");
 
 				this.sended = true;
-				this.request.send(settings.method === "POST" ? data : null);
+				this.request.send(options.method === "POST" ? data : null);
 
 			}
 			else {
@@ -4649,9 +4649,9 @@
 
 				this.request.addEventListener("load", function(){
 
-					if( isFunction(settings.onSuccess) ){
+					if( isFunction(options.onSuccess) ){
 
-						settings.onSuccess(this);
+						options.onSuccess(this);
 
 					};
 
@@ -4659,9 +4659,9 @@
 
 				this.request.addEventListener("error", function(){
 
-					if( isFunction(settings.onError) ){
+					if( isFunction(options.onError) ){
 
-						settings.onError(this);
+						options.onError(this);
 
 					};
 
@@ -4675,15 +4675,15 @@
 
 					document.body.removeChild(this.request);
 
-					if( isFunction(settings.onSuccess) ){
+					if( isFunction(options.onSuccess) ){
 
-						settings.onSuccess(data);
+						options.onSuccess(data);
 
 					};
 
 				}.bind(this);
 
-				this.request.src = settings.url + "?callback=" + callback + (!isEmpty(data) ? "&" + data.join("&") : "");
+				this.request.src = options.url + "?callback=" + callback + (!isEmpty(data) ? "&" + data.join("&") : "");
 
 				document.body.appendChild(this.request);
 
@@ -4721,29 +4721,29 @@
 
 	Jo.stream.fn.init.prototype = Jo.stream.fn;
 
-	Jo.socket = function( settings ){
+	Jo.socket = function( options ){
 
-		return new Jo.socket.fn.init(settings);
+		return new Jo.socket.fn.init(options);
 
 	};
 
 	Jo.socket.fn = Jo.socket.prototype = {
 		constructor: Jo.socket,
-		init: function( settings ){
+		init: function( options ){
 
-			settings = Jo.merge({
+			options = Jo.merge({
 				secure: false
-			}, settings);
+			}, options);
 
 			this.events = new Object();
 
-			this.socket = new WebSocket(settings.secure ? "wss://" : "ws://" + settings.url);
+			this.socket = new WebSocket(options.secure ? "wss://" : "ws://" + options.url);
 
 			this.socket.addEventListener("open", function(){
 
-				if( isFunction(settings.open) ){
+				if( isFunction(options.open) ){
 
-					settings.open();
+					options.open();
 
 				};
 
@@ -4751,9 +4751,9 @@
 
 			this.socket.addEventListener("close", function(){
 
-				if( isFunction(settings.close) ){
+				if( isFunction(options.close) ){
 
-					settings.close();
+					options.close();
 
 				};
 
@@ -4774,9 +4774,9 @@
 
 				};
 
-				if( isFunction(settings.receive) ){
+				if( isFunction(options.receive) ){
 
-					settings.receive(data);
+					options.receive(data);
 
 				};
 
@@ -4794,9 +4794,9 @@
 
 			this.socket.addEventListener("error", function(){
 
-				if( isFunction(settings.error) ){
+				if( isFunction(options.error) ){
 
-					settings.error();
+					options.error();
 
 				};
 
@@ -4916,36 +4916,65 @@
 
 	window.AudioContext = (window.AudioContext || window.webkitAudioContext)
 
-	Jo.audio = function( settings ){
+	Jo.audio = function( options ){
 
-		return new Jo.audio.fn.init(settings);
+		return new Jo.audio.fn.init(options);
 
 	};
 
 	Jo.audio.fn = Jo.audio.prototype = {
 		constructor: Jo.audio,
-		init: function( settings ){
+		init: function( options ){
 
-			settings = Jo.merge({
-				buffers: new Object()
-			}, settings);
+			options = Jo.merge({
+				autoPlay: false,
+				buffers: new Object(),
+				onAnalyse: new Function()
+			}, options);
+
+			this.autoplay = options.autoplay;
 
 			this.context = new AudioContext();
 			this.buffers = new Object();
-			
+
 			this.analyser = this.context.createAnalyser();
 			this.analyser.connect(this.context.destination);
 
-			for( var name in settings.buffers ){
+			for( var name in options.buffers ){
 
-				this.add(name, settings.buffers[name].url, settings.buffers[name].volume);
+				this.add(name, options.buffers[name].url, options.buffers[name].volume, options.buffers[name].loop, options.onReady);
 
 			};
+
+			Jo.animation({
+				start: true,
+				fps: 60,
+				onUpdate: function(){
+
+					var frequencyData = new Uint8Array(this.analyser.frequencyBinCount);
+					this.analyser.getByteFrequencyData(frequencyData);
+					
+					options.onAnalyse.call(this, frequencyData);
+
+				}.bind(this)
+			})
 
 			return this;
 
 		},
-		add: function( name, url, volume, loop ){
+		add: function( name, url, volume, loop, onReady ){
+
+			if( isEmpty(volume) ){
+
+				volume = 1;
+
+			};
+
+			if( isEmpty(loop) ){
+
+				loop = false;
+
+			};
 
 			Jo.ajax({
 				url: url,
@@ -4955,19 +4984,23 @@
 
 					this.context.decodeAudioData(xhr.response, function( buffer ){
 
-						var source = this.context.createBufferSource();
-
-						console.log(source);
-
-						source.buffer = buffer;
-						source.connect(this.context.destination);
-						source.loop = (loop || false);
-						source.start(0);
-
 						this.buffers[name] = {
-							source: source,
+							source: null,
 							buffer: buffer,
-							volume: volume
+							volume: volume,
+							loop: loop
+						};
+
+						if( isTrue(this.autoplay) ){
+
+							this.play(name);
+
+						};
+
+						if( isFunction(onReady) ){
+
+							onReady.call(this, name);
+
 						};
 
 					}.bind(this));
@@ -4992,7 +5025,15 @@
 
 			this.buffers[name].source = this.context.createBufferSource();
 			this.buffers[name].source.buffer = this.buffers[name].buffer;
-			this.buffers[name].source.connect(this.context.destination);
+			this.buffers[name].source.volume = this.buffers[name].volume;
+			this.buffers[name].source.loop = this.buffers[name].loop;
+			this.buffers[name].source.connect(this.analyser);
+
+			this.buffers[name].source.onended = function(){
+
+				console.log("ended");
+
+			};
 
 			this.buffers[name].source.start(0);
 
@@ -5005,37 +5046,37 @@
 
 	navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
 
-	Jo.userMedia = function( settings ){
+	Jo.userMedia = function( options ){
 
-		return new Jo.userMedia.fn.init(settings);
+		return new Jo.userMedia.fn.init(options);
 
 	};
 
 	Jo.userMedia.fn = Jo.userMedia.prototype = {
 		constructor: Jo.userMedia,
-		init: function( settings ){
+		init: function( options ){
 
-			settings = Jo.merge({
+			options = Jo.merge({
 				video: true,
 				audio: true,
-				success: function(){},
-				error: function(){}
-			}, settings);
+				success: new Function(),
+				error: new Function()
+			}, options);
 
 			var media = navigator.getUserMedia({
-				video: settings.video,
-				audio: settings.audio
+				video: options.video,
+				audio: options.audio
 			}, function( stream ){
 
 				this.stream = stream;
 
 				this.src = window.URL.createObjectURL(this.stream);
 
-				settings.success.call(this, this.src, this.stream);
+				options.success.call(this, this.src, this.stream);
 
 			}.bind(this), function( code ){
 
-				settings.error.call(this);
+				options.error.call(this);
 
 			}.bind(this));
 
@@ -5063,17 +5104,17 @@
 	var RTCPeerConnection = (window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.RTCPeerConnection);
 	var RTCIceCandidate = (window.mozRTCIceCandidate || window.RTCIceCandidate);
 
-	Jo.peer = function( settings ){
+	Jo.peer = function( options ){
 
-		return new Jo.peer.fn.init( settings );
+		return new Jo.peer.fn.init( options );
 
 	};
 
 	Jo.peer.fn = Jo.peer.prototype = {
 		constructor: Jo.peer,
-		init: function( settings ){
+		init: function( options ){
 
-			settings = Jo.merge({
+			options = Jo.merge({
 				config: {
 					iceServers: new Array(),
 					optional: [
@@ -5093,47 +5134,47 @@
 					console.error(message)
 
 				}
-			}, settings);
+			}, options);
 
 			this.channels = new Object();
 
-			this.reset(settings);
+			this.reset(options);
 
 			this.peer.createOffer(function( description ){
 
 				this.peer.setLocalDescription(description);
-				settings.socket.send("offer", description);
+				options.socket.send("offer", description);
 
 			}.bind(this), function( error ){
 
-				settings.error(error);
+				options.error(error);
 
-			}, settings.constraints);
+			}, options.constraints);
 
-			settings.socket.socket.addEventListener("message", function( message ){
+			options.socket.socket.addEventListener("message", function( message ){
 
 				var data = JSON.parse(message.data);
 
 				if( data.type === "offer" ){
 
-					this.reset(settings);
+					this.reset(options);
 
 					this.peer.setRemoteDescription(new RTCSessionDescription(data.content), function(){
 
 						this.peer.createAnswer(function( description ){
 
 							this.peer.setLocalDescription(description);
-							settings.socket.send("answer", description);
+							options.socket.send("answer", description);
 
 						}.bind(this), function( error ){
 
-							settings.error(error);
+							options.error(error);
 
-						}, settings.constraints);
+						}, options.constraints);
 
 					}.bind(this), function( error ){
 
-						settings.error(error);
+						options.error(error);
 
 					});
 
@@ -5144,7 +5185,7 @@
 
 					}, function( error ){
 
-						settings.error(error);
+						options.error(error);
 
 					});
 
@@ -5165,9 +5206,9 @@
 			return this;
 
 		},
-		reset: function( settings ){
+		reset: function( options ){
 
-			this.peer = new RTCPeerConnection(settings.config);
+			this.peer = new RTCPeerConnection(options.config);
 
 			this.peer.addEventListener("iceconnectionstatechange", function( event ){
 
@@ -5185,19 +5226,19 @@
 
 				if( !isEmpty(event.candidate) ){
 
-					settings.socket.send("candidate", event.candidate);
+					options.socket.send("candidate", event.candidate);
 
 				};
 
 			}, false);
 
-			this.addStream(settings.stream);
+			this.addStream(options.stream);
 
 			this.peer.addEventListener("addstream", function( event ){
 
-				if( isFunction(settings.addStream) ){
+				if( isFunction(options.addStream) ){
 
-					settings.addStream.call(this, window.URL.createObjectURL(event.stream), event.stream);
+					options.addStream.call(this, window.URL.createObjectURL(event.stream), event.stream);
 
 				};
 
@@ -5205,9 +5246,9 @@
 
 			this.peer.addEventListener("removestream", function( event ){
 
-				if( isFunction(settings.removeStream) ){
+				if( isFunction(options.removeStream) ){
 
-					settings.removestream.call(this, event);
+					options.removestream.call(this, event);
 
 				};
 
@@ -5223,17 +5264,17 @@
 			return this;
 
 		},
-		createChannel: function( name, settings ){
+		createChannel: function( name, options ){
 
 			this.channels[name] = new Object();
 
-			this.channels[name].settings = settings = Jo.merge({
+			this.channels[name].options = options = Jo.merge({
 				ordered: true,
 				maxRetransmitTime: Infinity,
 				maxRetransmits: Infinity
-			}, settings);
+			}, options);
 
-			var channel = this.channels[name].object = this.peer.createDataChannel(name, settings);
+			var channel = this.channels[name].object = this.peer.createDataChannel(name, options);
 
 			channel.addEventListener("open", function(){
 
