@@ -4927,10 +4927,9 @@
 		init: function( options ){
 
 			options = Jo.merge({
-				autoPlay: false,
+				autoplay: false,
 				smoothingTimeConstant: 0.3,
-				buffers: new Object(),
-				onAnalyse: new Function()
+				sounds: new Object()
 			}, options);
 
 			this.autoplay = options.autoplay;
@@ -4942,24 +4941,28 @@
 			this.analyser.smoothingTimeConstant = options.smoothingTimeConstant;
 			this.analyser.connect(this.context.destination);
 
-			for( var name in options.buffers ){
+			for( var name in options.sounds ){
 
-				this.add(name, options.buffers[name].url, options.buffers[name].volume, options.buffers[name].loop, options.onReady);
+				this.add(name, options.sounds[name].url, options.sounds[name].volume, options.sounds[name].loop, options.onReady);
 
 			};
 
-			Jo.animation({
-				start: true,
-				fps: 60,
-				onUpdate: function(){
+			if( isFunction(options.onAnalyse) ){
 
-					var frequencyData = new Uint8Array(this.analyser.frequencyBinCount);
-					this.analyser.getByteFrequencyData(frequencyData);
-					
-					options.onAnalyse.call(this, frequencyData);
+				Jo.animation({
+					start: true,
+					fps: 60,
+					onUpdate: function(){
 
-				}.bind(this)
-			})
+						var frequencyData = new Uint8Array(this.analyser.frequencyBinCount);
+						this.analyser.getByteFrequencyData(frequencyData);
+						
+						options.onAnalyse.call(this, frequencyData);
+
+					}.bind(this)
+				});
+
+			};
 
 			return this;
 
@@ -5017,6 +5020,7 @@
 				this.sounds[name] = {
 					type: "tag",
 					source: this.context.createMediaElementSource(url),
+					buffer: url,
 					volume: volume,
 					loop: loop
 				};
@@ -5038,24 +5042,29 @@
 
 			if( !isEmpty(this.sounds[name]) ){
 
-				if( this.sounds[name] == "buffer" ){
+				if( this.sounds[name].type == "buffer" ){
 
 					this.sounds[name].source = this.context.createBufferSource();
 					this.sounds[name].source.buffer = this.sounds[name].buffer;
 					this.sounds[name].source.volume = this.sounds[name].volume;
 					this.sounds[name].source.loop = this.sounds[name].loop;
 
+					this.sounds[name].source.connect(this.analyser);
+
+					this.sounds[name].source.onended = function(){
+
+						console.log("ended");
+
+					};
+
+					this.sounds[name].source.start(0);
+
+				}
+				else if( this.sounds[name].type == "tag" ){
+
+					this.sounds[name].buffer.play();
+
 				};
-
-				this.sounds[name].source.connect(this.analyser);
-
-				this.sounds[name].source.onended = function(){
-
-					console.log("ended");
-
-				};
-
-				this.sounds[name].source.start(0);
 
 			};
 
