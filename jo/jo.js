@@ -4936,7 +4936,7 @@
 			this.autoplay = options.autoplay;
 
 			this.context = new AudioContext();
-			this.buffers = new Object();
+			this.sounds = new Object();
 
 			this.analyser = this.context.createAnalyser();
 			this.analyser.smoothingTimeConstant = options.smoothingTimeConstant;
@@ -4966,54 +4966,65 @@
 		},
 		add: function( name, url, volume, loop, onReady ){
 
-			if( isEmpty(volume) ){
+			volume = (volume || 1);
+			loop = (loop || false);
 
-				volume = 1;
+			if( isString(url) ){
+
+				Jo.ajax({
+					url: url,
+					type: "text/plain",
+					responseType: "arraybuffer",
+					onComplete: function( xhr ){
+
+						this.context.decodeAudioData(xhr.response, function( buffer ){
+
+							this.sounds[name] = {
+								type: "buffer",
+								source: this.context.createBufferSource(),
+								buffer: buffer,
+								volume: volume,
+								loop: loop
+							};
+
+							this.sounds[name].source.connect(this.analyser);
+
+							if( isTrue(this.autoplay) ){
+
+								this.play(name);
+
+							};
+
+							if( isFunction(onReady) ){
+
+								onReady.call(this, name);
+
+							};
+
+						}.bind(this));
+
+					}.bind(this),
+					onError: function(){
+
+						this.add(name, url, volume);
+
+					}.bind(this)
+				});
+
+			}
+			else if( isTag(url) ){
+
+				this.sounds[name] = {
+					type: "tag",
+					source: this.context.createMediaElementSource(url),
+					volume: volume,
+					loop: loop
+				};
+
+				this.sounds[name].source.connect(this.analyser);
 
 			};
 
-			if( isEmpty(loop) ){
-
-				loop = false;
-
-			};
-
-			Jo.ajax({
-				url: url,
-				type: "text/plain",
-				responseType: "arraybuffer",
-				onComplete: function( xhr ){
-
-					this.context.decodeAudioData(xhr.response, function( buffer ){
-
-						this.buffers[name] = {
-							source: null,
-							buffer: buffer,
-							volume: volume,
-							loop: loop
-						};
-
-						if( isTrue(this.autoplay) ){
-
-							this.play(name);
-
-						};
-
-						if( isFunction(onReady) ){
-
-							onReady.call(this, name);
-
-						};
-
-					}.bind(this));
-
-				}.bind(this),
-				onError: function(){
-
-					this.add(name, url, volume);
-
-				}.bind(this)
-			});
 
 			return this;
 
@@ -5025,19 +5036,28 @@
 		},
 		play: function( name ){
 
-			this.buffers[name].source = this.context.createBufferSource();
-			this.buffers[name].source.buffer = this.buffers[name].buffer;
-			this.buffers[name].source.volume = this.buffers[name].volume;
-			this.buffers[name].source.loop = this.buffers[name].loop;
-			this.buffers[name].source.connect(this.analyser);
+			if( !isEmpty(this.sounds[name]) ){
 
-			this.buffers[name].source.onended = function(){
+				if( this.sounds[name] == "buffer" ){
 
-				console.log("ended");
+					this.sounds[name].source = this.context.createBufferSource();
+					this.sounds[name].source.buffer = this.sounds[name].buffer;
+					this.sounds[name].source.volume = this.sounds[name].volume;
+					this.sounds[name].source.loop = this.sounds[name].loop;
+
+				};
+
+				this.sounds[name].source.connect(this.analyser);
+
+				this.sounds[name].source.onended = function(){
+
+					console.log("ended");
+
+				};
+
+				this.sounds[name].source.start(0);
 
 			};
-
-			this.buffers[name].source.start(0);
 
 			return this;
 
