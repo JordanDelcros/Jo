@@ -992,7 +992,7 @@
 			return this;
 
 		},
-		trigger: function( actions ){
+		trigger: function( actions, useCapture, cancelable ){
 
 			actions = actions.split(/\s+/);
 
@@ -1015,7 +1015,7 @@
 					};
 
 					var event = new Event("Event");
-					event.initEvent(actions[action]);
+					event.initEvent(actions[action], useCapture, cancelable);
 
 					this.dispatchEvent(event);
 
@@ -5007,9 +5007,11 @@
 						}.bind(this));
 
 					}.bind(this),
-					onError: function(){
+					onError: function( error ){
 
-						this.add(name, url, volume);
+						console.log(error);
+
+						// this.add(name, url, volume);
 
 					}.bind(this)
 				});
@@ -5053,7 +5055,7 @@
 
 					this.sounds[name].source.onended = function(){
 
-						console.log("ended");
+						console.log("jo audio ended");
 
 					};
 
