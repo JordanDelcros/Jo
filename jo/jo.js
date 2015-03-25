@@ -855,25 +855,24 @@
 			return returned;
 
 		},
-		isnt: function(){
+		isnt: function( selector ){
 
 			
 
 		},
-		on: function( selector, actions, fn, useCapture ){
+		on: function( actions, selector, fn, useCapture ){
 
-			if( isFunction(actions) ){
+			if( isFunction(selector) ){
 
 				useCapture = fn;
-				fn = actions;
-				actions = selector;
+				fn = selector;
 				selector = undefined;
 
 			};
 
 			actions = actions.split(/\s+/);
 
-			if( isEmpty(useCapture) ){
+			if( !isBoolean(useCapture) ){
 
 				useCapture = false;
 
@@ -928,7 +927,7 @@
 
 							Jo(selector).each(function(){
 
-								if( this === event.target || Jo(event.target).parents(selector).found.length > 0 ){
+								if( this === event.target || Jo(event.target).parents(this).found.length > 0 ){
 
 									fn.call(this, event);
 
