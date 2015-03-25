@@ -4928,6 +4928,7 @@
 			options = Jo.merge({
 				autoplay: false,
 				smoothingTimeConstant: 0.3,
+				fftSize: 512,
 				sounds: new Object()
 			}, options);
 
@@ -4936,13 +4937,18 @@
 			this.context = new AudioContext();
 			this.sounds = new Object();
 
+			this.scriptProcessor = this.context.createScriptProcessor(1024, 1, 1);
+			this.scriptProcessor.connect(this.context.destination);
+
 			this.analyser = this.context.createAnalyser();
 			this.analyser.smoothingTimeConstant = options.smoothingTimeConstant;
+			this.analyser.fftSize = options.fftSize;
+			this.analyser.connect(this.scriptProcessor);
 			this.analyser.connect(this.context.destination);
 
 			for( var name in options.sounds ){
 
-				this.add(name, options.sounds[name].url, options.sounds[name].volume, options.sounds[name].loop, options.onReady);
+				this.add(name, options.sounds[name].url, options);
 
 			};
 
@@ -4966,10 +4972,12 @@
 			return this;
 
 		},
-		add: function( name, url, volume, loop, onReady ){
+		add: function( name, url, options ){
 
-			volume = (volume || 1);
-			loop = (loop || false);
+			options = Jo.merge({
+				volume: 1,
+				loop: false
+			}, options);
 
 			if( isString(url) ){
 
@@ -4985,11 +4993,13 @@
 								type: "buffer",
 								source: this.context.createBufferSource(),
 								buffer: buffer,
-								volume: volume,
-								loop: loop
+								volume: options.volume,
+								loop: options.loop
 							};
 
 							this.sounds[name].source.connect(this.analyser);
+
+							console.log(this);
 
 							if( isTrue(this.autoplay) ){
 
@@ -4997,9 +5007,9 @@
 
 							};
 
-							if( isFunction(onReady) ){
+							if( isFunction(options.onReady) ){
 
-								onReady.call(this, name);
+								options.onReady.call(this, name);
 
 							};
 
@@ -5022,14 +5032,33 @@
 					type: "tag",
 					source: this.context.createMediaElementSource(url),
 					buffer: url,
-					volume: volume,
-					loop: loop
+					volume: options.volume,
+					loop: options.loop
 				};
 
 				this.sounds[name].source.connect(this.analyser);
 
-			};
+				if( isFunction(options.onReady) ){
 
+					url.addEventListener("canplay", function( event ){
+
+						options.onReady.call(this, event);
+
+					}, false);
+
+				};
+
+				if( isFunction(options.onPlaying) ){
+
+					url.addEventListener("timeupdate", function( event ){
+
+						options.onPlaying.call(this, event);
+
+					}.bind(this), false);
+
+				};
+
+			};
 
 			return this;
 
@@ -5043,7 +5072,12 @@
 
 			if( !isEmpty(this.sounds[name]) ){
 
-				if( this.sounds[name].type == "buffer" ){
+				if( isTag(this.sounds[name].buffer) ){
+
+					this.sounds[name].buffer.play();
+
+				}
+				else {
 
 					this.sounds[name].source = this.context.createBufferSource();
 					this.sounds[name].source.buffer = this.sounds[name].buffer;
@@ -5059,11 +5093,6 @@
 					};
 
 					this.sounds[name].source.start(0);
-
-				}
-				else if( this.sounds[name].type == "tag" ){
-
-					this.sounds[name].buffer.play();
 
 				};
 
