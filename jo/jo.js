@@ -1299,8 +1299,10 @@
 
 					var computedStyles = isTag(this) ? Jo.clone(window.getComputedStyle(this, null)) : new Object();
 
-					computedStyles["scrollTop"] = Jo(this).scroll()[0].top + "px";
-					computedStyles["scrollLeft"] = Jo(this).scroll()[0].left + "px";
+					var scroll = Jo(this).scroll()[0];
+
+					computedStyles["scrollTop"] = scroll.top + "px";
+					computedStyles["scrollLeft"] = scroll.left + "px";
 
 					returned.push(computedStyles);
 
@@ -2582,8 +2584,8 @@
 
 						this.$animations[options.name].properties[property] = new Object();
 
-						// var uncamelizedProperty = property);
 						var isTransform = /^\s*(?:\-(?:webkit|moz|o|ms)?\-)?transform/i.test(property);
+						var isScroll = /^scroll(Top|Left)$/i.test(property);
 
 						var values = valuesTo[property].values;
 						var model = valuesTo[property].model;
@@ -2794,6 +2796,8 @@
 
 						this.$animations[options.name].properties[property].model = model;
 						this.$animations[options.name].properties[property].values = valuesTo[property].values;
+						this.$animations[options.name].properties[property].isTransform = isTransform;
+						this.$animations[options.name].properties[property].isScroll = isScroll;
 
 					};
 
@@ -3079,6 +3083,7 @@
 			this.fps = options.fps;
 			this.interval = 1000 / this.fps;
 			this.now = 0;
+			this.wasted = 0;
 			this.then = 0;
 			this.deltaTime = 0;
 			this.late = 0;
@@ -3088,6 +3093,23 @@
 			this.tasks = new Array();
 
 			this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
+
+			document.addEventListener("visibilitychange", function( event ){
+
+				if( document.visibilityState == "visible" ){
+
+					this.wasted = window.performance.now() - this.now;
+
+					this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
+
+				}
+				else {
+
+					window.cancelAnimationFrame(this.animationFrame);
+
+				};
+
+			}.bind(this), false);
 
 			return this;
 
@@ -3102,7 +3124,7 @@
 
 			this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
 
-			this.now = window.performance.now();
+			this.now = window.performance.now() - this.wasted;
 
 			this.deltaTime = this.now - this.then;
 
@@ -3342,7 +3364,6 @@
 										var currentProperty = element.$animations[animation].properties[property];
 										var model = currentProperty.model;
 										var easing = Jo.easing(task.options.easing, currentAnimation.elapsed, task.options.duration);
-										var isTransform = /^\s*(?:\-(?:webkit|moz|o|ms)?\-)?transform/i.test(property);
 
 										for( var value = 0, length = currentProperty.values.length; value < length; value++ ){
 
@@ -3358,7 +3379,7 @@
 
 										};
 
-										if( isTrue(isTransform) ){
+										if( isTrue(currentProperty.isTransform) ){
 
 											model = currentProperty.origin.add(model);
 
@@ -3366,18 +3387,27 @@
 
 										steps[property] = model;
 
-										if( element.style && element.style[property] != undefined ){
+										if( isTrue(currentProperty.isScroll) ){
 
-											element.$this.css(property, model, false);
+											Jo(element).scroll(0, parseInt(model));
 
 										}
 										else {
 
-											Jo(element).scroll(0, parseInt(model));
-
-											// console.log(element, model);
+											element.$this.css(property, model, false);
 
 										};
+
+										// if( element.style && element.style[property] != undefined ){
+
+										// 	element.$this.css(property, model, false);
+
+										// }
+										// else {
+
+										// 	Jo(element).scroll(0, parseInt(model));
+
+										// };
 
 									};
 
