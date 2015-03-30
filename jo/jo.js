@@ -2392,6 +2392,7 @@
 			options = Jo.merge({
 				name: "animation_" + Math.round(Math.random() * window.performance.now()),
 				duration: 1000,
+				speed: 1,
 				easing: "linear",
 				additional: false
 			}, options);
@@ -6423,7 +6424,7 @@
 		special: function( fn ){
 
 			return {
-				action: "correctEventType",
+				action: "correctedEventType",
 				fn: fn
 			};
 
