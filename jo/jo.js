@@ -2261,6 +2261,7 @@
 
 			options = Jo.merge({
 				duration: 1000,
+				speed: 1,
 				easing: "linear"
 			}, options);
 
@@ -2283,6 +2284,7 @@
 				}, {
 					name: "Jo_fadeIn",
 					duration: options.duration,
+					speed: options.speed,
 					easing: options.easing,
 					onStep: function( step ){
 
@@ -2311,6 +2313,7 @@
 
 			options = Jo.merge({
 				duration: 1000,
+				speed: 1,
 				easing: "linear"
 			}, options);
 
@@ -2320,6 +2323,7 @@
 				}, {
 					name: "Jo_fadeOut",
 					duration: options.duration,
+					speed: options.peed,
 					easing: options.easing,
 					onStep: function( step ){
 
@@ -2565,6 +2569,7 @@
 					$this: Jo(this),
 					properties: new Object(),
 					duration: options.duration,
+					speed: options.speed,
 					paused: false,
 					delay: 0
 				};
@@ -2795,7 +2800,6 @@
 				};
 
 			});
-
 
 			Animations.add(task);
 
@@ -3131,6 +3135,26 @@
 			return this;
 
 		},
+		remove: function( task ){
+
+			if( isNumber(task) ){
+
+				this.tasks.splice(task, 1);
+
+			}
+			else {
+
+				this.tasks.filter(function( entry ){
+
+					return entry !== task;
+
+				});
+
+			};
+
+			return this;
+
+		},
 		play: function(){
 
 			this.active = true;
@@ -3213,26 +3237,6 @@
 				};
 
 			});
-
-		},
-		remove: function( task ){
-
-			if( isNumber(task) ){
-
-				this.tasks.splice(task, 1);
-
-			}
-			else {
-
-				this.tasks.filter(function( entry ){
-
-					return entry !== task;
-
-				});
-
-			};
-
-			return this;
 
 		},
 		getNow: function(){
@@ -3323,7 +3327,7 @@
 
 								};
 
-								currentAnimation.elapsed += deltaTime;
+								currentAnimation.elapsed += deltaTime * currentAnimation.speed;
 
 								if( currentAnimation.elapsed >= currentAnimation.duration ){
 
