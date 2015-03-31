@@ -2325,7 +2325,7 @@
 				}, {
 					name: "Jo_fadeOut",
 					duration: options.duration,
-					speed: options.peed,
+					speed: options.speed,
 					easing: options.easing,
 					onStep: function( step ){
 
@@ -3180,6 +3180,7 @@
 		play: function(){
 
 			this.active = true;
+			this.wasted = window.performance.now() - this.now;
 			window.requestAnimationFrame(this.loop.bind(this));
 
 			return this;
