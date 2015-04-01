@@ -1346,7 +1346,11 @@
 
 					returned.push({
 						left: (this.pageXOffset || this.scrollX || this.scrollLeft || 0),
-						top: (this.pageYOffset || this.scrollY || this.scrollTop || 0)
+						top: (this.pageYOffset || this.scrollY || this.scrollTop || 0),
+						max: {
+							left: Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight),
+							top: Math.max(document.body.scrollWidth, document.body.offsetWidth, document.documentElement.clientWidth, document.documentElement.scrollWidth, document.documentElement.offsetWidth)
+						}
 					});
 
 				});
@@ -3088,6 +3092,20 @@
 
 			this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
 
+			window.addEventListener("focus", function(){
+
+				this.wasted = window.performance.now() - this.now;
+
+				this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
+
+			}.bind(this), false);
+
+			window.addEventListener("blur", function( event ){
+
+				window.cancelAnimationFrame(this.animationFrame);
+
+			}.bind(this), false);
+
 			document.addEventListener("visibilitychange", function( event ){
 
 				if( document.visibilityState == "visible" ){
@@ -3254,13 +3272,6 @@
 				};
 
 			});
-
-		},
-		getNow: function(){
-
-			// window.requestAnimationFrame(this.loop.bind(this));
-
-			return this.now;
 
 		}
 	};
@@ -5011,8 +5022,6 @@
 				volume: 1,
 				loop: false
 			}, options);
-
-			console.log( name, options.volume)
 
 			if( isString(url) ){
 
