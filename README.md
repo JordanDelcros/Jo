@@ -11,7 +11,7 @@ Now you can use `Jo` or `$` like that `$("section")` to get the nodes from the D
 Then you can use methods like this one `$("section").css("background-color", "#456DA0");`.
 
 ## Documentation
-like the script itself, the [documentation](https://github.com/JordanDelcros/Jo) is under build progress.
+like the script itself, the [documentation](https://jordandelcros.github.io/Jo/) is under build progress.
 
 ## To-do/see
 - in node() method, dont remove undesired nodes, just dont get them in found array
