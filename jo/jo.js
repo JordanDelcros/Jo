@@ -2969,7 +2969,7 @@
 
 	Jo.fn.init.prototype = Jo.fn;
 
-	Jo.merge = function( returned ){
+	Jo.clone = Jo.merge = function( returned ){
 
 		if( !isEmpty(returned) && isEmpty(arguments[1]) ){
 
@@ -3008,12 +3008,6 @@
 		};
 
 		return returned;
-
-	};
-
-	Jo.clone = function( returned ){
-
-		return Jo.merge(returned);
 
 	};
 
@@ -4984,7 +4978,10 @@
 
 			for( var name in options.sounds ){
 
-				this.add(name, options.sounds[name].url, options);
+				this.add(name, options.sounds[name].url, {
+					volume: options.sounds[name].volume,
+					loop: options.sounds[name].loop
+				});
 
 			};
 
@@ -5015,6 +5012,8 @@
 				loop: false
 			}, options);
 
+			console.log( name, options.volume)
+
 			if( isString(url) ){
 
 				Jo.ajax({
@@ -5030,12 +5029,14 @@
 								source: this.context.createBufferSource(),
 								buffer: buffer,
 								volume: options.volume,
+								gain: this.context.createGain(),
 								loop: options.loop
 							};
 
-							this.sounds[name].source.connect(this.analyser);
+							this.sounds[name].gain.gain.value = this.sounds[name].volume;
 
-							console.log(this);
+							this.sounds[name].gain.connect(this.analyser);
+							this.sounds[name].source.connect(this.sounds[name].gain);
 
 							if( isTrue(this.autoplay) ){
 
@@ -5069,10 +5070,14 @@
 					source: this.context.createMediaElementSource(url),
 					buffer: url,
 					volume: options.volume,
+					gain: this.context.createGain(),
 					loop: options.loop
 				};
 
-				this.sounds[name].source.connect(this.analyser);
+				this.sounds[name].gain.gain.value = this.sounds[name].volume;
+
+				this.sounds[name].gain.connect(this.analyser);
+				this.sounds[name].source.connect(this.sounds[name].gain);
 
 				if( isFunction(options.onReady) ){
 
@@ -5117,10 +5122,11 @@
 
 					this.sounds[name].source = this.context.createBufferSource();
 					this.sounds[name].source.buffer = this.sounds[name].buffer;
-					this.sounds[name].source.volume = this.sounds[name].volume;
 					this.sounds[name].source.loop = this.sounds[name].loop;
 
-					this.sounds[name].source.connect(this.analyser);
+					this.sounds[name].gain.gain.value = this.sounds[name].volume;
+
+					this.sounds[name].source.connect(this.sounds[name].gain);
 
 					this.sounds[name].source.onended = function(){
 
@@ -5809,6 +5815,12 @@
 	};
 
 	Jo.easing.fn.init.prototype = Jo.easing.fn;
+
+	Jo.random = function( start, end, forceInt ){
+
+		return isTrue(forceInt) ? Math.round(Math.random() * end) + start : (Math.random() * end) + start;
+
+	};
 
 	function isEmpty( source, emptyString ){
 
