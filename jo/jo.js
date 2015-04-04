@@ -2404,7 +2404,8 @@
 				duration: 1000,
 				speed: 1,
 				easing: "linear",
-				additional: false
+				additional: false,
+				prefixFree: true
 			}, options);
 
 			var valuesTo = new Object();
@@ -2532,15 +2533,19 @@
 
 						});
 
-					var preparedProperty = prepareCSSProperty(property);
+					if( isTrue(options.prefixFree) ){
 
-					if( preparedProperty !== property ){
+						var preparedProperty = camelize(prepareCSSProperty(property));
 
-						styles[preparedProperty] = styles[property];
-						delete styles[property];
+						if( preparedProperty !== property ){
 
-						valuesTo[preparedProperty] = valuesTo[property];
-						delete valuesTo[property];
+							styles[preparedProperty] = styles[property];
+							delete styles[property];
+
+							valuesTo[preparedProperty] = valuesTo[property];
+							delete valuesTo[property];
+
+						};
 
 					};
 
@@ -3403,17 +3408,6 @@
 											element.$this.css(property, model, false);
 
 										};
-
-										// if( element.style && element.style[property] != undefined ){
-
-										// 	element.$this.css(property, model, false);
-
-										// }
-										// else {
-
-										// 	Jo(element).scroll(0, parseInt(model));
-
-										// };
 
 									};
 
@@ -6088,7 +6082,7 @@
 
 		var styles = window.getComputedStyle(document.body, null);
 
-		if( isEmpty(styles.getPropertyValue(property)) && !isEmpty(styles.getPropertyValue(prefix.css + property)) ){
+		if( /*isEmpty(styles.getPropertyValue(property)) &&*/ !isEmpty(styles.getPropertyValue(prefix.css + property)) ){
 
 			property = prefix.css + property;
 
