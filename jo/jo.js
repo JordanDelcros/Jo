@@ -3097,19 +3097,19 @@
 
 			this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
 
-			window.addEventListener("focus", function(){
+			// window.addEventListener("focus", function(){
 
-				this.wasted = window.performance.now() - this.now;
+			// 	this.wasted = window.performance.now() - this.now;
 
-				this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
+			// 	this.animationFrame = window.requestAnimationFrame(this.loop.bind(this));
 
-			}.bind(this), false);
+			// }.bind(this), false);
 
-			window.addEventListener("blur", function( event ){
+			// window.addEventListener("blur", function( event ){
 
-				window.cancelAnimationFrame(this.animationFrame);
+			// 	window.cancelAnimationFrame(this.animationFrame);
 
-			}.bind(this), false);
+			// }.bind(this), false);
 
 			document.addEventListener("visibilitychange", function( event ){
 
