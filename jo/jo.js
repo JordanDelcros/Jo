@@ -786,8 +786,6 @@
 
 			var returned = isEmpty(selector) ? false : true;
 
-			console.log("IS", selector);
-
 			if( isJo(selector) ){
 
 				this.each(function(){
