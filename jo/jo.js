@@ -786,6 +786,8 @@
 
 			var returned = isEmpty(selector) ? false : true;
 
+			console.log("IS", selector);
+
 			if( isJo(selector) ){
 
 				this.each(function(){
@@ -817,6 +819,19 @@
 				this.each(function( index ){
 
 					if( this !== selector[index] ){
+
+						returned = false;
+
+					};
+
+				});
+
+			}
+			else if( isWindow(selector) ){
+
+				this.each(function(){
+
+					if( this !== selector ){
 
 						returned = false;
 
@@ -2284,6 +2299,7 @@
 			});
 
 			this
+				.stop("Jo_fadeIn Jo_fadeOut")
 				.show()
 				.animate({
 					opacity: 1
@@ -2324,6 +2340,7 @@
 			}, options);
 
 			this
+				.stop("Jo_fadeOut Jo_fadeIn")
 				.animate({
 					opacity: 0
 				}, {
@@ -3224,6 +3241,8 @@
 							elements.each(function(){
 
 								if( isTrue(Jo(this).is(task.elements[elementIndex])) ){
+
+									console.debug("remove",isTrue(Jo(this).is(task.elements[elementIndex])), this, task.elements[elementIndex]);
 
 									task.elements.splice(elementIndex, 1);
 
@@ -5133,7 +5152,7 @@
 
 					this.sounds[name].source.onended = function(){
 
-						console.log("jo audio ended");
+						// END ACTION
 
 					};
 
@@ -5384,25 +5403,25 @@
 
 			channel.addEventListener("open", function(){
 
-				console.log("data channel is open");
+				console.info("data channel is open");
 
 			}, false);
 
 			channel.addEventListener("close", function(){
 
-				console.log("data channel is close");
+				console.info("data channel is close");
 
 			}, false);
 
 			channel.addEventListener("error", function( error ){
 
-				console.log("data channel error", error);
+				console.info("data channel error", error);
 
 			}, false);
 
 			channel.addEventListener("message", function( event ){
 
-				console.log("data channel message", event.data);
+				console.info("data channel message", event.data);
 
 			}, false);
 
