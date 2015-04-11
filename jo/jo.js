@@ -3240,8 +3240,6 @@
 
 								if( isTrue(Jo(this).is(task.elements[elementIndex])) ){
 
-									console.debug("remove",isTrue(Jo(this).is(task.elements[elementIndex])), this, task.elements[elementIndex]);
-
 									task.elements.splice(elementIndex, 1);
 
 								};
@@ -6097,9 +6095,11 @@
 
 	function prepareCSSProperty( property ){
 
+		property = new String(property);
+
 		var styles = window.getComputedStyle(document.body, null);
 
-		if( /*isEmpty(styles.getPropertyValue(property)) &&*/ !isEmpty(styles.getPropertyValue(prefix.css + property)) ){
+		if( (property === new String("filter") || property === new String("transform")) || (isEmpty(styles.getPropertyValue(property)) && !isEmpty(styles.getPropertyValue(prefix.css + property))) ){
 
 			property = prefix.css + property;
 
