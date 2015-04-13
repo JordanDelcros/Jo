@@ -2784,7 +2784,7 @@
 
 										if( isTrue(options.additional) ){
 
-											values[valueIndex].difference = values[valueIndex].to
+											values[valueIndex].difference = values[valueIndex].to;
 
 										}
 										else {
@@ -3311,6 +3311,9 @@
 		fps: 30,
 		onUpdate: function( now, deltaTime ){
 
+			var elements = new Array();
+			var transforms = new Array();
+
 			this.each(function( task, index ){
 
 				var completed = false;
@@ -3318,8 +3321,16 @@
 				for( var elementIndex = 0, taskLenght = task.elements.length; elementIndex < taskLenght; elementIndex++ ){
 
 					var element = task.elements[elementIndex];
-
 					var steps = new Object();
+
+					var id = null;
+
+					if( (id = elements.indexOf(element)) === -1 ){
+
+						id = elements.push(element) - 1;
+						transforms[id] = Jo.matrix();
+
+					};
 
 					animationLoop: for( var animation in element.$animations ){
 
@@ -3393,7 +3404,7 @@
 
 										for( var value = 0, length = currentProperty.values.length; value < length; value++ ){
 
-											var newValue = currentProperty.values[value].from + (easing * currentProperty.values[value].difference);
+											var newValue = (isFalse(currentProperty.isTransform) ? currentProperty.values[value].from : 0) + (easing * currentProperty.values[value].difference);;
 
 											if( isTrue(currentProperty.values[value].integer) ){
 
@@ -3406,6 +3417,8 @@
 										};
 
 										if( isTrue(currentProperty.isTransform) ){
+
+											transforms[id] = transforms[id].add(model);
 
 											model = currentProperty.origin.add(model);
 
@@ -3850,7 +3863,7 @@
 				}
 				else {
 
-					var transforms = matrix.match(/((scale|scaleX|scaleY|scaleZ|scale3d|rotate|rotateX|rotateY|rotateZ|rotate3d|translate|translateX|translateY|translateZ|translate3d|matrix|matrix3d)\([^\)]*\))/g);
+					var transforms = (matrix.match(/((scale|scaleX|scaleY|scaleZ|scale3d|rotate|rotateX|rotateY|rotateZ|rotate3d|translate|translateX|translateY|translateZ|translate3d|matrix|matrix3d)\([^\)]*\))/g) || new Array());
 
 					for( var transform = 0, length = transforms.length; transform < length; transform++ ){
 
@@ -4222,6 +4235,14 @@
 		toString: function(){
 
 			return "matrix3d(" + this.get("m11").toFixed(6) + "," + this.get("m12").toFixed(6) + "," + this.get("m13").toFixed(6) + "," + this.get("m14").toFixed(6) + "," + this.get("m21").toFixed(6) + "," + this.get("m22").toFixed(6) + "," + this.get("m23").toFixed(6) + "," + this.get("m24").toFixed(6) + "," + this.get("m31").toFixed(6) + "," + this.get("m32").toFixed(6) + "," + this.get("m33").toFixed(6) + "," + this.get("m34").toFixed(6) + "," + this.get("m41").toFixed(6) + "," + this.get("m42").toFixed(6) + "," + this.get("m43").toFixed(6) + "," + this.get("m44").toFixed(6) + ")";
+
+		},
+		toHuman: function(){
+
+			return {
+				scale: this.getScale(),
+				translate: this.getTr
+			};
 
 		},
 		toHumanString: function(){

@@ -10,45 +10,44 @@ Jo(function( $ ){
 			display: "block",
 			width: "100px",
 			height: "100px",
-			left: "50%",
-			top: "50%",
 			background: "red"
 		})
 		.animate({
-			transform: "rotateZ(100deg)",
-			left: "0%"
+			transform: "translateY(100px) rotateZ(45deg)",
 		},{
-			name: "rotating",
+			name: "t1",
 			duration: 3000,
 			easing: "easeInOutQuad",
-			additional: true,
 			onStep: function( step ){
 
 				// console.log("rotate");
 
 			}
 		})
-		.animate({
-			transform: "scale(0.5)",
-			left: "25%"
-		},{
-			name: "scaling",
-			duration: 3000,
-			easing: "easeInOutQuad",
-			additional: false,
-			onStep: function( step ){
+		// .animate({
+		// 	transform: "rotateZ(50deg)",
+		// },{
+		// 	duration: 3000,
+		// 	easing: "easeInOutQuad",
+		// 	onStep: function( step ){
 
-				// console.log("rotate");
+		// 		// console.log("rotate");
 
-			},
-			onComplete: function(){
+		// 	}
+		// });
 
-				// $(this).css("transform", $.matrix().add($.matrix("rotateZ(100deg)")).add($.matrix("scake(0.5)")).toString());
+	setTimeout(function(){
 
-			}
-		});
-
-	console.log($test)
+		$test
+			.animate({
+				transform: "translateY(0px)",
+			},{
+				name: "t2",
+				duration: 3000,
+				easing: "easeInOutQuad",
+			});
+	
+	}, 4000)
 
 });
 
