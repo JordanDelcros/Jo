@@ -3164,7 +3164,7 @@
 
 				this.then = this.now - (this.deltaTime % this.interval);
 
-				this.onUpdate(this.now, this.deltaTime);
+				this.onUpdate(this.now, this.deltaTime, this.wasted);
 
 			};
 
@@ -3309,7 +3309,7 @@
 
 	var Animations = Jo.animation({
 		fps: 30,
-		onUpdate: function( now, deltaTime ){
+		onUpdate: function( now, deltaTime, wasted ){
 
 			var elements = new Array();
 			var transforms = new Array();
@@ -3356,7 +3356,7 @@
 
 									if( !isEmpty(element.$delays.all) ){
 
-										if( now >= element.$delays.all ){
+										if( (now + wasted) >= element.$delays.all ){
 
 											delete element.$delays.all;
 
@@ -3371,7 +3371,7 @@
 
 									if( !isEmpty(element.$delays[animation]) ){
 
-										if( now >= element.$delays[animation] ){
+										if( (now + wasted) >= element.$delays[animation] ){
 
 											delete element.$delays[animation];
 
@@ -4466,6 +4466,7 @@
 			options = Jo.merge({
 				method: "GET",
 				async: true,
+				cors: false,
 				type: "text/xml",
 				responseType: ""
 			}, options);
@@ -4583,6 +4584,8 @@
 			if( options.type !== "jsonp" ){
 
 				this.request = new XMLHttpRequest();
+
+				this.request.withCredentials = options.cors;
 
 				this.request.overrideMimeType(options.type);
 
@@ -5005,6 +5008,11 @@
 
 			this.autoplay = options.autoplay;
 
+			this.onLoad = options.onLoad;
+			this.onReady = options.onReady;
+			this.onProgress = options.onProgress;
+			this.onEnded = options.onEnded;
+
 			this.context = new AudioContext();
 			this.sounds = new Object();
 
@@ -5058,6 +5066,7 @@
 				Jo.ajax({
 					url: url,
 					type: "text/plain",
+					cors: true,
 					responseType: "arraybuffer",
 					onComplete: function( xhr ){
 
@@ -5077,15 +5086,15 @@
 							this.sounds[name].gain.connect(this.analyser);
 							this.sounds[name].source.connect(this.sounds[name].gain);
 
-							if( isTrue(this.autoplay) ){
+							if( isFunction(this.onReady) ){
 
-								this.play(name);
+								options.onReady.call(this, name);
 
 							};
 
-							if( isFunction(options.onReady) ){
+							if( isTrue(this.autoplay) ){
 
-								options.onReady.call(this, name);
+								this.play(name);
 
 							};
 
@@ -5118,25 +5127,53 @@
 				this.sounds[name].gain.connect(this.analyser);
 				this.sounds[name].source.connect(this.sounds[name].gain);
 
-				if( isFunction(options.onReady) ){
+				url.addEventListener("loadstart", function( event ){
 
-					url.addEventListener("canplay", function( event ){
+					if( isFunction(this.onLoad) ){
 
-						options.onReady.call(this, event);
+						this.onLoad.call(this, event);
 
-					}, false);
+					};
 
-				};
+				}.bind(this), false);
 
-				if( isFunction(options.onPlaying) ){
+				url.addEventListener("canplay", function( event ){
 
-					url.addEventListener("timeupdate", function( event ){
+					if( isFunction(this.onReady) ){
 
-						options.onPlaying.call(this, event);
+						this.onReady.call(this, event);
 
-					}.bind(this), false);
+					};
 
-				};
+					if( isTrue(this.autoplay) ){
+
+						this.play(name);
+
+					};
+
+				}.bind(this), false);
+
+				url.addEventListener("timeupdate", function( event ){
+
+					if( isFunction(this.onProgress) ){
+
+						this.onProgress.call(this, event);
+
+					};
+
+				}.bind(this), false);
+
+				url.addEventListener("ended", function( event ){
+
+					console.log("ended");
+
+					if( isFunction(this.onEnded) ){
+
+						this.onEnded.call(this, event);
+
+					};
+
+				}.bind(this), false);
 
 			};
 
