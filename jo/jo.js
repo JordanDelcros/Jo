@@ -3081,6 +3081,27 @@
 
 	};
 
+	if( !window.requestAnimationFrame ){
+
+		window.requestAnimationFrame = (
+			window.requestAnimationFrame ||
+			window.webkitRequestAnimationFrame ||
+			window.mozRequestAnimationFrame ||
+			window.oRequestAnimationFrame ||
+			window.msRequestAnimationFrame || 
+			function( callback, element ){
+
+				window.setTimeout(function(){
+
+					callback.call(this, window.performance.now());
+
+				},1000 / 60);
+
+			}
+		);
+
+	};
+
 	Jo.animation = function( options ){
 
 		return new Jo.animation.fn.init(options);
@@ -3298,14 +3319,18 @@
 
 	Jo.animation.fn.init.prototype = Jo.animation.fn;
 
-	window.performance = (window.performance || {
-		offset: Date.now(),
-		now: function now(){
+	if( !window.performance ){
 
-			return Date.now() - this.offset;
+		window.performance = (window.performance || {
+			offset: Date.now(),
+			now: function(){
 
-		}
-	});
+				return Date.now() - this.offset;
+
+			}
+		});
+
+	};
 
 	var Animations = Jo.animation({
 		fps: 30,
@@ -3858,7 +3883,7 @@
 				
 				if( !isEmpty(window.CSSMatrix) ){
 
-					clone = clone.multiply(new window.CSSMatrix(matrix || ""));
+					clone = clone.multiply(new window.CSSMatrix(matrix || ""));
 
 				}
 				else {
@@ -4064,22 +4089,22 @@
 							else if( values.length === 16 ){
 
 								identity = identity
-									.set("m11", parseFloat(values[0]))
-									.set("m12", parseFloat(values[1]))
-									.set("m13", parseFloat(values[2]))
-									.set("m14", parseFloat(values[3]))
-									.set("m21", parseFloat(values[4]))
-									.set("m22", parseFloat(values[5]))
-									.set("m23", parseFloat(values[6]))
-									.set("m24", parseFloat(values[7]))
-									.set("m31", parseFloat(values[8]))
-									.set("m32", parseFloat(values[9]))
-									.set("m33", parseFloat(values[10]))
-									.set("m34", parseFloat(values[11]))
-									.set("m41", parseFloat(values[12]))
-									.set("m42", parseFloat(values[13]))
-									.set("m43", parseFloat(values[14]))
-									.set("m44", parseFloat(values[15]));
+									.set("m11", parseFloat(values[0]))
+									.set("m12", parseFloat(values[1]))
+									.set("m13", parseFloat(values[2]))
+									.set("m14", parseFloat(values[3]))
+									.set("m21", parseFloat(values[4]))
+									.set("m22", parseFloat(values[5]))
+									.set("m23", parseFloat(values[6]))
+									.set("m24", parseFloat(values[7]))
+									.set("m31", parseFloat(values[8]))
+									.set("m32", parseFloat(values[9]))
+									.set("m33", parseFloat(values[10]))
+									.set("m34", parseFloat(values[11]))
+									.set("m41", parseFloat(values[12]))
+									.set("m42", parseFloat(values[13]))
+									.set("m43", parseFloat(values[14]))
+									.set("m44", parseFloat(values[15]));
 
 							};
 
@@ -4208,9 +4233,9 @@
 
 			return {
 				a: 1, b: 0, c: 0, d: 1, e: 0, f: 0,
-				m11: 1, m12: 0, m13: 0, m14: 0,
-				m21: 0, m22: 1, m23: 0, m24: 0,
-				m31: 0, m32: 0, m33: 1, m34: 0,
+				m11: 1, m12: 0, m13: 0, m14: 0,
+				m21: 0, m22: 1, m23: 0, m24: 0,
+				m31: 0, m32: 0, m33: 1, m34: 0,
 				m41: 0, m42: 0, m43: 0, m44: 1
 			};
 
@@ -6388,7 +6413,7 @@
 				nodes = element.querySelectorAll(selection);
 
 			}
-			else {
+			else {
 
 				nodes = [originElement];
 
