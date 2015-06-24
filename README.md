@@ -11,44 +11,12 @@ Now you can use `Jo` or `$` like that `$("section")` to get the nodes from the D
 Then you can use methods like this one `$("section").css("background-color", "#456DA0");`.
 
 ## Documentation
-like the script itself, the [documentation](https://jordandelcros.github.io/Jo/) is under build progress.
+like the script itself, the [documentation](https://jordandelcros.github.io/Jo/) is under construction.
 
-## To-do/see
-- in node() method, dont remove undesired nodes, just dont get them in found array
-
-- Blob
+## Todo
+- offline application
 - WebSQL database -> window.openDatabase()
 - geolocation
-- offline application
 - localStorage SessionStorage
-
-- complex object model
-  Object.defineProperty(
-    Object.prototype, 
-    'renameProperty',
-    {
-        writable : false, // Cannot alter this property
-        enumerable : false, // Will not show up in a for-in loop.
-        configurable : false, // Cannot be deleted via the delete operator
-        value : function (oldName, newName) {
-            // Check for the old property name to 
-            // avoid a ReferenceError in strict mode.
-            if (this.hasOwnProperty(oldName)) {
-                this[newName] = this[oldName];
-                delete this[oldName];
-            }
-            return this;
-        }
-    }
-  );
-
-- copy/cut/paste $('html').bind('paste', function(e) {
-  e.preventDefault();
-  var item = (e.clipboardData || e.originalEvent.clipboardData).items[0];
-  var type = item.type.split('/').shift();
-  if (type == "image"){
-    var file = item.getAsFile();
-    var blob = URL.createObjectURL(file); // Blob
-    window.open(blob);
-  }
-});
+- complex object model Object.defineProperty
+- copy/cut/paste
