@@ -2361,7 +2361,7 @@
 
 						if( isFunction(options.onComplete) ){
 
-							options.onComplete.call(this, step);
+							options.onComplete.call(this);
 
 						};
 
@@ -2410,6 +2410,155 @@
 				};
 
 			});
+
+			return this;
+
+		},
+		slideUp: function( options ){
+
+			options = Jo.merge({
+				duration: 1000,
+				easing: "linear"
+			}, options);
+
+			this.each(function(){
+
+				var $this = this.$this || Jo(this);
+
+				$this
+					.stop("Jo_slideUp Jo_slideDown")
+					.css("overflow", "hidden")
+					.animate({
+						height: "0px"
+					}, {
+						name: "Jo_slideUp",
+						duration: options.duration,
+						easing: options.easing
+					});
+
+			});
+
+			return this;
+
+		},
+		slideDown: function( options ){
+
+			options = Jo.merge({
+				duration: 1000,
+				easing: "linear"
+			}, options);
+
+			this.each(function(){
+
+				var $this = this.$this || Jo(this);
+
+				var styles = $this.css()[0];
+
+				var display = styles.display;
+				var visibility = styles.visibility;
+				var position = styles.position;
+				var height = styles.height;
+
+				$this.css({
+					display: "block",
+					visibility: "hidden",
+					position: "absolute",
+					height: "auto"
+				});
+
+				var expendedHeight = $this.height();
+
+				$this.css({
+					display: display,
+					visibility: visibility,
+					position: position,
+					height: height
+				});
+
+				$this
+					.stop("Jo_slideDown Jo_slideUp")
+					.css("overflow", "hidden")
+					.animate({
+						height: expendedHeight + "px"
+					}, {
+						name: "Jo_slideDown",
+						duration: options.duration,
+						easing: options.easing
+					});
+
+			});
+
+			return this;
+
+		},
+		slideToggle: function( options ){
+
+			options = Jo.merge({
+				duration: 1000,
+				easing: "linear"
+			}, options);
+
+			this.each(function(){
+
+				var $this = this.$this || Jo(this);
+
+				if( !isEmpty(this.$animations) && (!isEmpty(this.$animations["Jo_slideDown"]) || !isEmpty(this.$animations["Jo_slideUp"])) ){
+
+					if( !isEmpty(this.$animations["Jo_slideDown"]) ){
+
+						$this.stop("Jo_slideDown");
+						$this.slideUp(options);
+
+					}
+					else {
+
+						$this.stop("Jo_slideUp");
+						$this.slideDown(options);
+
+					};
+
+				}
+				else {
+
+					var styles = $this.css()[0];
+
+					var display = styles.display;
+					var visibility = styles.visibility;
+					var position = styles.position;
+					var height = styles.height;
+
+					$this.css({
+						display: "block",
+						visibility: "hidden",
+						position: "absolute",
+						height: "auto"
+					});
+
+					var expendedHeight = $this.height();
+
+					$this.css({
+						display: "block",
+						visibility: visibility,
+						position: position,
+						height: height
+					});
+
+					if( parseInt(height) < expendedHeight ){
+
+						$this.slideDown(options);
+
+					}
+					else {
+
+						$this.slideUp(options);
+
+					};
+
+				};
+
+			});
+
+			return this;
 
 		},
 		animate: function( styles, options ){
