@@ -1093,11 +1093,9 @@
 			
 				for( var i in name ){
 
-					i = i.replace(/^data(?!-)/, "data-");
-
 					this.each(function(){
 
-						this.setAttribute(i, name[i]);
+						this.setAttribute(i.replace(/^(data)(?!-)/, "$1-").toLowerCase(), name[i]);
 
 					});
 

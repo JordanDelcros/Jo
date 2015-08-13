@@ -24,9 +24,13 @@ WSServer.on("request", function( request ){
 	var id = 0;
 
 	for( var user in users ){
+
 		if( users.hasOwnProperty(user) ){
+		
 			id++;
+		
 		};
+
 	};
 
 	users[id] = {
